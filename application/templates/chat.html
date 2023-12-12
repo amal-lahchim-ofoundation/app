@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>Restaurantly Bootstrap Template - Inner Page</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="{{ url_for('static', filename='assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+    <link href="{{ url_for('static', filename='assets/img/favicon.png') }}" rel="icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+    <!-- Vendor CSS Files and Template Main CSS File -->
+    <link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/animate.css/animate.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+
+    <!---- Scripts Jquery-->
+
+   <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
+
+
+  <!-- =======================================================
+  * Template Name: Restaurantly - v3.1.0
+  * Template URL: https://bootstrapmade.com/restaurantly-restaurant-template/
+  * Author: BootstrapMade.com
+  * License: https://bootstrapmade.com/license/
+  ======================================================== -->
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header id="header" class="fixed-top d-flex align-items-center">
+      {% if session['user_logged_in'] %}
+      <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+          <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
+
+          <nav id="navbar" class="navbar order-last order-lg-0">
+              <ul>
+                  <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
+                  <li><a class="nav-link scrollto" href="#about">About</a></li>
+                  <li><a class="nav-link scrollto" href="#why-us">Services</a></li>
+                  <li><a class="nav-link scrollto" href="#educate">Educate</a></li>
+                  <li><a class="nav-link scrollto" href="#activity">Activity</a></li>
+                  <li><a class="nav-link scrollto" href="#testimonials">Reviews</a></li>
+                  <li><a class="nav-link scrollto" href="#team">Team</a></li>
+                  <li><a class="nav-link scrollto" href="#contact">Contact</a></li>
+              </ul>
+              <i class="bi bi-list mobile-nav-toggle"></i>
+          </nav>
+          <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
+          <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatmant</a>        
+      </div>
+      {% else %}
+      <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+        <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
+        <nav id="navbar" class="navbar order-last order-lg-0">
+            <ul>
+              <li><a class="nav-link scrollto active" href="{{ url_for('home') }}">Home</a></li>
+              <li><a class="nav-link scrollto" href="#about">About</a></li>
+              <li><a class="nav-link scrollto" href="#why-us">Services</a></li>
+              <li><a class="nav-link scrollto" href="#educate">Educate</a></li>
+              <li><a class="nav-link scrollto" href="#activity">Activity</a></li>
+              <li><a class="nav-link scrollto" href="#testimonials">Reviews</a></li>
+              <li><a class="nav-link scrollto" href="#team">Team</a></li>
+              <li><a class="nav-link scrollto" href="#contact">Contact</a></li>
+            </ul>
+            <i class="bi bi-list mobile-nav-toggle"></i>
+        </nav>
+        <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Login</a>       
+
+    </div>
+    {% endif %}
+  </header>
+  <section>
+    <div>
+    </div>
+  </section>
+    <main id="main">
+        <section class="breadcrumbs">
+          <div class="container">
+    
+            <div class="d-flex justify-content-between align-items-center">
+              <h2>Inner Page</h2>
+              <ol>
+                <li><a href="result.html">Diagnose</a></li>
+                <li>Inner Page</li>
+              </ol>
+            </div>
+    
+          </div>
+        </section>
+    
+        <section class="inner-page">
+          <div class="container">
+    <h2>AnnaAI Psychologist</h2>
+      <!-- Display countdown timer -->
+  <div id="timer"></div>
+    <div class="chat-box">
+        <ul id='chat-list'>
+        {% for message in conversation_history %}
+            <li class="{{ message['role'].lower() }}"><strong>{{ message['role'] }}:</strong> {{ message['content'] }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    <form id="chat-form" action="/chat" method="post">
+        <label for="session_choice">Choose a session:</label> 
+        <select name="session_choice" id="session_choice">
+            <option value="Session 1">Session 1</option>
+            <option value="Session 2">Session 2</option>
+        </select>
+        <label for="user_input">Your message:</label>
+        <textarea name="user_input" rows="2" cols="175" required></textarea><br>
+        <input type="submit" value="Send">
+    </form>
+
+
+</div>
+</section>
+
+
+<script>
+
+  let startTime;
+
+if (sessionStorage.getItem('timer_start')) {
+    // If there's a start time saved in sessionStorage, use it
+    startTime = parseInt(sessionStorage.getItem('timer_start'));
+} else {
+    // If not, create one and save it in sessionStorage
+    startTime = new Date().getTime();
+    sessionStorage.setItem('timer_start', startTime.toString());
+}
+
+const sessionDuration = 5 * 60 * 1000;  // 5 minutes in milliseconds
+const warningTime = 4 * 60 * 1000;  // 4 minutes in milliseconds
+let hasWarned = false;
+
+function checkTime() {
+    let now = new Date().getTime();
+    let elapsedTime = now - startTime;
+    let remainingTime = sessionDuration - elapsedTime;
+    let minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+    let seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+    document.getElementById("timer").innerText = minutes + "m " + seconds + "s left";
+
+    if (elapsedTime > warningTime && !hasWarned) {
+        // Inform the user that there's less than 1 minute left
+        alert("You have less than 1 minute left in this session.");
+        hasWarned = true;
+    }
+
+    if (elapsedTime > sessionDuration) {
+        alert("The session has ended.");
+        clearInterval(interval);  // stop the countdown when session ends
+        document.getElementById("timer").innerHTML = "EXPIRED";
+
+        // Clear the chatbox
+       const chatBox = document.querySelector('.chat-box ul');
+      
+    }
+}
+
+let interval = setInterval(checkTime, 1000);  // check every second
+
+function checkSessionStatus() {
+  fetch('/session_status')
+  .then(response => response.json())
+  .then(data => {
+      if (data.expired) {
+          clearInterval(interval);  // stop the current countdown
+          document.getElementById("timer").innerHTML = "EXPIRED";
+          
+          // Clear chatbox and show summary
+          const chatBox = document.querySelector('.chat-box ul');
+          chatBox.innerHTML = "";
+          let summaryElem = document.createElement("li");
+          summaryElem.innerHTML = `<strong>Session Summary:</strong> ${data.summary}`;
+          chatBox.appendChild(summaryElem);
+          
+          // Prompt the user
+          let isAgreed = confirm("Do you agree with the summary of the session?");
+          if (isAgreed) {
+              // TODO: Handle user's agreement (e.g., send it to server or take other actions) save the summery into database
+          } else {
+              // TODO: Allow the user to change the summery 
+              }
+      }
+  });
+}
+
+
+// Check the session status every 5 seconds
+setInterval(checkSessionStatus, 5000);
+
+document.getElementById('chat-form').addEventListener('submit', function(event) {
+  event.preventDefault();  // Prevent the default form submission
+
+  let formData = new FormData(this);  // Get the form data
+
+  fetch('/chat', {
+      method: 'POST',
+      body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+      let chatList = document.getElementById('chat-list');
+
+      // Append the user's message to the chatbox
+      let userMessageElem = document.createElement('li');
+      userMessageElem.className = 'user';
+      userMessageElem.innerHTML = `<strong>User:</strong> ${formData.get('user_input')}`;
+      chatList.appendChild(userMessageElem);
+
+      // Append the assistant's response to the chatbox
+      let assistantMessageElem = document.createElement('li');
+      assistantMessageElem.className = 'assistant';
+      assistantMessageElem.innerHTML = `<strong>Assistant:</strong> ${data.assistant_response}`;
+      chatList.appendChild(assistantMessageElem);
+  });
+});
+
+
+
+</script>
+
+  
+
+
+</main><!-- End #main -->
+
+<!-- Footer -->
+<footer id="footer">
+  <div class="footer-top">
+      <div class="container">
+          <div class="row">
+             
+      <div class="col-lg-3 col-md-6">
+        <div class="footer-info">
+          <h3>Restaurantly</h3>
+          <p>
+            A108 Adam Street <br>
+            NY 535022, USA<br><br>
+            <strong>Phone:</strong> +1 5589 55488 55<br>
+            <strong>Email:</strong> info@example.com<br>
+          </p>
+          <div class="social-links mt-3">
+            <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
+            <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>
+            <a href="#" class="instagram"><i class="bx bxl-instagram"></i></a>
+            <a href="#" class="google-plus"><i class="bx bxl-skype"></i></a>
+            <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-2 col-md-6 footer-links">
+        <h4>Useful Links</h4>
+        <ul>
+          <li><i class="bx bx-chevron-right"></i> <a href="#">Home</a></li>
+          <li><i class="bx bx-chevron-right"></i> <a href="#">About us</a></li>
+          <li><i class="bx bx-chevron-right"></i> <a href="#">Services</a></li>
+          <li><i class="bx bx-chevron-right"></i> <a href="#">Terms of service</a></li>
+          <li><i class="bx bx-chevron-right"></i> <a href="#">Privacy policy</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-3 col-md-6 footer-links">
+        <h4>Our Services</h4>
+        <ul>
+          <li><i class="bx bx-chevron-right"></i> <a href="#">Web Design</a></li>
+          <li><i class="bx bx-chevron-right"></i> <a href="#">Web Development</a></li>
+          <li><i class="bx bx-chevron-right"></i> <a href="#">Product Management</a></li>
+          <li><i class="bx bx-chevron-right"></i> <a href="#">Marketing</a></li>
+          <li><i class="bx bx-chevron-right"></i> <a href="#">Graphic Design</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-4 col-md-6 footer-newsletter">
+        <h4>Our Newsletter</h4>
+        <p>Tamen quem nulla quae legam multos aute sint culpa legam noster magna</p>
+        <form action="" method="post">
+          <input type="email" name="email"><input type="submit" value="Subscribe">
+        </form>
+
+      </div>
+
+          </div>
+      </div>
+  </div>
+
+  <div class="container">
+    <div class="copyright">
+      &copy; Copyright <strong><span>Restaurantly</span></strong>. All Rights Reserved
+    </div>
+    <div class="credits">
+      <!-- All the links in the footer should remain intact. -->
+      <!-- You can delete the links only if you purchased the pro version. -->
+      <!-- Licensing information: https://bootstrapmade.com/license/ -->
+      <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/restaurantly-restaurant-template/ -->
+      Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Scripts -->
+<script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+</body>
+
+</html>

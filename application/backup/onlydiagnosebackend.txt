@@ -1,0 +1,124 @@
+from flask import Flask, render_template, request, redirect, url_for
+import openai
+from langchain.llms import OpenAI
+from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
+from langchain.memory import ConversationBufferMemory
+from langchain.utilities import WikipediaAPIWrapper
+from PyPDF2 import PdfReader
+import os
+from apiKeys import apiKey
+
+app = Flask(__name__)
+
+os.environ['OPENAI_API_KEY'] = apiKey
+
+
+known_disorders = ['social anxiety']
+
+def extract_disorder(text, disorders):
+    return [disorder for disorder in disorders if disorder in text.lower()]
+
+def check_similarity(disorder_list1, disorder_list2):
+    return len(set(disorder_list1).intersection(disorder_list2)) / len(set(disorder_list1).union(disorder_list2))
+
+
+file_path = 'C:\\Users\\ID\\Desktop\\praksa\\Kodoj\\LangChain_PDF\\APA_DSM5_Severity-Measure-For-Social-Anxiety-Disorder-Adult_update.pdf'
+pdf_text = ""
+
+@app.route("/", methods=['GET', 'POST'])
+def index():
+    questions = [
+        "Do you feel extremely anxious or uncomfortable when meeting new people?",
+        "Do you often worry about being judged or criticized by others in social situations?",
+        "Do you frequently avoid social events or activities due to fear of embarrassment or humiliation?",
+        "Do you experience intense anxiety when speaking or presenting in front of a group?",
+        "Do you find it difficult to initiate or maintain conversations with others?"
+    ]
+    
+    result = None
+
+    if request.method == 'POST':
+        responses = [request.form.get(f'q{i+1}') for i in range(5)]
+        prompt = request.form.get('prompt')
+
+        # Call function to process data and get results
+        result = process_data(responses, prompt)
+    
+    return render_template('result.html', questions=questions, result=result)
+
+
+def process_data(responses, prompt):
+    
+    # Initialize the various components
+    llm = OpenAI(temperature=0.9)
+    
+    problem_template = PromptTemplate(
+        input_variables=['q1', 'q2', 'q3', 'q4', 'q5', 'topic'],
+        template='Act as a therapist and help the user with their mental health problem. Try to come to a conclusion about which mental illness the user may have based on their responses. Set a specific diagnosis based on answers \nQ1: {q1}\nQ2: {q2}\nQ3: {q3}\nQ4: {q4}\nQ5: {q5}\n and this user Description: {topic}'
+    )
+    
+    script_template = PromptTemplate(
+        input_variables=['problem', 'wikipedia_research'],
+        template='Provide solutions and treatments based on the diagnosis :\n {problem}  also use the information of \nWikipedia Research: {wikipedia_research} to reach a better solution and treatments '
+    )
+    
+    diagnosis_template = PromptTemplate(
+        input_variables=['pdf_text'],
+        template='I have a long text document and need a brief summary. Extract the main diagnosis mentiond in this medical text.The text is: {pdf_text} . '
+    )
+    
+    problem_memory = ConversationBufferMemory(input_key='topic', memory_key='chatHistory')
+    script_memory = ConversationBufferMemory(input_key='problem', memory_key='chatHistory')
+    
+    problem_chain = LLMChain(
+        llm=llm, prompt=problem_template, verbose=True, output_key='problem', memory=problem_memory
+    )
+    
+    script_chain = LLMChain(
+        llm=llm, prompt=script_template, verbose=True, output_key='script', memory=script_memory
+    )
+    
+    diagnosis_chain = LLMChain(
+        llm=llm, prompt=diagnosis_template, verbose=True, output_key='diagnosis'
+    )
+    
+    wiki = WikipediaAPIWrapper()
+    
+    pdf_text = ""
+    with open(file_path, 'rb') as file:
+        pdf_reader = PdfReader(file)
+        for page in pdf_reader.pages:
+            pdf_text += page.extract_text()
+
+    problem = problem_chain.run(
+        q1=responses[0], q2=responses[1], q3=responses[2], q4=responses[3], q5=responses[4], topic=prompt
+    )
+    
+    wiki_research = wiki.run(prompt)
+    script = script_chain.run(problem=problem, wikipedia_research=wiki_research)
+    pdf_diagnosis = diagnosis_chain.run(pdf_text=pdf_text)
+    
+    problem_disorder = extract_disorder(problem, known_disorders)
+    pdf_disorder = extract_disorder(pdf_diagnosis, known_disorders)
+    
+    similarity = check_similarity(problem_disorder, pdf_disorder)
+    
+    if similarity > 0.2:
+        return f"Good news! We found a match!\n\n{problem}\n\n{script}"
+    else:
+        return "Based on our analysis, the diagnoses from your answers and the uploaded document do not match. Please consult with a healthcare professional for a more accurate diagnosis."
+
+
+@app.route("/result")
+def result():
+    return render_template('result.html')
+
+@app.route("/chat")
+def chat():
+    return render_template('chat.html')
+
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
