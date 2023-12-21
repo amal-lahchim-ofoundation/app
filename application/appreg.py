@@ -8,6 +8,7 @@ from flask import session
 from openai import OpenAI
 from dotenv import load_dotenv
 
+
 load_dotenv() 
 openai = OpenAI()
 
@@ -21,13 +22,15 @@ from langchain.utilities import WikipediaAPIWrapper
 from PyPDF2 import PdfReader
 from functools import wraps
 
+from Disorders import Disorders
+from Social_Anxiety import Social_Anxiety
+from Anxiety import Anxiety
+from Disorder import Disorder
+ 
+import fitz
 
-
-
-
-
-app = Flask(__name__)  #creates a Flask web application object named app. It's a fundamental step in setting up a Flask web application
-# app.secret_key = 'your_secret_key_here'
+app = Flask(__name__, static_folder='static')  #creates a Flask web application object named app. It's a fundamental step in setting up a Flask web application
+app.secret_key = 'your_secret_key_here'
 # os.environ['OPENAI_API_KEY'] = os.getenv("apiKey")
 # app.secret_key = os.environ.get('FLASK_SECRET_KEY', '')
 # CREDENTIALS_PATH = os.environ.get('FIREBASE_CREDENTIALS_PATH')  # we must make secure also th credential databaseKey.json!!!
@@ -173,34 +176,43 @@ def treatment():
 
 
 # From appreg.py
-known_disorders = ['social anxiety','anxiety']
+known_disorders = [disorder.value for disorder in Disorders]
  
 
 
 
-def extract_disorder(text, disorders):
-    return [disorder for disorder in disorders if disorder in text.lower()]
+def extract_disorder(text, disorders): #extracts the disorder from text if it exists
+    for disorder in disorders:
+        if disorder.lower() in text.lower():#check if disorder exists in text, case insensitive
+            return disorder
 
 def check_similarity(disorder_list1, disorder_list2):
+    if disorder_list1 == disorder_list2:
+        return 1
     return len(set(disorder_list1).intersection(disorder_list2)) / len(set(disorder_list1).union(disorder_list2))
 
 #change the file path and add it to the folder
-file_path = '/Users/rabia/Desktop/Chat psychologist/Application/ChatPsychologistAI-tanja/content/APA_DSM5_Severity-Measure-For-Social-Anxiety-Disorder-Adult_update.pdf'
-pdf_text = ""
-
-@app.route("/questions", methods=['GET', 'POST'])
-@login_required  # Ensure user is logged in to access this route
-def questions():   
-    questions = [
+#file_path = '/Users/rabia/Desktop/Chat psychologist/Application/ChatPsychologistAI-tanja/content/APA_DSM5_Severity-Measure-For-Social-Anxiety-Disorder-Adult_update.pdf'
+#pdf_text = ""
+diagnosequestions = [
         "Do you feel extremely anxious or uncomfortable when meeting new people?",
         "Do you often worry about being judged or criticized by others in social situations?",
         "Do you frequently avoid social events or activities due to fear of embarrassment or humiliation?",
         "Do you experience intense anxiety when speaking or presenting in front of a group?",
-        "Do you find it difficult to initiate or maintain conversations with others?"
-       
+        "Do you find it difficult to initiate or maintain conversations with others?",
+        "Are you often overwhelmed by your worries?",
+        "Do many situations cause you to worry?",
+        "Do you tend to worry a lot when you are under pressure?",
+        "Once you start worrying, do you find it hard to stop?",
+        "Do you worry all the time? "
         
     ]
+
+@app.route("/questions", methods=['GET', 'POST']) # Diagnose route
+@login_required  # Ensure user is logged in to access this route
+def questions():   
     
+   # Initialize variables
     result = None
     diagnosis_found = False
     saved_diagnosis = None  # Initialize the saved_diagnosis variable
@@ -211,7 +223,7 @@ def questions():
 
     if request.method == 'POST':
         if first_login:       
-            responses = [request.form.get(f'q{i+1}') for i in len(questions)]  # get all the answers
+            responses = [request.form.get(f'q{i+1}') for i in range(len(diagnosequestions))]  # get all the answers
             prompt = request.form.get('prompt')  # get the prompt
             diagnosis_result = process_data(responses, prompt)  # process these two data
             result = diagnosis_result['message']  # add these processed data into message
@@ -225,13 +237,13 @@ def questions():
             
             session['first_login'] = False
             
-            return render_template('diagnose.html', result=result, questions=questions, diagnosis_found=diagnosis_found)
+            return render_template('diagnose.html', result=result, questions=diagnosequestions, diagnosis_found=diagnosis_found)
         
-        return render_template('diagnose.html', questions=questions)      
+        return render_template('diagnose.html', questions=diagnosequestions)      
          
     else:
         if first_login:
-            return render_template('diagnose.html', questions=questions)
+            return render_template('diagnose.html', questions=diagnosequestions)
         else:
             # If it's not the user's first login, retrieve the saved diagnosis
             user_data = USERS_REF.child(session['random_key']).get()
@@ -248,22 +260,45 @@ def process_data(responses, prompt):
     # Initialize the various components
     llm = OpenAI(temperature=0.9)
     
-    _templates = db.reference('templates')
-    problem_template_text = _templates.child('problem_template').get()
+   # _templates = db.reference('templates')
+# problem_template_text = _templates.child('problem_template').get()
+
+
+    social_anxiety_directory_path = os.path.abspath("application/content/Social_anxiety")
+    if os.path.exists(social_anxiety_directory_path):
+        social_anxiety_pdf_text = process_directory(social_anxiety_directory_path)
+
+    anxiety_directory_path = os.path.abspath("application/content/Anxiety")
+    if os.path.exists(anxiety_directory_path):
+        anxiety_pdf_text = process_directory(anxiety_directory_path)
+
+    
+
+#    problem_template = PromptTemplate(
+#        input_variables=['q', 'topic'],
+#        template='Act as a therapist and help the user with their mental health problem. \
+#            Try to come to a conclusion about which mental illness the user may have based on their responses. \
+#            Set a specific diagnosis based on answers {q} and this user Description: {topic}'
+#    )
 
     problem_template = PromptTemplate(
-        input_variables=['q1', 'q2', 'q3', 'q4', 'q5', 'topic'],
-        template='Act as a therapist and help the user with their mental health problem. Try to come to a conclusion about which mental illness the user may have based on their responses. Set a specific diagnosis based on answers \nQ1: {q1}\nQ2: {q2}\nQ3: {q3}\nQ4: {q4}\nQ5: {q5}\n and this user Description: {topic}'
+        input_variables=['a', 'q', 'topic'],
+        template = "Assume the role of a therapist and provide support for the user's mental health concern. \
+        Endeavor to reach a conclusion regarding a potential mental health condition based on their responses. \
+        Establish a specific diagnosis by considering the answers {a} provided for the followin questions {q} and the user's description: {topic}'"
     )
+
     
     script_template = PromptTemplate(
         input_variables=['problem', 'wikipedia_research'],
-        template='Provide solutions and treatments based on the diagnosis :\n {problem}  also use the information of \nWikipedia Research: {wikipedia_research} to reach a better solution and treatments '
+        template='Provide solutions and treatments based on the diagnosis :\n {problem}  also use \
+            the information of \nWikipedia Research: {wikipedia_research} to reach a better solution and treatments '
     )
     
     diagnosis_template = PromptTemplate(
         input_variables=['pdf_text'],
-        template='I have a long text document and need a brief summary. Extract the main diagnosis mentiond in this medical text.The text is: {pdf_text} . '
+        template='I have a long text document and need a brief summary. \
+            Extract the main diagnosis mentiond in this medical text. The text is: {pdf_text} . '
     )
     
     problem_memory = ConversationBufferMemory(input_key='topic', memory_key='chatHistory')
@@ -282,24 +317,35 @@ def process_data(responses, prompt):
     )
     
     wiki = WikipediaAPIWrapper()
-    
-    pdf_text = ""
-    with open(file_path, 'rb') as file:    #open the file and read it 
-        pdf_reader = PdfReader(file)
-        for page in pdf_reader.pages:
-            pdf_text += page.extract_text()
 
 #run all the chains
+#    problem = problem_chain.run(
+#        q=responses, topic=prompt
+#    )  
     problem = problem_chain.run(
-        q1=responses[0], q2=responses[1], q3=responses[2], q4=responses[3], q5=responses[4], topic=prompt
-    )    
+        a=responses, q=diagnosequestions, topic=prompt
+    ) 
+  
     wiki_research = wiki.run(prompt)
     script = script_chain.run(problem=problem, wikipedia_research=wiki_research)
-    pdf_diagnosis = diagnosis_chain.run(pdf_text=pdf_text)
+
+    social_anxiety_pdf_sumamry = diagnosis_chain.run(pdf_text=social_anxiety_pdf_text)
+    anxiety_pdf_sumamry = diagnosis_chain.run(pdf_text=anxiety_pdf_text)
+
+    Disorder_Summary = db.reference("Disorder_Summary")
     
-    #extract disorder from pdf and from the GPT diagnosed
+    socialAnxietyRow = Disorder_Summary.child(Disorders.SOCIAL_ANXIETY.disorder_name).get()
+    socialAnxietyRow["Summary"] = social_anxiety_pdf_sumamry
+    Disorder_Summary.child(Disorders.SOCIAL_ANXIETY.disorder_name).set(socialAnxietyRow)
+
+    anxietyRow = Disorder_Summary.child(Disorders.ANXIETY.disorder_name).get()
+    anxietyRow["Summary"] = anxiety_pdf_sumamry
+    Disorder_Summary.child(Disorders.ANXIETY.disorder_name).set(anxietyRow)
+
+
+    # extract disorder from pdf and from the GPT diagnosed
     problem_disorder = extract_disorder(problem, known_disorders)
-    pdf_disorder = extract_disorder(pdf_diagnosis, known_disorders)
+    pdf_disorder = extract_disorder(social_anxiety_pdf_sumamry, known_disorders)
     
     similarity = check_similarity(problem_disorder, pdf_disorder)
     
@@ -323,13 +369,14 @@ def result():
 
 #########################################################Chat Page##############################################
 
-def generate_response(user_input, session_prompt, temperature=0.1):
-    messages = [
+def generate_response(user_input, session_prompt, temperature=0.1): # start a chat page function
+    messages = [ # initialize message list with system and user messages
         {"role": "system", "content": session_prompt},
         {"role": "user", "content": user_input}
     ]
     
     try:
+        # generate chat response 
         response = openai.chat.completions.create(model="gpt-4",
         messages=messages,
         temperature=temperature)
@@ -355,20 +402,21 @@ def generate_response(user_input, session_prompt, temperature=0.1):
 
 
 
-def greeting(greeting_prompt, temperature=0.5):
-    messages = [
+def greeting(greeting_prompt, temperature=0.5): # start greeting function
+    messages = [ # initialize message list with system message
         {"role": "system", "content": greeting_prompt},
     ]
 
-    response = openai.chat.completions.create(model="gpt-4", messages=messages, temperature=temperature)
+    response = openai.chat.completions.create(model="gpt-4", messages=messages, temperature=temperature) # generate greeting response 
 
     return response.choices[0].message.content
 
 
-def summarize(conversation_history, temperature=0.5):
+def summarize(conversation_history, temperature=0.5): # join conversation content, make summary prompt
     summarized_text = ' '.join([msg['content']
                                for msg in conversation_history])
-    prompt = f" Make a summerize of the following conversation: {summarized_text} go more in ditail and cover most important things. Also you have to be not to long."
+    prompt = f" Make a summerize of the following conversation: {summarized_text} go more in detail and \
+        cover most important things. Also you have to be not too long."
     messages = [
         {"role": "system", "content": prompt},
     ]
@@ -378,7 +426,7 @@ def summarize(conversation_history, temperature=0.5):
     return response.choices[0].message.content
 
 def initialize_session():
-    session['start_time'] = time.time()
+    session['start_time'] = time.time() # Records the elapsed time between the client and the server. time.time() returns the current time
     session["conversation_history"] = []
     session['greeted'] = False
     session['summary'] = ""
@@ -393,19 +441,30 @@ def chat():
 
 
     if not session['greeted']:
-        greeting_prompt = 'Welcome the user. Present yourself as an AnnaAI psychologist and also mention that the duration of one session is 5 minutes. After that time passes, you have to inform the user that the time has passed and the session has ended.'
+        greeting_prompt = 'Welcome the user. Present yourself as an AnnaAI psychologist and also mention that \
+            the duration of one session is 45 minutes. \
+            After that time passes, you have to inform the user that the time has passed and \
+            the session has ended.'
         greeting_message = greeting(greeting_prompt, temperature=0.5)
         session['conversation_history'].append({"role": "assistant", "content": greeting_message})
         session['greeted'] = True
         
-
+    
     if request.method == 'POST':
         user_input = request.form['user_input']
         session_choice = request.form.get('session_choice', '')
         if session_choice == "Session 1":
-            session_prompt = " You are highly professional psychologist. Your primary role is to help patient diagnosed with social anxiety to deal with it. This is the first treatment session. Start first with short interdiction, establish rapport and explain the treatment process. The goal is to gather information to create an appropriate treatment plan while also establishing trust and rapport. This questions you have to ask one by one and to wait for response for each of them : Can you share with me what led you to seek therapy and what specific challenges or concerns you're facing related to social situations?, How long have you been experiencing symptoms of social anxiety, and have they changed or worsened over time? ,Can you describe the specific situations or social settings where you feel most anxious or uncomfortable?, Have you noticed any triggers or patterns that intensify your social anxiety?, How does social anxiety impact your daily life, relationships, and overall well-being?, Have you attempted any coping mechanisms or strategies to manage your anxiety in social situations? How effective have they been for you?, Are there any past experiences or traumas that you think might be contributing to your social anxiety?, Do you have any concerns or fears about the therapy process itself, or is there anything specific you'd like to know about how therapy works?, Have you received any previous treatment or therapy for social anxiety, and if so, what was your experience like?, Are there any specific goals or outcomes you hope to achieve through therapy for social anxiety?, Are there any cultural, religious, or personal beliefs that may influence your approach to therapy or your experience of social anxiety?, Is there anything you'd like to know about social anxiety, its causes, or its treatment options?, How do you currently perceive yourself in social situations, and how would you like to see yourself in these situations in the future? What strengths or coping skills do you have that you feel might help you in overcoming social anxiety?,How comfortable are you with the idea of gradually confronting social situations that trigger your anxiety as part of therapy?, Conduct a comprehensive assessment to understand the extent and impact of social anxiety in their life. Help them and provide them with solutions to their ."
+            given_diagnose = Social_Anxiety()
+            print(given_diagnose.get_session_questions(1)[0])
+            session_prompt = str(given_diagnose.get_session_questions(1)[0])
+            
         else:
-            session_prompt = "Psychoeducation on Social Anxiety.Educate the client about the nature of social anxiety, its common symptoms, and the cognitive-behavioral model of treatment. Present information about social anxiety, how it develops, and its maintenance factors. Encourage the client to ask questions and share personal experiences related to the topics discussed."
+            session_prompt = "Psychoeducation on Social Anxiety.Educate the client about the \
+                nature of social anxiety, its common symptoms, \
+                and the cognitive-behavioral model of treatment. \
+                Present information about social anxiety, how it develops, and its maintenance factors. \
+                Encourage the client to ask questions and share personal experiences \
+                related to the topics discussed."
 
         assistant_response = generate_response(user_input, session_prompt, temperature=0.2)
         session['conversation_history'].append({"role": "user", "content": user_input})
@@ -423,12 +482,12 @@ def end_session():
     return redirect(url_for('chat'))
 
 def session_has_expired():
-    return time.time() - session.get('start_time', 0) >= 5 * 60
+    return time.time() - session.get('start_time', 0) >= 45 * 60
 
 
 def handle_session_expiry():
-    initialize_session()
-    return render_template('chat.html', conversation_history=session['conversation_history'])
+    initialize_session()  # Start a new session
+    return render_template('chat.html', conversation_history=session['conversation_history'])   # Render chat template with session data
 
 
 @app.route('/session_status', methods=['GET'])
@@ -440,6 +499,26 @@ def session_status():
         return jsonify({"expired": True, "summary": summary})
     return jsonify({"expired": False})
 
+def process_pdf_file(filePath):
+    pdf_text = ""  # initialize PDF text variable
+    with fitz.open(filePath) as pdf_document: # open PDF document
+        for page_num in range(pdf_document.page_count):  # iterate over each page
+            page = pdf_document[page_num]  # get the current page
+            pdf_text += page.get_text() # append the page text to PDF text
+    return pdf_text # return the concatenated text
+
+def process_directory(directory_path):
+    all_text = ""
+    for root, dirs, files in os.walk(directory_path):
+        for filename in files:
+            if filename.endswith(".pdf"):
+                filePath = os.path.join(root, filename)
+                file_text = process_pdf_file(filePath)
+                all_text += file_text
+    return all_text
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
+
