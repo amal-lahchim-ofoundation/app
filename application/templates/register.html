@@ -41,6 +41,7 @@
 <!-- jQuery and Bootstrap JS -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
 
     
 <style>
@@ -50,6 +51,42 @@
 .modal-dialog {
   margin-top: 20%;  /* Adjust this value as needed */
 }
+
+#randomKeyCopyButton {
+  display: inline-block;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  padding: 5px 10px;
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  background-color: #3498db;
+  color: #fff;
+  border: 1px solid #2980b9;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+#randomKeyCopyButton::before {
+  content: "\1F4CB"; /* Unicode character for a clipboard icon */
+  margin-right: 5px;
+}
+
+#randomKeyCopyButton:hover {
+  background-color: #2980b9;
+}
+
+/* Existing styles for #randomKeyCopyButton */
+
+/* Style for the button after copying */
+#randomKeyCopyButton.copied {
+    background-color: #28a745; /* Change color to indicate success */
+    content: '✔ Copied'; /* Change text to show a checkmark and 'Copied' */
+}
+
+
 </style>
 
   <!-- =======================================================
@@ -147,6 +184,9 @@
                     <div class="modal-footer">
                       <a href="{{url_for('register')}}" class="btn btn-primary">Cancle</a>
                       <a href="{{url_for('login')}}" class="btn btn-primary" style="display: none;">Login</a>
+                       
+                      <input type="text" class="form-control" id="randomKeyInput" value="{{ session['random_key'] }}" readonly style="display:none;">
+                      <a class="btn btn-primary" id="randomKeyCopyButton" data-clipboard-target="#randomKeyCopyButton" style="display: none;">Copy</button>
 
                     </div>
                   </div>
@@ -273,9 +313,39 @@
 <script src="{{ url_for('static', filename='assets/js/firebase.js') }}"></script>
 
 
+<script>
+  function copyToClipboard(text) {
+   navigator.clipboard.writeText(text).then(function() {
+      console.log('Copied to clipboard');
+   }, function(err) {
+      console.error('Error copying to clipboard: ', err);
+   });
+  }
+  
+  document.getElementById('randomKeyCopyButton').addEventListener('click', function() {
+   var randomKey = document.getElementById('randomKeyInput').value;
+   copyToClipboard(randomKey);
+  });
+  </script>
 
 
+<script>
+  var clipboard = new ClipboardJS('#randomKeyCopyButton');
 
+clipboard.on('success', function(e) {
+    var button = e.trigger;
+    button.classList.add('copied');
+    button.textContent = '✔ Copied';
+
+    // Set a timeout to revert the button back to its original state
+    setTimeout(function() {
+        button.classList.remove('copied');
+        button.textContent = 'Copy';
+    }, 2000); // 2 seconds delay
+
+    e.clearSelection();
+});
+</script>
 
 
 </body>

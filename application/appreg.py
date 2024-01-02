@@ -23,9 +23,6 @@ from PyPDF2 import PdfReader
 from functools import wraps
 
 from Disorders import Disorders
-from Social_Anxiety import Social_Anxiety
-from Anxiety import Anxiety
-from Disorder import Disorder
  
 import fitz
 
@@ -52,7 +49,7 @@ firebase_admin.initialize_app(cred, {
 })
 
 
-#A function that dosn't allow to access login page if you are already loged in/regiterd 
+#A function that doesn't allow to access login page if you are already logged in/regiterd 
 def redirect_if_logged_in(route_function):
     @wraps(route_function)
     def wrapper(*args, **kwargs):
@@ -87,6 +84,7 @@ def register():
     })
 
     flash(f'Your registration key is: {random_key}. Please save it for future logins.', 'success')
+    session['random_key'] = random_key
     return redirect(url_for('register_page'))
 
 
@@ -174,16 +172,16 @@ def treatment():
 ###########################################Diagnose Page ########################################
 
 
-
+disorders_instance = Disorders()
 # From appreg.py
-known_disorders = [disorder.value for disorder in Disorders]
+known_disorders = [disorder.name for disorder in disorders_instance.disorder_list]
  
 
 
 
 def extract_disorder(text, disorders): #extracts the disorder from text if it exists
     for disorder in disorders:
-        if disorder.lower() in text.lower():#check if disorder exists in text, case insensitive
+        if disorder.lower() in text.lower(): #check if disorder exists in text, case insensitive
             return disorder
 
 def check_similarity(disorder_list1, disorder_list2):
@@ -262,13 +260,12 @@ def process_data(responses, prompt):
     
    # _templates = db.reference('templates')
 # problem_template_text = _templates.child('problem_template').get()
-
-
-    social_anxiety_directory_path = os.path.abspath("application/content/Social_anxiety")
+    
+    social_anxiety_directory_path = os.path.abspath(disorders_instance.SOCIAL_ANXIETY.file_name)
     if os.path.exists(social_anxiety_directory_path):
         social_anxiety_pdf_text = process_directory(social_anxiety_directory_path)
 
-    anxiety_directory_path = os.path.abspath("application/content/Anxiety")
+    anxiety_directory_path = os.path.abspath(disorders_instance.ANXIETY.file_name)
     if os.path.exists(anxiety_directory_path):
         anxiety_pdf_text = process_directory(anxiety_directory_path)
 
@@ -329,23 +326,23 @@ def process_data(responses, prompt):
     wiki_research = wiki.run(prompt)
     script = script_chain.run(problem=problem, wikipedia_research=wiki_research)
 
-    social_anxiety_pdf_sumamry = diagnosis_chain.run(pdf_text=social_anxiety_pdf_text)
-    anxiety_pdf_sumamry = diagnosis_chain.run(pdf_text=anxiety_pdf_text)
+    social_anxiety_pdf_summary = diagnosis_chain.run(pdf_text=social_anxiety_pdf_text) 
+    anxiety_pdf_summary = diagnosis_chain.run(pdf_text=anxiety_pdf_text)
 
     Disorder_Summary = db.reference("Disorder_Summary")
     
-    socialAnxietyRow = Disorder_Summary.child(Disorders.SOCIAL_ANXIETY.disorder_name).get()
-    socialAnxietyRow["Summary"] = social_anxiety_pdf_sumamry
-    Disorder_Summary.child(Disorders.SOCIAL_ANXIETY.disorder_name).set(socialAnxietyRow)
+    socialAnxietyRow = Disorder_Summary.child(disorders_instance.SOCIAL_ANXIETY.name).get()
+    socialAnxietyRow["Summary"] = social_anxiety_pdf_summary
+    Disorder_Summary.child(disorders_instance.SOCIAL_ANXIETY.name).set(socialAnxietyRow) # store social_anxiety_pdf_summary 
 
-    anxietyRow = Disorder_Summary.child(Disorders.ANXIETY.disorder_name).get()
-    anxietyRow["Summary"] = anxiety_pdf_sumamry
-    Disorder_Summary.child(Disorders.ANXIETY.disorder_name).set(anxietyRow)
+    anxietyRow = Disorder_Summary.child(disorders_instance.ANXIETY.name).get()
+    anxietyRow["Summary"] = anxiety_pdf_summary
+    Disorder_Summary.child(disorders_instance.ANXIETY.name).set(anxietyRow)
 
 
     # extract disorder from pdf and from the GPT diagnosed
     problem_disorder = extract_disorder(problem, known_disorders)
-    pdf_disorder = extract_disorder(social_anxiety_pdf_sumamry, known_disorders)
+    pdf_disorder = extract_disorder(social_anxiety_pdf_summary, known_disorders)
     
     similarity = check_similarity(problem_disorder, pdf_disorder)
     
@@ -433,6 +430,17 @@ def initialize_session():
 
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
+    #if request.method == 'GET':
+    #    current_session = session.get('current_session', 0)
+    #    return render_template('chat.html', current_session=current_session)
+    #elif request.method == 'POST':
+    #    # Handle POST request as previously described
+    #    pass
+    USERS_REF = db.reference('users')
+    user_data = USERS_REF.child(session['random_key']).get()
+
+    session_number = getSessionNumber(user_data)
+
     if 'conversation_history' not in session:
         initialize_session()
 
@@ -440,7 +448,7 @@ def chat():
         return handle_session_expiry()
 
 
-    if not session['greeted']:
+    if not session['greeted'] or session_number == 1:
         greeting_prompt = 'Welcome the user. Present yourself as an AnnaAI psychologist and also mention that \
             the duration of one session is 45 minutes. \
             After that time passes, you have to inform the user that the time has passed and \
@@ -448,27 +456,34 @@ def chat():
         greeting_message = greeting(greeting_prompt, temperature=0.5)
         session['conversation_history'].append({"role": "assistant", "content": greeting_message})
         session['greeted'] = True
-        
+
     
     if request.method == 'POST':
         user_input = request.form['user_input']
         session_choice = request.form.get('session_choice', '')
+        session['choice'] = session_choice     # Store the selected session choice in the session
+
         if session_choice == "Session 1":
-            given_diagnose = Social_Anxiety()
-            print(given_diagnose.get_session_questions(1)[0])
-            session_prompt = str(given_diagnose.get_session_questions(1)[0])
+            given_diagnose = disorders_instance.SOCIAL_ANXIETY
+            print(given_diagnose.get_session_questions(1))
+            session_prompt = str(given_diagnose.get_session_questions(1))
             
         else:
-            session_prompt = "Psychoeducation on Social Anxiety.Educate the client about the \
-                nature of social anxiety, its common symptoms, \
+            session_prompt = "Psychoeducation on " + given_diagnose.name +".Educate the client about the \
+                nature of " + given_diagnose.name +", its common symptoms, \
                 and the cognitive-behavioral model of treatment. \
-                Present information about social anxiety, how it develops, and its maintenance factors. \
+                Present information about " + given_diagnose.name +", how it develops, and its maintenance factors. \
                 Encourage the client to ask questions and share personal experiences \
                 related to the topics discussed."
+            
+            
 
         assistant_response = generate_response(user_input, session_prompt, temperature=0.2)
         session['conversation_history'].append({"role": "user", "content": user_input})
         session['conversation_history'].append({"role": "assistant", "content": assistant_response})
+
+        user_data[session_choice+'_conversationHistory'] = session['conversation_history']
+        USERS_REF.child(session['random_key']).set(user_data)
     
         return jsonify({"assistant_response": assistant_response})
 
@@ -478,26 +493,70 @@ def chat():
 
 @app.route('/end_session', methods=['GET'])
 def end_session():
-    initialize_session()
+    # get user data
+    USERS_REF = db.reference('users')
+    user_data = USERS_REF.child(session['random_key']).get()
+    # set user data
+    user_data['session_number'] = getSessionNumber(user_data) + 1
+    USERS_REF.child(session['random_key']).set(user_data)
+
+    initialize_session() # Reset session data
     return redirect(url_for('chat'))
 
 def session_has_expired():
-    return time.time() - session.get('start_time', 0) >= 45 * 60
+    print("time.time() : " + str(time.time()))
+    print("session.get('start_time', 0 : " + str(session.get('start_time', 0)))
+    return time.time() - session.get('start_time', 0) >= 5 * 60
 
 
 def handle_session_expiry():
     initialize_session()  # Start a new session
     return render_template('chat.html', conversation_history=session['conversation_history'])   # Render chat template with session data
 
-
 @app.route('/session_status', methods=['GET'])
 def session_status():
+    session_choice = session.get('session_choice') #Get the session choice from the session
+
+    if session_choice == 'Session 1':
+        # Handle session 1
+        pass
+    elif session_choice == 'Session 2':
+        # Handle session 2
+        pass
+    elif session_choice == 'Session 3':
+        # Handle session 3
+        pass
+    elif session_choice == 'Session 4':
+        # Handle session 4
+        pass
+    elif session_choice == 'Session 5':
+        # Handle session 5
+        pass
+    elif session_choice == 'Session 6':
+        # Handle session 6
+        pass
+    elif session_choice == 'Session 7':
+        # Handle session 7
+        pass
+    elif session_choice == 'Session 8':
+        # Handle session 8
+        pass
+
     if session_has_expired():
         # Generate a summary of the conversation
-        summary = summarize(session["conversation_history"])
+        summary = summarize(session.get('conversation_history'))
         session["summary"] = summary
         return jsonify({"expired": True, "summary": summary})
+
     return jsonify({"expired": False})
+
+@app.route('/complete_session', methods=['POST'])
+def complete_session():
+    # Example of updating session progress
+    current_session = session.get('current_session', 0)
+    session['current_session'] = current_session + 1
+    return 'Session completed'  # Redirect or render template as needed
+
 
 def process_pdf_file(filePath):
     pdf_text = ""  # initialize PDF text variable
@@ -517,6 +576,14 @@ def process_directory(directory_path):
                 all_text += file_text
     return all_text
 
+def getSessionNumber(user_data):
+    try:
+        session_number = user_data['session_number']
+    except KeyError:
+        print("Session number not found. Using default value.")
+        session_number = 1
+    
+    return session_number
 
 
 if __name__ == '__main__':

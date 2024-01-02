@@ -37,7 +37,45 @@
   * Author: BootstrapMade.com
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+ <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+ <style>
+/* Style for the submit button */
+#submit-btn {
+    background-color: #007bff; /* Blue background */
+    color: white; /* White text */
+    border: none; /* No border */
+    padding: 10px 15px; /* Padding for size */
+    border-radius: 5px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+    cursor: pointer; /* Pointer cursor on hover */
+    display: inline-flex; /* Inline-flex for aligning spinner and text */
+    align-items: center; /* Center align spinner and text */
+    justify-content: center; /* Center content */
+}
+
+/* Style for the spinner inside the button */
+#spinner {
+    margin-right: 10px; /* Margin to the right of the spinner */
+    display: none; /* Hidden by default */
+}
+
+/* Additional styles for the disabled state of the button */
+#submit-btn:disabled {
+    background-color: #cccccc; /* Light gray background */
+    cursor: not-allowed; /* Not-allowed cursor */
+}
+
+
+ </style>
+
+
 </head>
+
 
 <body>
 
@@ -118,17 +156,24 @@
     <form id="chat-form" action="/chat" method="post">
         <label for="session_choice">Choose a session:</label> 
         <select name="session_choice" id="session_choice">
-            <option value="Session 1">Session 1</option>
-            <option value="Session 2">Session 2</option>
-        </select>
+          <option value="Session 1">Session 1</option>
+          <option value="Session 2">Session 2</option>
+      </select>
         <label for="user_input">Your message:</label>
-        <textarea name="user_input" rows="2" cols="175" required></textarea><br>
-        <input type="submit" value="Send">
+        <textarea id="user_input" name="user_input" rows="2" cols="90" required></textarea><br>
+       
+
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+          <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+          Send
+      </button>
+      
     </form>
 
 
 </div>
 </section>
+
 
 
 <script>
@@ -144,8 +189,8 @@ if (sessionStorage.getItem('timer_start')) {
     sessionStorage.setItem('timer_start', startTime.toString());
 }
 
-const sessionDuration = 5 * 60 * 1000;  // 5 minutes in milliseconds
-const warningTime = 4 * 60 * 1000;  // 4 minutes in milliseconds
+const sessionDuration = 5 * 60 * 1000;  // 45 minutes in milliseconds
+const warningTime = 4 * 60 * 1000;  // 44 minutes in milliseconds
 let hasWarned = false;
 
 function checkTime() {
@@ -166,10 +211,16 @@ function checkTime() {
         alert("The session has ended.");
         clearInterval(interval);  // stop the countdown when session ends
         document.getElementById("timer").innerHTML = "EXPIRED";
+        document.getElementById("submit-btn").disabled=true;
+        document.getElementById("user_input").disabled=false;
 
         // Clear the chatbox
        const chatBox = document.querySelector('.chat-box ul');
+       fetch('/end_session')
       
+    } else {
+      document.getElementById("submit-btn").disabled=false;
+      document.getElementById("user_input").disabled=false;
     }
 }
 
@@ -206,33 +257,46 @@ function checkSessionStatus() {
 setInterval(checkSessionStatus, 5000);
 
 document.getElementById('chat-form').addEventListener('submit', function(event) {
-  event.preventDefault();  // Prevent the default form submission
+    event.preventDefault();  // Prevent the default form submission
 
-  let formData = new FormData(this);  // Get the form data
+    // Show spinner and disable submit button
+    $("#spinner").show();
+    $("#submit-btn").prop("disabled", true);
 
-  fetch('/chat', {
-      method: 'POST',
-      body: formData
-  })
-  .then(response => response.json())
-  .then(data => {
-      let chatList = document.getElementById('chat-list');
+    let formData = new FormData(this);  // Get the form data
 
-      // Append the user's message to the chatbox
-      let userMessageElem = document.createElement('li');
-      userMessageElem.className = 'user';
-      userMessageElem.innerHTML = `<strong>User:</strong> ${formData.get('user_input')}`;
-      chatList.appendChild(userMessageElem);
+    fetch('/chat', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Process the response here...
+      // Hide spinner and enable submit button
+      $("#spinner").hide();
+            $("#submit-btn").prop("disabled", false);
 
-      // Append the assistant's response to the chatbox
-      let assistantMessageElem = document.createElement('li');
-      assistantMessageElem.className = 'assistant';
-      assistantMessageElem.innerHTML = `<strong>Assistant:</strong> ${data.assistant_response}`;
-      chatList.appendChild(assistantMessageElem);
-  });
+            let chatList = document.getElementById('chat-list');
+
+            // Append the user's message to the chatbox
+            let userMessageElem = document.createElement('li');
+            userMessageElem.className = 'user';
+            userMessageElem.innerHTML = `<strong>User:</strong> ${formData.get('user_input')}`;
+            chatList.appendChild(userMessageElem);
+
+            // Append the assistant's response to the chatbox
+            let assistantMessageElem = document.createElement('li');
+            assistantMessageElem.className = 'assistant';
+            assistantMessageElem.innerHTML = `<strong>Assistant:</strong> ${data.assistant_response}`;
+            chatList.appendChild(assistantMessageElem);
+        })
+    .catch(error => {
+        // Handle any errors here
+        // Hide spinner and enable submit button
+        $("#spinner").hide();
+        $("#submit-btn").prop("disabled", false);
+    });
 });
-
-
 
 </script>
 
