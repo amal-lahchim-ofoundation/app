@@ -144,6 +144,7 @@ def login_page():
 @app.route('/logout')
 def logout():
     session.pop('user_logged_in', None)
+    session.clear()
    # flash('Successfully logged out!')
     return redirect(url_for('home'))
 
@@ -218,7 +219,7 @@ def questions():
 
     # Check if it's the user's first login based on the session variable
     first_login = session.get('first_login', True)
-
+    
     if request.method == 'POST':
         if first_login:       
             responses = [request.form.get(f'q{i+1}') for i in range(len(diagnosequestions))]  # get all the answers
@@ -226,11 +227,13 @@ def questions():
             diagnosis_result = process_data(responses, prompt)  # process these two data
             result = diagnosis_result['message']  # add these processed data into message
             diagnosis_found = diagnosis_result['diagnosis_found']
+            session['given_diagnose'] = diagnosis_result['given_diagnose']
 
             if diagnosis_found:
                 user_data = USERS_REF.child(session['random_key']).get()
                 if user_data:
                     user_data['diagnosis'] = result
+                    user_data['diagnosis_name'] = session['given_diagnose']
                     USERS_REF.child(session['random_key']).set(user_data)
             
             session['first_login'] = False
@@ -258,9 +261,6 @@ def process_data(responses, prompt):
     # Initialize the various components
     llm = OpenAI(temperature=0.9)
     
-   # _templates = db.reference('templates')
-# problem_template_text = _templates.child('problem_template').get()
-    
     social_anxiety_directory_path = os.path.abspath(disorders_instance.SOCIAL_ANXIETY.file_name)
     if os.path.exists(social_anxiety_directory_path):
         social_anxiety_pdf_text = process_directory(social_anxiety_directory_path)
@@ -271,18 +271,11 @@ def process_data(responses, prompt):
 
     
 
-#    problem_template = PromptTemplate(
-#        input_variables=['q', 'topic'],
-#        template='Act as a therapist and help the user with their mental health problem. \
-#            Try to come to a conclusion about which mental illness the user may have based on their responses. \
-#            Set a specific diagnosis based on answers {q} and this user Description: {topic}'
-#    )
-
     problem_template = PromptTemplate(
         input_variables=['a', 'q', 'topic'],
         template = "Assume the role of a therapist and provide support for the user's mental health concern. \
         Endeavor to reach a conclusion regarding a potential mental health condition based on their responses. \
-        Establish a specific diagnosis by considering the answers {a} provided for the followin questions {q} and the user's description: {topic}'"
+        Establish a specific diagnosis by considering the answers {a} provided for the following questions {q} and the user's description: {topic}"
     )
 
     
@@ -315,10 +308,7 @@ def process_data(responses, prompt):
     
     wiki = WikipediaAPIWrapper()
 
-#run all the chains
-#    problem = problem_chain.run(
-#        q=responses, topic=prompt
-#    )  
+
     problem = problem_chain.run(
         a=responses, q=diagnosequestions, topic=prompt
     ) 
@@ -349,7 +339,8 @@ def process_data(responses, prompt):
     if similarity > 0.2:
         return {
         'message': f"Good news! We found a match!\n\n{problem}\n\n{script}",
-        'diagnosis_found': True
+        'diagnosis_found': True,
+        'given_diagnose' : problem_disorder
     }
     else:
        return {
@@ -366,7 +357,7 @@ def result():
 
 #########################################################Chat Page##############################################
 
-def generate_response(user_input, session_prompt, temperature=0.1): # start a chat page function
+def generate_response(user_input, session_prompt, temperature=0.3): # start a chat page function
     messages = [ # initialize message list with system and user messages
         {"role": "system", "content": session_prompt},
         {"role": "user", "content": user_input}
@@ -418,8 +409,9 @@ def summarize(conversation_history, temperature=0.5): # join conversation conten
         {"role": "system", "content": prompt},
     ]
     response = openai.chat.completions.create(model="gpt-4",
-    messages=messages,
-    temperature=temperature)
+        messages=messages,
+        temperature=temperature)
+   
     return response.choices[0].message.content
 
 def initialize_session():
@@ -463,8 +455,9 @@ def chat():
         session_choice = request.form.get('session_choice', '')
         session['choice'] = session_choice     # Store the selected session choice in the session
 
-        if session_choice == "Session 1":
-            given_diagnose = disorders_instance.SOCIAL_ANXIETY
+        given_diagnose = disorders_instance.get_disorder_by_name(session.get('given_diagnose'))
+
+        if session_choice == "1":
             print(given_diagnose.get_session_questions(1))
             session_prompt = str(given_diagnose.get_session_questions(1))
             
@@ -496,16 +489,19 @@ def end_session():
     # get user data
     USERS_REF = db.reference('users')
     user_data = USERS_REF.child(session['random_key']).get()
-    # set user data
-    user_data['session_number'] = getSessionNumber(user_data) + 1
-    USERS_REF.child(session['random_key']).set(user_data)
+
+    session_from_ui = session.get('choice') 
+    session_from_db = getSessionNumber(user_data)
+    if session_from_ui == session_from_db and session_from_ui < 8:
+        # set user data
+        user_data['session_number'] = session_from_db + 1 # increase session number and store in database 
+        USERS_REF.child(session['random_key']).set(user_data)
+    
 
     initialize_session() # Reset session data
     return redirect(url_for('chat'))
 
 def session_has_expired():
-    print("time.time() : " + str(time.time()))
-    print("session.get('start_time', 0 : " + str(session.get('start_time', 0)))
     return time.time() - session.get('start_time', 0) >= 5 * 60
 
 
@@ -517,28 +513,28 @@ def handle_session_expiry():
 def session_status():
     session_choice = session.get('session_choice') #Get the session choice from the session
 
-    if session_choice == 'Session 1':
+    if session_choice == '1':
         # Handle session 1
         pass
-    elif session_choice == 'Session 2':
+    elif session_choice == '2':
         # Handle session 2
         pass
-    elif session_choice == 'Session 3':
+    elif session_choice == '3':
         # Handle session 3
         pass
-    elif session_choice == 'Session 4':
+    elif session_choice == '4':
         # Handle session 4
         pass
-    elif session_choice == 'Session 5':
+    elif session_choice == '5':
         # Handle session 5
         pass
-    elif session_choice == 'Session 6':
+    elif session_choice == '6':
         # Handle session 6
         pass
-    elif session_choice == 'Session 7':
+    elif session_choice == '7':
         # Handle session 7
         pass
-    elif session_choice == 'Session 8':
+    elif session_choice == '8':
         # Handle session 8
         pass
 
