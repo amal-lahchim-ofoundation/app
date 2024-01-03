@@ -39,3 +39,10 @@ class Disorders:
         if name.isupper():
             raise AttributeError(f"Disorders object has no attribute {name}")
         return Disorder(name, None)
+
+    def get_disorder_by_name(self, disorder_name):
+        for disorder in self.disorder_list:
+            if disorder.name.lower() == disorder_name.lower():
+                return disorder
+        # If the disorder with the given name is not found, you can return None or raise an exception.
+        return None 
