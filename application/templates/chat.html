@@ -156,15 +156,8 @@
     <form id="chat-form" action="/chat" method="post">
         <label for="session_choice">Choose a session:</label> 
         <select name="session_choice" id="session_choice">
-          <option value="1">Session 1</option>
-          <option value="2">Session 2</option>
-          <option value="3">Session 3</option>
-          <option value="4">Session 4</option>
-          <option value="5">Session 5</option>
-          <option value="6">Session 6</option>
-          <option value="7">Session 7</option>
-          <option value="8">Session 8</option>
-      </select>
+          
+        </select>
         <label for="user_input">Your message:</label>
         <textarea id="user_input" name="user_input" rows="2" cols="90" required></textarea><br>
        
@@ -181,7 +174,30 @@
 </section>
 
 
-
+<script>
+  // Assuming you are using a templating engine that allows embedding server-side values in the template
+  var current_session = {{ current_session }}; // Replace this with your actual syntax for retrieving the session value
+  
+  // Number of sessions
+  var num_sessions = 8;
+  
+  // Get the select element
+  var selectElement = document.getElementById("session_choice");
+  
+  // Dynamically generate options
+  for (var session_number = 1; session_number <= num_sessions; session_number++) {
+      var option = document.createElement("option");
+      option.value = session_number;
+      option.text = "Session " + session_number;
+      
+      // Set the selected attribute based on the current_session value
+      if (session_number === current_session) {
+          option.selected = true;
+      }
+  
+      selectElement.add(option);
+  }
+  </script>
 <script>
 
   let startTime;
@@ -199,6 +215,8 @@ const sessionDuration = 5 * 60 * 1000;  // 45 minutes in milliseconds
 const warningTime = 4 * 60 * 1000;  // 44 minutes in milliseconds
 let hasWarned = false;
 
+let hasWarnedForEndSession = false;
+
 function checkTime() {
     let now = new Date().getTime();
     let elapsedTime = now - startTime;
@@ -213,12 +231,13 @@ function checkTime() {
         hasWarned = true;
     }
 
-    if (elapsedTime > sessionDuration) {
+    if (elapsedTime > sessionDuration && !hasWarnedForEndSession) {
         alert("The session has ended.");
         clearInterval(interval);  // stop the countdown when session ends
         document.getElementById("timer").innerHTML = "EXPIRED";
         document.getElementById("submit-btn").disabled=true;
         document.getElementById("user_input").disabled=false;
+        hasWarnedForEndSession=true;
 
         // Clear the chatbox
        const chatBox = document.querySelector('.chat-box ul');
@@ -270,6 +289,7 @@ document.getElementById('chat-form').addEventListener('submit', function(event) 
     $("#submit-btn").prop("disabled", true);
 
     let formData = new FormData(this);  // Get the form data
+    formData.append('session_choice', document.getElementById('session_choice').value);
 
     fetch('/chat', {
         method: 'POST',

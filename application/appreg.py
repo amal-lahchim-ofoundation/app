@@ -14,11 +14,11 @@ openai = OpenAI()
 
 import os
 import time
-from langchain.llms import OpenAI
+from langchain_community.llms import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.memory import ConversationBufferMemory
-from langchain.utilities import WikipediaAPIWrapper
+from langchain_community.utilities import WikipediaAPIWrapper
 from PyPDF2 import PdfReader
 from functools import wraps
 
@@ -28,7 +28,8 @@ import fitz
 
 app = Flask(__name__, static_folder='static')  #creates a Flask web application object named app. It's a fundamental step in setting up a Flask web application
 app.secret_key = 'your_secret_key_here'
-# os.environ['OPENAI_API_KEY'] = os.getenv("apiKey")
+
+#os.environ['OPENAI_API_KEY'] = os.getenv("apiKey")
 # app.secret_key = os.environ.get('FLASK_SECRET_KEY', '')
 # CREDENTIALS_PATH = os.environ.get('FIREBASE_CREDENTIALS_PATH')  # we must make secure also th credential databaseKey.json!!!
 DATABASE_URL = os.getenv('FIREBASE_DATABASE_URL')
@@ -179,20 +180,19 @@ known_disorders = [disorder.name for disorder in disorders_instance.disorder_lis
  
 
 
-
 def extract_disorder(text, disorders): #extracts the disorder from text if it exists
+    matches={}
     for disorder in disorders:
         if disorder.lower() in text.lower(): #check if disorder exists in text, case insensitive
-            return disorder
+            matches[disorder]=disorder
+    return max(matches, key=len)
 
 def check_similarity(disorder_list1, disorder_list2):
     if disorder_list1 == disorder_list2:
         return 1
     return len(set(disorder_list1).intersection(disorder_list2)) / len(set(disorder_list1).union(disorder_list2))
 
-#change the file path and add it to the folder
-#file_path = '/Users/rabia/Desktop/Chat psychologist/Application/ChatPsychologistAI-tanja/content/APA_DSM5_Severity-Measure-For-Social-Anxiety-Disorder-Adult_update.pdf'
-#pdf_text = ""
+
 diagnosequestions = [
         "Do you feel extremely anxious or uncomfortable when meeting new people?",
         "Do you often worry about being judged or criticized by others in social situations?",
@@ -288,7 +288,7 @@ def process_data(responses, prompt):
     diagnosis_template = PromptTemplate(
         input_variables=['pdf_text'],
         template='I have a long text document and need a brief summary. \
-            Extract the main diagnosis mentiond in this medical text. The text is: {pdf_text} . '
+            Extract the main diagnosis mentiond in this medical text. And Without providing any other text in your response just match the disorder to one of these '+str(known_disorders)+' The text is: {pdf_text} . '
     )
     
     problem_memory = ConversationBufferMemory(input_key='topic', memory_key='chatHistory')
@@ -335,12 +335,14 @@ def process_data(responses, prompt):
     pdf_disorder = extract_disorder(social_anxiety_pdf_summary, known_disorders)
     
     similarity = check_similarity(problem_disorder, pdf_disorder)
+
+    disorder = diagnosis_chain.run(pdf_text=problem) 
     
     if similarity > 0.2:
         return {
         'message': f"Good news! We found a match!\n\n{problem}\n\n{script}",
         'diagnosis_found': True,
-        'given_diagnose' : problem_disorder
+        'given_diagnose' : problem_disorder.strip()
     }
     else:
        return {
@@ -365,7 +367,7 @@ def generate_response(user_input, session_prompt, temperature=0.3): # start a ch
     
     try:
         # generate chat response 
-        response = openai.chat.completions.create(model="gpt-4",
+        response = openai.chat.completions.create(model="gpt-3.5-turbo",
         messages=messages,
         temperature=temperature)
         return response.choices[0].message.content
@@ -440,7 +442,7 @@ def chat():
         return handle_session_expiry()
 
 
-    if not session['greeted'] or session_number == 1:
+    if not session['greeted'] :
         greeting_prompt = 'Welcome the user. Present yourself as an AnnaAI psychologist and also mention that \
             the duration of one session is 45 minutes. \
             After that time passes, you have to inform the user that the time has passed and \
@@ -449,27 +451,26 @@ def chat():
         session['conversation_history'].append({"role": "assistant", "content": greeting_message})
         session['greeted'] = True
 
-    
+
     if request.method == 'POST':
         user_input = request.form['user_input']
-        session_choice = request.form.get('session_choice', '')
+        session_choice = request.form.get('session_choice', '1')
         session['choice'] = session_choice     # Store the selected session choice in the session
 
-        given_diagnose = disorders_instance.get_disorder_by_name(session.get('given_diagnose'))
 
-        if session_choice == "1":
-            print(given_diagnose.get_session_questions(1))
-            session_prompt = str(given_diagnose.get_session_questions(1))
+        disorder_name = session.get('given_diagnose').strip()
+        if not disorder_name:
+            # If 'given_diagnose' is not found in session, fetch it from the database
+          USERS_REF = db.reference('users')
+          user_data = USERS_REF.child(session['random_key']).get()
+          disorder_name = user_data.get('given_diagnose', '').strip()   # Fetch 'given_diagnose' from session or database
+
+        print('########### disorder_name ' + disorder_name )
+
+        given_diagnose = disorders_instance.get_disorder_by_name(disorder_name) # Get the disorder instance
+        session_prompt = str(given_diagnose.get_session_questions(int(session_choice)))
             
-        else:
-            session_prompt = "Psychoeducation on " + given_diagnose.name +".Educate the client about the \
-                nature of " + given_diagnose.name +", its common symptoms, \
-                and the cognitive-behavioral model of treatment. \
-                Present information about " + given_diagnose.name +", how it develops, and its maintenance factors. \
-                Encourage the client to ask questions and share personal experiences \
-                related to the topics discussed."
-            
-            
+        
 
         assistant_response = generate_response(user_input, session_prompt, temperature=0.2)
         session['conversation_history'].append({"role": "user", "content": user_input})
@@ -481,7 +482,7 @@ def chat():
         return jsonify({"assistant_response": assistant_response})
 
         
-    return render_template('chat.html', conversation_history=session['conversation_history'])
+    return render_template('chat.html', conversation_history=session['conversation_history'], current_session=session_number)
 
 
 @app.route('/end_session', methods=['GET'])
@@ -492,7 +493,7 @@ def end_session():
 
     session_from_ui = session.get('choice') 
     session_from_db = getSessionNumber(user_data)
-    if session_from_ui == session_from_db and session_from_ui < 8:
+    if int(session_from_ui) == session_from_db and int(session_from_ui) < 8:
         # set user data
         user_data['session_number'] = session_from_db + 1 # increase session number and store in database 
         USERS_REF.child(session['random_key']).set(user_data)
@@ -512,7 +513,7 @@ def handle_session_expiry():
 @app.route('/session_status', methods=['GET'])
 def session_status():
     session_choice = session.get('session_choice') #Get the session choice from the session
-
+    
     if session_choice == '1':
         # Handle session 1
         pass
