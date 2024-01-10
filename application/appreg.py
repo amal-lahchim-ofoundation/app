@@ -492,16 +492,26 @@ def end_session():
     USERS_REF = db.reference('users')
     user_data = USERS_REF.child(session['random_key']).get()
 
-    session_from_ui = session.get('choice') 
+    # Default to 1 if 'choice' is not set
+    session_from_ui = session.get('choice', 1)
     session_from_db = getSessionNumber(user_data)
-    if int(session_from_ui) == session_from_db and int(session_from_ui) < 8:
-        # set user data
-        user_data['session_number'] = session_from_db + 1 # increase session number and store in database 
-        USERS_REF.child(session['random_key']).set(user_data)
-    
 
-    initialize_session() # Reset session data
+    # Check if conversation history exists and has more than just the greeting message
+    if 'conversation_history' in session and len(session['conversation_history']) > 1:
+        if int(session_from_ui) == session_from_db and int(session_from_ui) < 8:
+            # set user data
+            user_data['session_number'] = session_from_db + 1
+            USERS_REF.child(session['random_key']).set(user_data)
+    else:
+        # Handle the case where there was no interaction
+        flash("No interaction in the chat. Session will not be advanced.")
+        return redirect(url_for('chat'))
+
+    # Reset session data
+    initialize_session()
     return redirect(url_for('chat'))
+
+
 
 def session_has_expired():
     return time.time() - session.get('start_time', 0) >= 5 * 60
