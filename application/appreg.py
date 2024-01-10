@@ -181,8 +181,9 @@ known_disorders = [disorder.name for disorder in disorders_instance.disorder_lis
 
 
 def extract_disorder(text, disorders): #extracts the disorder from text if it exists
-    matches={}
+    matches={}   #initialize matches dictionary
     for disorder in disorders:
+        #iterate through each disorder
         if disorder.lower() in text.lower(): #check if disorder exists in text, case insensitive
             matches[disorder]=disorder
     return max(matches, key=len)
@@ -207,14 +208,14 @@ diagnosequestions = [
         
     ]
 
-@app.route("/questions", methods=['GET', 'POST']) # Diagnose route
+@app.route("/questions", methods=['GET', 'POST']) 
 @login_required  # Ensure user is logged in to access this route
 def questions():   
     
    # Initialize variables
     result = None
     diagnosis_found = False
-    saved_diagnosis = None  # Initialize the saved_diagnosis variable
+    saved_diagnosis = None  
     USERS_REF = db.reference('users')
 
     # Check if it's the user's first login based on the session variable
@@ -351,7 +352,7 @@ def process_data(responses, prompt):
     }
 
 
-@app.route('/result')   #dispaly diagnose and treatment
+@app.route('/result')   # Route for displaying diagnose and treatment result
 @login_required  # Ensure user is logged in to access this route
 def result():
     questions = session.get('questions', [])
