@@ -211,26 +211,20 @@
       // Assuming you are using a templating engine that allows embedding server-side values in the template
       var current_session = {{ current_session }}; // Replace this with your actual syntax for retrieving the session value
 
-      // Number of sessions
-      var num_sessions = 8;
 
       // Get the select element
       var selectElement = document.getElementById("session_choice");
 
-      // Dynamically generate options
-      for (var session_number = 1; session_number <= num_sessions; session_number++) {
+        // Dynamically generate only the current session option
         var option = document.createElement("option");
-        option.value = session_number;
-        option.text = "Session " + session_number;
+        option.value = current_session;
+        option.text = "Session " + current_session;
+        option.selected = true;  // Set the current session as the selected option
 
-        // Set the selected attribute based on the current_session value
-        if (session_number === current_session) {
-          option.selected = true;
-        }
-
+      
         selectElement.add(option);
-      }
     </script>
+    
     <script>
 
       let startTime;

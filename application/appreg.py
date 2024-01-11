@@ -525,30 +525,7 @@ def handle_session_expiry():
 def session_status():
     session_choice = session.get('session_choice') #Get the session choice from the session
     
-    if session_choice == '1':
-        # Handle session 1
-        pass
-    elif session_choice == '2':
-        # Handle session 2
-        pass
-    elif session_choice == '3':
-        # Handle session 3
-        pass
-    elif session_choice == '4':
-        # Handle session 4
-        pass
-    elif session_choice == '5':
-        # Handle session 5
-        pass
-    elif session_choice == '6':
-        # Handle session 6
-        pass
-    elif session_choice == '7':
-        # Handle session 7
-        pass
-    elif session_choice == '8':
-        # Handle session 8
-        pass
+
 
     if session_has_expired():
         # Generate a summary of the conversation
@@ -562,6 +539,8 @@ def session_status():
 def complete_session():
     # Example of updating session progress
     current_session = session.get('current_session', 0)
+    if 0 < current_session < 9:
+     session[current_session - 1]['completed'] = True
     session['current_session'] = current_session + 1
     return 'Session completed'  # Redirect or render template as needed
 
