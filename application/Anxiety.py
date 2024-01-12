@@ -23,8 +23,8 @@ class Anxiety(Disorder):
                             Do you constantly worry?\
                             Do you worry about things until they are finished?")
         
-        self.add_session(2, "Psychoeducation on Anxiety. Educate the client about the nature of social anxiety, its common symptoms, and the cognitive-behavioral model of treatment.\
-                            Present information about social anxiety, how it develops, and its maintenance factors.\
+        self.add_session(2, "Psychoeducation on Anxiety. Educate the client about the nature of  anxiety, its common symptoms, and the cognitive-behavioral model of treatment.\
+                            Present information about  anxiety, how it develops, and its maintenance factors.\
                             Encourage the client to ask questions and share personal experiences related to the topics discussed.\
                             How would you describe your understanding of anxiety?\
                             What do you believe are the causes of your anxiety?\
