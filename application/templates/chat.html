@@ -288,12 +288,14 @@
       }
 
       let interval = setInterval(checkTime, 1000);  // check every second
+      let isPopupShown = false;
 
       function checkSessionStatus() {
         fetch('/session_status')
           .then(response => response.json())
           .then(data => {
-            if (data.expired) {
+            if (data.expired && !isPopupShown) {
+              isPopupShown = true;
               clearInterval(interval);  // stop the current countdown
               document.getElementById("timer").innerHTML = "EXPIRED";
 
