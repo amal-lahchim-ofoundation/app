@@ -1,6 +1,6 @@
 from Disorder import Disorder
 
-class Paranoia(Disorder):
+class Low_self_confident(Disorder):
     def __init__(self, name, filename):
         super().__init__(name, filename)
         self.add_session(1, " ")

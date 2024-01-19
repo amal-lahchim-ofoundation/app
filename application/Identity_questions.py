@@ -1,6 +1,6 @@
 from Disorder import Disorder
 
-class Bipolar_affective_disorder(Disorder):
+class Identity_questions(Disorder):
     def __init__(self, name, filename):
         super().__init__(name, filename)
         self.add_session(1, " ")

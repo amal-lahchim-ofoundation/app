@@ -1,6 +1,6 @@
 from Disorder import Disorder
 
-class Behavioral_Emotional_Children(Disorder):
+class Fear_of_illness_or_death(Disorder):
     def __init__(self, name, filename):
         super().__init__(name, filename)
         self.add_session(1, " ")

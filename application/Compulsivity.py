@@ -1,6 +1,6 @@
 from Disorder import Disorder
 
-class Schizophrenia(Disorder):
+class Compulsivity(Disorder):
     def __init__(self, name, filename):
         super().__init__(name, filename)
         self.add_session(1, " ")
@@ -18,5 +18,3 @@ class Schizophrenia(Disorder):
         self.add_session(7, " ")
         
         self.add_session(8, " ")
-
-
