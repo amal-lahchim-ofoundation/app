@@ -258,13 +258,16 @@
           hasWarned = true;
         }
 
-        if (elapsedTime > sessionDuration && !hasWarnedForEndSession) {
-          alert("The session has ended.");
+        if (elapsedTime > sessionDuration) {
+          if(!hasWarnedForEndSession){
+            alert("The session has ended.");
+          }
+          hasWarnedForEndSession = true;
+
           clearInterval(interval);  // stop the countdown when session ends
           document.getElementById("timer").innerHTML = "EXPIRED";
           document.getElementById("submit-btn").disabled = true;
           document.getElementById("user_input").disabled = false;
-          hasWarnedForEndSession = true;
 
           // Check if the user input is empty
           var userInput = $("#user_input").val().trim();
@@ -280,6 +283,7 @@
           // Clear the chatbox
           const chatBox = document.querySelector('.chat-box ul');
           fetch('/end_session')
+          sessionStorage.clear();
 
         } else {
           document.getElementById("submit-btn").disabled = false;

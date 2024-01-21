@@ -29,11 +29,9 @@ import fitz
 app = Flask(__name__, static_folder='static')  #creates a Flask web application object named app. It's a fundamental step in setting up a Flask web application
 app.secret_key = 'your_secret_key_here'
 
-#os.environ['OPENAI_API_KEY'] = os.getenv("apiKey")
-# app.secret_key = os.environ.get('FLASK_SECRET_KEY', '')
-# CREDENTIALS_PATH = os.environ.get('FIREBASE_CREDENTIALS_PATH')  # we must make secure also th credential databaseKey.json!!!
+
 DATABASE_URL = os.getenv('FIREBASE_DATABASE_URL')
-# DATABASE_URL = "https://chat-psychologist-ai-default-rtdb.europe-west1.firebasedatabase.app/"
+
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
@@ -274,9 +272,10 @@ def process_data(responses, prompt):
 
     problem_template = PromptTemplate(
         input_variables=['a', 'q', 'topic'],
-        template = "Assume the role of a therapist and provide support for the user's mental health concern. \
-        Endeavor to reach a conclusion regarding a potential mental health condition based on their responses. \
-        Establish a specific diagnosis by considering the answers {a} provided for the following questions {q} and the user's description: {topic}"
+        template = "Act as a therapist to support the user's mental health needs. \
+        Carefully analyze the user's responses and behavior to identify potential mental health \
+        conditions. Utilize the information provided by the user in their description ({topic}) and their \
+        answers ({a}) to specific questions ({q}). Based on this data, formulate a precise diagnosis"
     )
 
     
@@ -337,7 +336,7 @@ def process_data(responses, prompt):
     
     similarity = check_similarity(problem_disorder, pdf_disorder)
 
-    disorder = diagnosis_chain.run(pdf_text=problem) 
+   
     
     if similarity > 0.2:
         return {
@@ -425,12 +424,7 @@ def initialize_session():
 
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
-    #if request.method == 'GET':
-    #    current_session = session.get('current_session', 0)
-    #    return render_template('chat.html', current_session=current_session)
-    #elif request.method == 'POST':
-    #    # Handle POST request as previously described
-    #    pass
+   
     USERS_REF = db.reference('users')
     user_data = USERS_REF.child(session['random_key']).get()
 
@@ -459,12 +453,12 @@ def chat():
         session['choice'] = session_choice     # Store the selected session choice in the session
 
 
-        disorder_name = session.get('given_diagnose').strip()
+        disorder_name = session.get('given_diagnose','').strip()
         if not disorder_name:
             # If 'given_diagnose' is not found in session, fetch it from the database
           USERS_REF = db.reference('users')
           user_data = USERS_REF.child(session['random_key']).get()
-          disorder_name = user_data.get('given_diagnose', '').strip()   # Fetch 'given_diagnose' from session or database
+          disorder_name = user_data.get('diagnosis_name', '').strip()   # Fetch 'given_diagnose' from session or database
 
         print('########### disorder_name ' + disorder_name )
 
@@ -492,14 +486,14 @@ def end_session():
     USERS_REF = db.reference('users')
     user_data = USERS_REF.child(session['random_key']).get()
 
-    # Default to 1 if 'choice' is not set
-    session_from_ui = session.get('choice', 1)
+    # Get session numbers
+    session_from_ui = session.get('choice', 1)  # Default to 1 if 'choice' is not set
     session_from_db = getSessionNumber(user_data)
 
     # Check if conversation history exists and has more than just the greeting message
     if 'conversation_history' in session and len(session['conversation_history']) > 1:
         if int(session_from_ui) == session_from_db and int(session_from_ui) < 8:
-            # set user data
+            # update/set user data
             user_data['session_number'] = session_from_db + 1
             USERS_REF.child(session['random_key']).set(user_data)
     else:
@@ -538,7 +532,7 @@ def session_status():
 @app.route('/complete_session', methods=['POST'])
 def complete_session():
     # Example of updating session progress
-    current_session = session.get('current_session', 0)
+    current_session = session.get('current_session', 0) # Get current session from session
     if 0 < current_session < 9:
      session[current_session - 1]['completed'] = True
     session['current_session'] = current_session + 1
