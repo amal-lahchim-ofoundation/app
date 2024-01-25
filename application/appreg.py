@@ -508,7 +508,7 @@ def end_session():
 
 
 def session_has_expired():
-    return time.time() - session.get('start_time', 0) >= 5 * 60
+    return time.time() - session.get('start_time', 0) >= 45 * 60
 
 
 def handle_session_expiry():
