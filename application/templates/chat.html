@@ -268,10 +268,14 @@
           document.getElementById("timer").innerHTML = "EXPIRED";
           document.getElementById("submit-btn").disabled = true;
           document.getElementById("user_input").disabled = false;
-
+         
+          const chatBox = document.querySelector('.chat-box ul');
+         
           // Check if the user input is empty
           var userInput = $("#user_input").val().trim();
-          if (userInput === '') {
+          console.log(chatBox.innerText);
+          console.log("user yazdimi : "+!chatBox.innerText.includes('user:'))
+          if (!chatBox.innerText.includes('User:') ) {
             $(".modal-body").text("No interaction in the chat. Session will not be advanced.");
             $("#flashModal").modal('show');
             document.querySelector('[data-dismiss="modal"]').addEventListener('click', function() {
@@ -281,7 +285,7 @@
           }
 
           // Clear the chatbox
-          const chatBox = document.querySelector('.chat-box ul');
+          
           fetch('/end_session')
           sessionStorage.clear();
 
