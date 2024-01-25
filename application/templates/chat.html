@@ -273,8 +273,6 @@
          
           // Check if the user input is empty
           var userInput = $("#user_input").val().trim();
-          console.log(chatBox.innerText);
-          console.log("user yazdimi : "+!chatBox.innerText.includes('user:'))
           if (!chatBox.innerText.includes('User:') ) {
             $(".modal-body").text("No interaction in the chat. Session will not be advanced.");
             $("#flashModal").modal('show');
