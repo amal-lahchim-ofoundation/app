@@ -202,7 +202,12 @@ diagnosequestions = [
         "Do many situations cause you to worry?",
         "Do you tend to worry a lot when you are under pressure?",
         "Once you start worrying, do you find it hard to stop?",
-        "Do you worry all the time? "
+        "Do you worry all the time? ",
+        "Over the past two weeks, have you experienced a noticeable change in your mood, such as feeling sad, empty, hopeless, or appearing tearful to others?",
+        "During the same period, have you found it difficult to enjoy activities that you previously found pleasurable or interesting?",
+        "Have you noticed changes in your appetite or weight (either gain or loss) without attempting to diet?",
+        "Can you tell me about your sleeping patterns lately? Have you experienced insomnia or excessive sleeping?",
+        "Have you felt unusually tired or low on energy most days, making even small tasks seem exhausting?"
         
     ]
 
@@ -268,6 +273,10 @@ def process_data(responses, prompt):
     if os.path.exists(anxiety_directory_path):
         anxiety_pdf_text = process_directory(anxiety_directory_path)
 
+    depression_directory_path = os.path.abspath(disorders_instance.DEPRESSION.file_name)
+    if os.path.exists(depression_directory_path):
+        depression_pdf_text = process_directory(depression_directory_path)    
+
     
 
     problem_template = PromptTemplate(
@@ -318,6 +327,7 @@ def process_data(responses, prompt):
 
     social_anxiety_pdf_summary = diagnosis_chain.run(pdf_text=social_anxiety_pdf_text) 
     anxiety_pdf_summary = diagnosis_chain.run(pdf_text=anxiety_pdf_text)
+    depression_pdf_summary = diagnosis_chain.run(pdf_text=depression_pdf_text)
 
     Disorder_Summary = db.reference("Disorder_Summary")
     
@@ -328,6 +338,10 @@ def process_data(responses, prompt):
     anxietyRow = Disorder_Summary.child(disorders_instance.ANXIETY.name).get()
     anxietyRow["Summary"] = anxiety_pdf_summary
     Disorder_Summary.child(disorders_instance.ANXIETY.name).set(anxietyRow)
+
+    depressionRow = Disorder_Summary.child(disorders_instance.DEPRESSION.name).get()
+    depressionRow["Summary"] = depression_pdf_summary
+    Disorder_Summary.child(disorders_instance.DEPRESSION.name).set(depressionRow)
 
 
     # extract disorder from pdf and from the GPT diagnosed
@@ -508,7 +522,7 @@ def end_session():
 
 
 def session_has_expired():
-    return time.time() - session.get('start_time', 0) >= 45 * 60
+    return time.time() - session.get('start_time', 0) >= 5 * 60
 
 
 def handle_session_expiry():
@@ -517,7 +531,7 @@ def handle_session_expiry():
 
 @app.route('/session_status', methods=['GET'])
 def session_status():
-    session_choice = session.get('session_choice') #Get the session choice from the session
+
     
 
 

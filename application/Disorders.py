@@ -25,7 +25,7 @@ class Disorders:
         self.SOCIAL_ANXIETY = Social_Anxiety("Social Anxiety", "application/content/Social_anxiety")
         self.LOW_SELF_CONFIDENT = Low_self_confident("Low self confident", None)
         self.WORK_STUDY_PROBLEMS = Work_Study_Problems("Work and study problems", None)
-        self.DEPRESSION = Depression("Depression", None)
+        self.DEPRESSION = Depression("Depression", "application/content/Depression")
         self.DISSOCIATION = Dissociation("Dissociation", None)
         self.OCD = OCD("OCD", None)
         self.STRESS = Stress("Stress", None)
