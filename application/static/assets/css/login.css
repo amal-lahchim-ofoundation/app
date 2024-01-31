@@ -34,7 +34,7 @@
   font-family: "Roboto", sans-serif;
   text-transform: uppercase;
   outline: 0;
-  background: #f82249;
+  background: #e38748;
   width: 100%;
   border: 0;
   padding: 15px;
@@ -48,7 +48,7 @@
 .form button:hover,
 .form button:active,
 .form button:focus {
-  background: #f82249;
+  background: #efb947;
 }
 
 .form .message {
@@ -58,7 +58,7 @@
 }
 
 .form .message a {
-  color: #f82249;
+  color: #e38748;
   text-decoration: none;
 }
 
@@ -97,16 +97,16 @@
 }
 
 .container .info span .fa {
-  color: #EF3B3A;
+  color: #FCF5D7;
 }
 
 body {
   background: #060606;
   /* fallback for old browsers */
-  background: -webkit-linear-gradient(right, #161414, #f82249);
-  background: -moz-linear-gradient(right, #161414, #f82249);
-  background: -o-linear-gradient(right, #161414, #f82249);
-  background: linear-gradient(to left, #f82249, #f82249);
+  background: -webkit-linear-gradient(right, #161414, #FCF5D7);
+  background: -moz-linear-gradient(right, #161414, #FCF5D7);
+  background: -o-linear-gradient(right, #161414, #FCF5D7);
+  background: linear-gradient(to left, #6d8ec7, #FCF5D7);
   font-family: "Roboto", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

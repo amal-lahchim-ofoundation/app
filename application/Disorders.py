@@ -18,14 +18,18 @@ from Sleep_problems import Sleep_problems
 from Grief_problems import Grief_problems
 from Friendships_Relationships import Friendships_Relationships
 from Adaptation import Adaptation
+import os
+from dotenv import load_dotenv
 
+
+load_dotenv() 
 class Disorders:
     def __init__(self):
-        self.ANXIETY = Anxiety("Anxiety", "application/content/Anxiety")
-        self.SOCIAL_ANXIETY = Social_Anxiety("Social Anxiety", "application/content/Social_anxiety")
+        self.ANXIETY = Anxiety("Anxiety", os.getenv('CONTENT_FOLDER')+"Anxiety")
+        self.SOCIAL_ANXIETY = Social_Anxiety("Social Anxiety", os.getenv('CONTENT_FOLDER')+"Social_anxiety")
         self.LOW_SELF_CONFIDENT = Low_self_confident("Low self confident", None)
         self.WORK_STUDY_PROBLEMS = Work_Study_Problems("Work and study problems", None)
-        self.DEPRESSION = Depression("Depression", "application/content/Depression")
+        self.DEPRESSION = Depression("Depression", os.getenv('CONTENT_FOLDER')+"Depression")
         self.DISSOCIATION = Dissociation("Dissociation", None)
         self.OCD = OCD("OCD", None)
         self.STRESS = Stress("Stress", None)

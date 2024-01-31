@@ -42,7 +42,7 @@ def home():
 
 
 # Initialize Firebase
-cred = credentials.Certificate('/Users/rabia/Desktop/Chat psychologist/Application/ChatPsychologistAI-tanja/databaseKey.json')
+cred = credentials.Certificate(os.getenv('FIREBASE_DATABASE_CERTIFICATE'))
 firebase_admin.initialize_app(cred, {
     'databaseURL': DATABASE_URL
 })
@@ -582,5 +582,7 @@ def getSessionNumber(user_data):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    serverHost = os.getenv('host')
+    serverPort = os.getenv('port')
+    app.run(host=serverHost,port=serverPort, debug=os.getenv('debug') ) 
 

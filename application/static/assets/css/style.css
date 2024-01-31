@@ -11,16 +11,16 @@
 body {
   font-family: "Open Sans", sans-serif;
   background: #131212;
-  color: #0a0a0a;
+  color: #0F3E77;
 }
 
 a {
-  color: #e0284a;
+  color: #e38748;
   text-decoration: none;
 }
 
 a:hover {
-  color: #e0284a;
+  color: #efb947;
   text-decoration: none;
 }
 
@@ -180,7 +180,7 @@ h6 {
 # Header
 --------------------------------------------------------------*/
 #header {
-  background: rgba(12, 11, 9, 0.6);
+  background: rgb(14, 62, 119);
   border-bottom: 1px solid rgba(12, 11, 9, 0.6);
   transition: all 0.5s;
   z-index: 997;
@@ -190,7 +190,7 @@ h6 {
 
 #header.header-scrolled {
   top: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgb(15, 62, 119, 0.85);
   border-bottom: 1px solid #37332a;
 }
 
@@ -208,7 +208,6 @@ h6 {
 #header .logo a {
   color: #fff;
 }
-
 #header .logo img {
   max-height: 40px;
 }
@@ -218,7 +217,7 @@ h6 {
 --------------------------------------------------------------*/
 .book-a-table-btn {
   margin: 0 0 0 15px;
-  border: 2px solid #e0284a;
+  border: 2px solid #e38748;
   color: #fff;
   border-radius: 50px;
   padding: 8px 25px;
@@ -230,7 +229,7 @@ h6 {
 }
 
 .book-a-table-btn:hover {
-  background: #e0284a;
+  background: #efb947;
   color: #fff;
 }
 
@@ -283,7 +282,7 @@ h6 {
 .navbar a:hover,
 .navbar .active,
 .navbar li:hover>a {
-  color: #e0284a;
+  color: #e38748;
 }
 
 .navbar .dropdown ul {
@@ -297,7 +296,7 @@ h6 {
   opacity: 0;
   visibility: hidden;
   background: #fff;
-  box-shadow: 0px 0px 30px rgba(127, 137, 161, 0.25);
+  box-shadow: 0px 0px 30px rgb(227, 135, 72);
   transition: 0.3s;
   border-radius: 4px;
 }
@@ -468,7 +467,7 @@ h6 {
 
 #hero:before {
   content: "";
-  background: rgba(0, 0, 0, 0.5);
+  background: rgb(252, 245, 215);
   position: absolute;
   bottom: 0;
   top: 0;
@@ -491,16 +490,16 @@ h6 {
   font-size: 48px;
   font-weight: 700;
   line-height: 56px;
-  color: #fff;
+  color: #2a5080;
   font-family: "Poppins", sans-serif;
 }
 
 #hero h1 span {
-  color: #e0284a;
+  color: #6D8EC7;
 }
 
 #hero h2 {
-  color: #eee;
+  color: #0f3e77;
   margin-bottom: 10px 0 0 0;
   font-size: 22px;
 }
@@ -521,13 +520,13 @@ h6 {
   transition: 0.3s;
   line-height: 1;
   color: white;
-  background-color: #e0284a;
-  border: 2px solid #e0284a;
+  background-color: #e38748;
+  border: 2px solid #e38748;
 }
 
 #hero .btn-menu:hover,
 #hero .btn-book:hover {
-  background: #e0284a;
+  background: #efb947;
   color: #fff;
 }
 
@@ -538,7 +537,7 @@ h6 {
 #hero .play-btn {
   width: 94px;
   height: 94px;
-  background: radial-gradient(#e0284a 50%, rgba(205, 164, 94, 0.4) 52%);
+  background: radial-gradient(#e38748 50%, rgb(227, 135, 72) 52%);
   border-radius: 50%;
   display: block;
   position: relative;
@@ -577,14 +576,14 @@ h6 {
   animation-timing-function: steps;
   opacity: 1;
   border-radius: 50%;
-  border: 5px solid #e0284a;
+  border: 5px solid #e38748;
   top: -15%;
   left: -15%;
   background: rgba(198, 16, 0, 0);
 }
 
 #hero .play-btn:hover::after {
-  border-left: 15px solid #e0284a;
+  border-left: 15px solid #efb947;
   transform: scale(20);
 }
 
@@ -689,7 +688,7 @@ section {
   margin: 0 0 5px 0;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #e0284a;
+  color: #6ba0dc;
   font-family: "Poppins", sans-serif;
 }
 
@@ -706,7 +705,7 @@ section {
   margin: 0;
   margin: 0;
   font-size: 36px;
-  font-weight: 700;
+  font-weight: 700; 
   font-family: "Playfair Display", serif;
   color: #0b0b0b;
 }
@@ -716,7 +715,7 @@ section {
 --------------------------------------------------------------*/
 .breadcrumbs {
   padding: 15px 0;
-  background: #1d1b16;
+  background: #0F3E77;
   margin-top: 110px;
 }
 
@@ -871,7 +870,7 @@ section {
   padding: 50px 30px;
   box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
   transition: all ease-in-out 0.3s;
-  background: #e0284a;
+  background: #6D8EC7;
 }
 
 .why-us .box span {
@@ -897,7 +896,7 @@ section {
 }
 
 .why-us .box:hover {
-  background: #e0284a;
+  background: #0E3E77;
   padding: 30px 30px 70px 30px;
   box-shadow: 10px 15px 30px rgba(0, 0, 0, 0.18);
 }
@@ -1684,14 +1683,14 @@ input[type="submit"] {
   padding: 10px 20px;
   border-radius: 15px;
   border: none;
-  background-color: #e0284a;
+  background-color: #e38748;
   color: #fff;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 input[type="submit"]:hover {
-  background-color: #e0284a;
+  background-color: #efb947;
   position: relative;
 }
 
