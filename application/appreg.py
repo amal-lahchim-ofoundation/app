@@ -504,11 +504,16 @@ def end_session():
     session_from_ui = session.get('choice', 1)  # Default to 1 if 'choice' is not set
     session_from_db = getSessionNumber(user_data)
 
+    print("session_from_ui= "+str(session_from_ui))
+    print("session_from_db="+str(session_from_db))
+
     # Check if conversation history exists and has more than just the greeting message
     if 'conversation_history' in session and len(session['conversation_history']) > 1:
+        print ("  if 'conversation_history' in session and len(session['conversation_history']) > 1:    icinde")
         if int(session_from_ui) == session_from_db and int(session_from_ui) < 8:
             # update/set user data
             user_data['session_number'] = session_from_db + 1
+            print(" if int(session_from_ui) == session_from_db and int(session_from_ui) < 8:       icinde ")
             USERS_REF.child(session['random_key']).set(user_data)
     else:
         # Handle the case where there was no interaction

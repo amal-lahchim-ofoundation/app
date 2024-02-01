@@ -269,7 +269,8 @@
       let isPopupShown = false;
 
       function checkSessionStatus() {
-        fetch('/session_status')
+        if(document.getElementById("timer").innerHTML == "EXPIRED") {
+          fetch('/session_status')
           .then(response => response.json())
           .then(data => {
             if (data.expired && !isPopupShown) {
@@ -293,6 +294,8 @@
               }
             }
           });
+        }
+        
       }
 
 
