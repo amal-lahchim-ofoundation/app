@@ -183,6 +183,14 @@
       // Assuming you are using a templating engine that allows embedding server-side values in the template
       var current_session = {{ current_session }}; // Replace this with your actual syntax for retrieving the session value
 
+      if(sessionStorage.getItem('stored_session_number')){
+        if(sessionStorage.getItem('stored_session_number') != current_session){
+          sessionStorage.removeItem('timer_start');
+          sessionStorage.setItem('stored_session_number', current_session);
+        }
+      } else {
+        sessionStorage.setItem('stored_session_number', current_session);
+      }
 
       // Get the select element
       var selectElement = document.getElementById("session_choice");
@@ -236,10 +244,7 @@
           }
           hasWarnedForEndSession = true;
 
-          clearInterval(interval);  // stop the countdown when session ends
-          document.getElementById("timer").innerHTML = "EXPIRED";
-          document.getElementById("submit-btn").disabled = true;
-          document.getElementById("user_input").disabled = false;
+          
          
           const chatBox = document.querySelector('.chat-box ul');
          
@@ -256,27 +261,39 @@
 
           // Clear the chatbox
           
-          fetch('/end_session')
-          sessionStorage.clear();
+          fetch('/end_session');
+
+          clearInterval(interval);  // stop the countdown when session ends
+          document.getElementById("timer").innerHTML = "EXPIRED";
+          document.getElementById("submit-btn").disabled = true;
+          document.getElementById("user_input").disabled = true;
+          // sessionStorage.clear();
+          checkSessionStatus();
 
         } else {
-          document.getElementById("submit-btn").disabled = false;
-          document.getElementById("user_input").disabled = false;
+          var textarea = document.getElementById("user_input");
+          if (textarea.disabled !== true) {
+            document.getElementById("submit-btn").disabled = false;
+            document.getElementById("user_input").disabled = false;
+          }
         }
+
+        
       }
 
       let interval = setInterval(checkTime, 1000);  // check every second
       let isPopupShown = false;
 
       function checkSessionStatus() {
-        if(document.getElementById("timer").innerHTML == "EXPIRED") {
           fetch('/session_status')
           .then(response => response.json())
           .then(data => {
             if (data.expired && !isPopupShown) {
               isPopupShown = true;
-              clearInterval(interval);  // stop the current countdown
+              //clearInterval(interval);  // stop the current countdown
               document.getElementById("timer").innerHTML = "EXPIRED";
+              document.getElementById("submit-btn").disabled = true;
+              document.getElementById("user_input").disabled = true;
 
               // Clear chatbox and show summary
               const chatBox = document.querySelector('.chat-box ul');
@@ -294,7 +311,6 @@
               }
             }
           });
-        }
         
       }
 
@@ -340,8 +356,11 @@
           .catch(error => {
             // Handle any errors here
             // Hide spinner and enable submit button
-            $("#spinner").hide();
-            $("#submit-btn").prop("disabled", false);
+             $("#spinner").hide();
+              var textarea = document.getElementById("user_input");
+              if (textarea.disabled !== true) {
+                $("#submit-btn").prop("disabled", false);
+              }
           });
       });
 

@@ -8,6 +8,9 @@ from flask import session
 from openai import OpenAI
 from dotenv import load_dotenv
 
+import logging
+
+
 
 load_dotenv() 
 openai = OpenAI()
@@ -35,6 +38,7 @@ DATABASE_URL = os.getenv('FIREBASE_DATABASE_URL')
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
+    logging.debug("redirecting index.html")
     return render_template('index.html')
 
 ################################################### Firebase ####################################################################
@@ -53,6 +57,7 @@ def redirect_if_logged_in(route_function):
     @wraps(route_function)
     def wrapper(*args, **kwargs):
         if 'user_logged_in' in session:
+            logging.debug("redirecting to home page since already loggd in")
             return redirect(url_for('home'))  # Redirect to the home page if already logged in
         return route_function(*args, **kwargs)
     return wrapper
@@ -84,6 +89,7 @@ def register():
 
     flash(f'Your registration key is: {random_key}. Please save it for future logins.', 'success')
     session['random_key'] = random_key
+    logging.info("user registered with random key ["+random_key+"]")
     return redirect(url_for('register_page'))
 
 
@@ -142,8 +148,11 @@ def login_page():
 ######################################### LogOut Firebase ###############################
 @app.route('/logout')
 def logout():
+    logging.debug("user logged out")
     session.pop('user_logged_in', None)
+    logging.debug("setting user_logged_in flag to none")
     session.clear()
+    logging.debug("session is cleared")
    # flash('Successfully logged out!')
     return redirect(url_for('home'))
 
@@ -184,6 +193,7 @@ def extract_disorder(text, disorders): #extracts the disorder from text if it ex
         #iterate through each disorder
         if disorder.lower() in text.lower(): #check if disorder exists in text, case insensitive
             matches[disorder]=disorder
+            logging.debug("extract_disorder matching disorder found " + text.lower())
     return max(matches, key=len)
 
 def check_similarity(disorder_list1, disorder_list2):
@@ -419,6 +429,7 @@ def greeting(greeting_prompt, temperature=0.5): # start greeting function
 def summarize(conversation_history, temperature=0.5): # join conversation content, make summary prompt
     summarized_text = ' '.join([msg['content']
                                for msg in conversation_history])
+    logging.debug("summarizing the chat history " + summarized_text)
     prompt = f" Make a summerize of the following conversation: {summarized_text} go more in detail and \
         cover most important things. Also you have to be not too long."
     messages = [
@@ -431,6 +442,7 @@ def summarize(conversation_history, temperature=0.5): # join conversation conten
     return response.choices[0].message.content
 
 def initialize_session():
+    logging.debug("inititialize session and reset conversation_history, summary, start_time, greeted")
     session['start_time'] = time.time() # Records the elapsed time between the client and the server. time.time() returns the current time
     session["conversation_history"] = []
     session['greeted'] = False
@@ -445,10 +457,10 @@ def chat():
     session_number = getSessionNumber(user_data)
 
     if 'conversation_history' not in session:
+        logging.debug("calling initialize session from chat")
         initialize_session()
 
-    if session_has_expired():
-        return handle_session_expiry()
+   
 
 
     if not session['greeted'] :
@@ -496,6 +508,7 @@ def chat():
 
 @app.route('/end_session', methods=['GET'])
 def end_session():
+    logging.debug("The time for the session has ended")
     # get user data
     USERS_REF = db.reference('users')
     user_data = USERS_REF.child(session['random_key']).get()
@@ -504,13 +517,15 @@ def end_session():
     session_from_ui = session.get('choice', 1)  # Default to 1 if 'choice' is not set
     session_from_db = getSessionNumber(user_data)
 
-    print("session_from_ui= "+str(session_from_ui))
-    print("session_from_db="+str(session_from_db))
+    logging.debug("Ending session number ["+session_from_ui+"] for user ["+user_data['random_key']+"] ")
+    logging.debug("Session number from db "+str(session_from_db))
 
+
+    logging.debug("Conversation history size "+str(len(session['conversation_history'])))
     # Check if conversation history exists and has more than just the greeting message
     if 'conversation_history' in session and len(session['conversation_history']) > 1:
-        print ("  if 'conversation_history' in session and len(session['conversation_history']) > 1:    icinde")
         if int(session_from_ui) == session_from_db and int(session_from_ui) < 8:
+            logging.debug("Session from db and ui matched incrementing the session number")
             # update/set user data
             user_data['session_number'] = session_from_db + 1
             print(" if int(session_from_ui) == session_from_db and int(session_from_ui) < 8:       icinde ")
@@ -521,6 +536,7 @@ def end_session():
         return redirect(url_for('chat'))
 
     # Reset session data
+    logging.debug("calling initialize session from end session")
     initialize_session()
     return redirect(url_for('chat'))
 
@@ -531,6 +547,7 @@ def session_has_expired():
 
 
 def handle_session_expiry():
+    logging.debug("calling initialize session from handle session expiry")
     initialize_session()  # Start a new session
     return render_template('chat.html', conversation_history=session['conversation_history'])   # Render chat template with session data
 
@@ -587,6 +604,16 @@ def getSessionNumber(user_data):
 
 
 if __name__ == '__main__':
+    # Configure the logging system
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(asctime)s [%(levelname)s] - %(message)s',
+        handlers=[
+            logging.FileHandler('example.log'),  # Output to a log file
+        ]
+    )
+    logger = logging.getLogger(__name__)
+    
     serverHost = os.getenv('host')
     serverPort = os.getenv('port')
     app.run(host=serverHost,port=serverPort, debug=os.getenv('debug') ) 
