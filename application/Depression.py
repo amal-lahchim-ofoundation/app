@@ -8,7 +8,7 @@ class Depression(Disorder):
                             Initiate with a brief introduction, establish rapport, and elucidate the treatment process.  \
                             Aim to collect information to  formulate an appropriate treatment plan while fostering a trusting relationship.\
                             Ask these questions one by one, ensuring you listen actively and empathetically to each response \
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions.Even if you don't get an answer to your question, move on to another question instead of asking it again. \
                             What motivated you to seek therapy for depression? Are there specific aspects of your life that feel particularly challenging? \
                             How long have you been experiencing these depressive feelings, and have they intensified recently? \
                             Are there particular situations, events, or triggers that seem to worsen your depressive symptoms? \
@@ -40,7 +40,7 @@ class Depression(Disorder):
                             Present information about depression, it's development, and factors contributing to its maintenance. \
                             Encourage the client to ask questions and share personal experiences related to the topics discussed. \
                             Ask these questions one by one, ensuring you listen actively and empathetically to each response \
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. Even if you don't get an answer to your question, move on to another question instead of asking it again.\
                             This session is a continuation of the previous session.\
                             How would you describe your understanding of depression?\
                             What do you believe are the causes of your depression?\
@@ -55,7 +55,7 @@ class Depression(Disorder):
                             By understanding and changing these thoughts, you can reduce your depressive symptoms and improve your overall well-being.\
                             This is the 3rd session to deal with depression.\
                             Ask these questions one by one, ensuring you listen actively and empathetically to each response. \
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions.Even if you don't get an answer to your question, move on to another question instead of asking it again. \
                             This session is a continuation of the previous session.\
                             Can you recall a recent situation where you felt particularly depressed? Can you describe what happened? \
                             What were the thoughts going through your mind during that situation?\
@@ -80,7 +80,7 @@ class Depression(Disorder):
         self.add_session(4, "Cognitive Restructuring II. Building on our previous session, today's goal is to continue identifying and challenging negative automatic thoughts that contribute to your depression.\
                             This is the 4th session to deal with depression. \
                             Ask these questions one by one, ensuring you listen actively and empathetically to each response \
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. Even if you don't get an answer to your question, move on to another question instead of asking it again.\
                             This session is a continuation of the previous session.\
                             Can you recall another recent situation where you felt particularly depressed? Describe the details.\
                             What were the negative thoughts you had during that situation?\
@@ -97,7 +97,7 @@ class Depression(Disorder):
                             We'll discuss your fears related to depressive situations and work towards confronting and reducing those fears over time.\
                             This is the 5th session to deal with deprerssion.\
                             Ask these questions one by one, ensuring you listen actively and empathetically to each response \
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. Even if you don't get an answer to your question, move on to another question instead of asking it again.\
                             This session is a continuation of the previous session.\
                             Can you think of a recent situation where you felt particularly overwhelmed by depressive feelings? Describe it. \
                             What were the negative thoughts you had during that situation?\
@@ -114,7 +114,7 @@ class Depression(Disorder):
                             This exposure is aimed at helping you confront and reduce your fears over time.\
                             This is the 6th session to deal with depression.\
                             Ask these questions one by one, ensuring you listen actively and empathetically to each response \
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. Even if you don't get an answer to your question, move on to another question instead of asking it again.\
                             This session is a continuation of the previous session.\
                             Let's start by listing some social situations that you find challenging or anxiety-inducing due to your depressive feelings. Can you name a few?\
                             On a scale of 1 to 10, how would you rate your emotional distress level for each of these situations? \
@@ -129,7 +129,7 @@ class Depression(Disorder):
                             Additionally, we'll discuss strategies for relapse prevention.\
                             This is the 7th session to deal with depression.\
                             Ask these questions one by one, ensuring you listen actively and empathetically to each response \
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions.Even if you don't get an answer to your question, move on to another question instead of asking it again. \
                             This session is a continuation of the previous session.\
                             Let's review the situations you faced since our last session. Can you describe any negative thoughts you had during those situations?\
                             How did you challenge those thoughts, and were you able to come up with more balanced or positive alternatives?\
@@ -143,7 +143,7 @@ class Depression(Disorder):
                             As we conclude our therapy, we'll discuss long-term strategies for managing your depression and preventing relapses.\
                             This is the last session to deal with depresion.\
                             Ask these questions one by one, ensuring you listen actively and empathetically to each response \
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions.Even if you don't get an answer to your question, move on to another question instead of asking it again. \
                             This session is a continuation of the previous session.\
                             How do you feel about the strategies and techniques we've discussed and practiced for managing your depression?\
                             It's natural to experience setbacks. Can you think of potential situations or triggers that might challenge your progress?\

@@ -8,7 +8,7 @@ class Anxiety(Disorder):
                             Aim to gather information to create an appropriate treatment plan while also building trust.\
                             Ask these questions one by one, ensuring you listen actively and empathetically to each response. \
                             Remember to ask each querstion only once, ensuring you actively listen and emphatize with the user's responses. Never repeat a question to the user.\
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions.Even if you don't get an answer to your question, move on to another question instead of asking it again. \
                             Could you tell me a little about yourself and what brought you to therapy?\
                             Have you had any previous experiences with therapy, and if so, what were they like for you?\
                             Let's talk about your experiences with worry and anxiety. Are there specific situations or thoughts that typically trigger your anxiety?\
@@ -30,7 +30,7 @@ class Anxiety(Disorder):
                             Encourage the client to ask questions and share personal experiences related to the topics discussed.\
                             Ask these questions one by one, ensuring you listen actively and empathetically to each response. \
                             Remember to ask each querstion only once, ensuring you actively listen and emphatize with the user's responses. Never repeat a question to the user.\
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions.Even if you don't get an answer to your question, move on to another question instead of asking it again. \
                             This session is a continuation of the previous session.\
                             How would you describe your understanding of anxiety?\
                             What do you believe are the causes of your anxiety?\
@@ -45,7 +45,7 @@ class Anxiety(Disorder):
                             By understanding and changing these thoughts, you can reduce your anxiety and improve your confidence in social situations.\
                             Ask these questions one by one, ensuring you listen actively and empathetically to each response. \
                             Remember to ask each querstion only once, ensuring you actively listen and emphatize with the user's responses. Never repeat a question to the user.\
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions.Even if you don't get an answer to your question, move on to another question instead of asking it again. \
                             This session is a continuation of the previous session.\
                             Can you recall a recent situation where you felt anxious? Can you describe what happened?\
                             What were the thoughts going through your mind during that situation?\
@@ -60,7 +60,7 @@ class Anxiety(Disorder):
         self.add_session(4, "Exposure Therapy. The aim of this session is to gradually expose you to the social situations that cause anxiety, helping you to confront and reduce your fear over time.\
                             This is the 4th session. Ask these questions one by one, ensuring you listen actively and empathetically to each response. \
                             Remember to ask each querstion only once, ensuring you actively listen and emphatize with the user's responses. Never repeat a question to the user.\
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions.Even if you don't get an answer to your question, move on to another question instead of asking it again. \
                             This session is a continuation of the previous session.\
                             Can you list some social situations that cause you anxiety, starting from the least anxiety-provoking to the most?\
                             How would you rate your anxiety in each of these situations on a scale of 1 to10?\
@@ -75,7 +75,7 @@ class Anxiety(Disorder):
         self.add_session(5, "Cognitive Restructuring. The goal of this session is to identify and challenge negative thought patterns that contribute to anxiety.\
                             This is the 5th session. Ask these questions one by one, ensuring you listen actively and empathetically to each response. \
                             Remember to ask each querstion only once, ensuring you actively listen and emphatize with the user's responses. Never repeat a question to the user.\
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions.Even if you don't get an answer to your question, move on to another question instead of asking it again. \
                             This session is a continuation of the previous session.\
                             Can you think of a recent social situation where you felt anxious? Describe it.\
                             What were the negative thoughts you had during that situation?\
@@ -91,7 +91,7 @@ class Anxiety(Disorder):
         self.add_session(6, "As we move into this sixth session on managing anxiety, our focus will turn to 'Exposure to Feared Social Situations.' This method is pivotal in learning how to navigate and eventually reduce the anxiety you feel in social contexts. \
                             This is the 6th session. Ask these questions one by one, ensuring you listen actively and empathetically to each response. \
                             Remember to ask each querstion only once, ensuring you actively listen and emphatize with the user's responses. Never repeat a question to the user.\
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions.Even if you don't get an answer to your question, move on to another question instead of asking it again. \
                             This session is a continuation of the previous session.\
                             Let's start by listing some social situations that you find challenging or anxiety-inducing. Can you name a few?\
                             On a scale of 1 to 10, how would you rate your anxiety level for each of these situations?\
@@ -105,7 +105,7 @@ class Anxiety(Disorder):
         self.add_session(7, "Cognitive Restructuring (Part 2). Today, we'll continue to work on identifying and challenging negative thought patterns that contribute to your anxiety.\
                             This is the 7th session. Ask these questions one by one, ensuring you listen actively and empathetically to each response. \
                             Remember to ask each querstion only once, ensuring you actively listen and emphatize with the user's responses. Never repeat a question to the user.\
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions.Even if you don't get an answer to your question, move on to another question instead of asking it again. \
                             This session is a continuation of the previous session.\
                             Let's review the situations you faced since our last session. Can you describe any negative thoughts you had during those situations?\
                             How did you challenge those thoughts? Were you able to come up with more balanced or positive thoughts?\
@@ -118,7 +118,7 @@ class Anxiety(Disorder):
         self.add_session(8, "You are a highly professional psychologist. Today's session is about relapse prevention and planning for the future.\
                             This is the last session. Ask these questions one by one, ensuring you listen actively and empathetically to each response. \
                             Remember to ask each querstion only once, ensuring you actively listen and emphatize with the user's responses. Never repeat a question to the user.\
-                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. \
+                            If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions.Even if you don't get an answer to your question, move on to another question instead of asking it again. \
                             This session is a continuation of the previous session.\
                             Let's reflect on the progress you've made throughout our sessions. What are some key takeaways or insights you've gained?\
                             How do you feel about the strategies and techniques we've discussed and practiced?\
