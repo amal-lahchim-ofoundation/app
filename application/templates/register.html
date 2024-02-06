@@ -48,9 +48,7 @@
   .modal-backdrop {
     z-index: -1;
 }
-.modal-dialog {
-  margin-top: 20%;  /* Adjust this value as needed */
-}
+
 
 #randomKeyCopyButton {
   display: inline-block;
@@ -144,8 +142,8 @@
                 <button class="submit-btn" data-bs-toggle="modal" data-bs-target="#buy-ticket-modal" data-ticket-type="premium-access" value="register">Register</button>
                 <p class="message">Already registered? <a href="{{ url_for('login') }}">Sign In</a></p>
               </form>
-              <div class="modal fade" id="flashModal" tabindex="-1" role="dialog" aria-labelledby="flashModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
+              <div class="modal fade" id="flashModal" tabindex="-1" role="dialog1" aria-labelledby="flashModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
                       <h5 class="modal-title" id="flashModalLabel">Message</h5>
@@ -157,7 +155,7 @@
                       <!-- Flash message content will go here -->
                     </div>
                     <div class="modal-footer">
-                      <a href="{{url_for('register')}}" class="btn btn-primary">Cancle</a>
+                      <a href="{{url_for('register')}}" class="btn btn-primary">Cancel</a>
                       <a href="{{url_for('login')}}" class="btn btn-primary" style="display: none;">Login</a>
                        
                       <input type="text" class="form-control" id="randomKeyInput" value="{{ session['random_key'] }}" readonly style="display:none;">
@@ -236,21 +234,23 @@
 
 
 <script>
-  var clipboard = new ClipboardJS('#randomKeyCopyButton');
+document.getElementById('randomKeyCopyButton').addEventListener('click', function() {
+  var copyText = document.getElementById('randomKeyInput').value;
+  navigator.clipboard.writeText(copyText).then(() => {
+    // Change button appearance to indicate success
+    this.textContent = 'Copied!';
+    this.style.backgroundColor = '#28a745';
 
-clipboard.on('success', function(e) {
-    var button = e.trigger;
-    button.classList.add('copied');
-    button.textContent = '✔ Copied';
-
-    // Set a timeout to revert the button back to its original state
-    setTimeout(function() {
-        button.classList.remove('copied');
-        button.textContent = 'Copy';
-    }, 2000); // 2 seconds delay
-
-    e.clearSelection();
+    // Revert button appearance after 2 seconds
+    setTimeout(() => {
+      this.textContent = 'Copy';
+      this.style.backgroundColor = '#3498db';
+    }, 2000);
+  }).catch(err => {
+    console.error('Error copying to clipboard: ', err);
+  });
 });
+
 </script>
 
 
