@@ -451,19 +451,23 @@ def initialize_session():
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
    
+    user_key = session.get('random_key')
     USERS_REF = db.reference('users')
-    user_data = USERS_REF.child(session['random_key']).get()
+    user_data = USERS_REF.child(user_key).get() or {}
+    remaining_time = user_data.get('remaining_time', 45 * 60 * 1000)
 
     session_number = getSessionNumber(user_data)
 
+    if str(remaining_time) != str(45 * 60 * 1000):
+        session['conversation_history'] = user_data.get(f"{session_number}_conversationHistory", [])
+        session['start_time'] = time.time() + (45 * 60 * 1000 - int(remaining_time))
     if 'conversation_history' not in session:
         logging.debug("calling initialize session from chat")
         initialize_session()
 
    
 
-
-    if not session['greeted'] :
+    if 'greeted' in session and not session['greeted'] :
         greeting_prompt = 'Welcome the user. Present yourself as an AnnaAI psychologist and also mention that \
             the duration of one session is 45 minutes. \
             After that time passes, you have to inform the user that the time has passed and \
@@ -503,7 +507,7 @@ def chat():
         return jsonify({"assistant_response": assistant_response})
 
         
-    return render_template('chat.html', conversation_history=session['conversation_history'], current_session=session_number)
+    return render_template('chat.html', conversation_history=session['conversation_history'], current_session=session_number, remaining_time=remaining_time)
 
 
 @app.route('/end_session', methods=['GET'])
@@ -551,10 +555,20 @@ def handle_session_expiry():
     initialize_session()  # Start a new session
     return render_template('chat.html', conversation_history=session['conversation_history'])   # Render chat template with session data
 
+def update_remaining_time(remaining_time):
+    user_key = session.get('random_key')
+
+    # Update the remaining time in your database
+    USERS_REF = db.reference('users')
+    USERS_REF.child(user_key).update({'remaining_time': remaining_time})
+
+    return '', 204  # Return a 204 No Content status to indicate success
+
 @app.route('/session_status', methods=['GET'])
 def session_status():
 
-    
+    remaining_time = request.args.get('data')
+    update_remaining_time(remaining_time)
 
 
     if session_has_expired():
