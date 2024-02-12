@@ -129,14 +129,12 @@ def login():
     
     session['user_logged_in'] = True
     session['random_key'] = random_key  # Store the random_key in the session
+    session['has_interacted'] = user_data.get('has_interacted', False)  # Get interaction status
     
     # Check if it's the user's first login
-    if 'diagnosis' in user_data:
-        session['first_login'] = False
-    else:
-        session['first_login'] = True
+    session['first_login'] = 'diagnosis' not in user_data
 
-   # flash('Successfully logged in!')
+    # Redirect to home
     return redirect(url_for('home'))
 
 
@@ -440,13 +438,14 @@ def summarize(conversation_history, temperature=0.5): # join conversation conten
         temperature=temperature)
    
     return response.choices[0].message.content
-
+@app.route('/initialize_session', methods=['GET'])
 def initialize_session():
     logging.debug("inititialize session and reset conversation_history, summary, start_time, greeted")
     session['start_time'] = time.time() # Records the elapsed time between the client and the server. time.time() returns the current time
     session["conversation_history"] = []
     session['greeted'] = False
     session['summary'] = ""
+    return '', 204
 
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
@@ -454,24 +453,17 @@ def chat():
     user_key = session.get('random_key')
     USERS_REF = db.reference('users')
     user_data = USERS_REF.child(user_key).get() or {}
-    remaining_time = user_data.get('remaining_time', 45 * 60 * 1000)
+    remaining_time = int(user_data.get('remaining_time', 45 * 60 * 1000))
 
     session_number = getSessionNumber(user_data)
 
-    if str(remaining_time) != str(45 * 60 * 1000):
+    if 'conversation_history' not in session or (remaining_time != 45 * 60 * 1000 and remaining_time > 5):
         session['conversation_history'] = user_data.get(f"{session_number}_conversationHistory", [])
-        session['start_time'] = time.time() + (45 * 60 * 1000 - int(remaining_time))
-    if 'conversation_history' not in session:
-        logging.debug("calling initialize session from chat")
-        initialize_session()
+        remaining_time = int(user_data.get('remaining_time', 45 * 60 * 1000))
+        session['start_time'] = time.time() + (45 * 60 * 1000 - remaining_time) / 1000
 
-   
-
-    if 'greeted' in session and not session['greeted'] :
-        greeting_prompt = 'Welcome the user. Present yourself as an AnnaAI psychologist and also mention that \
-            the duration of one session is 45 minutes. \
-            After that time passes, you have to inform the user that the time has passed and \
-            the session has ended.'
+    if 'greeted' not in session or not session['greeted']:
+        greeting_prompt = 'Welcome the user. Present yourself as an AnnaAI psychologist and also mention that the duration of one session is 45 minutes. After that time passes, you have to inform the user that the time has passed and the session has ended.'
         greeting_message = greeting(greeting_prompt, temperature=0.5)
         session['conversation_history'].append({"role": "assistant", "content": greeting_message})
         session['greeted'] = True
@@ -480,33 +472,27 @@ def chat():
     if request.method == 'POST':
         user_input = request.form['user_input']
         session_choice = request.form.get('session_choice', '1')
-        session['choice'] = session_choice     # Store the selected session choice in the session
+        session['choice'] = session_choice  # Store the selected session choice in the session
 
+        if user_input.strip():  # Check if the input is not just whitespace
+            session['has_interacted'] = True  # Set the flag to True when user interacts
 
-        disorder_name = session.get('given_diagnose','').strip()
-        if not disorder_name:
-            # If 'given_diagnose' is not found in session, fetch it from the database
-          USERS_REF = db.reference('users')
-          user_data = USERS_REF.child(session['random_key']).get()
-          disorder_name = user_data.get('diagnosis_name', '').strip()   # Fetch 'given_diagnose' from session or database
+            disorder_name = session.get('given_diagnose', '').strip()
+            if not disorder_name:
+                disorder_name = user_data.get('diagnosis_name', '').strip()
 
-        print('########### disorder_name ' + disorder_name )
+            given_diagnose = disorders_instance.get_disorder_by_name(disorder_name)
+            session_prompt = str(given_diagnose.get_session_questions(int(session_choice)))
 
-        given_diagnose = disorders_instance.get_disorder_by_name(disorder_name) # Get the disorder instance
-        session_prompt = str(given_diagnose.get_session_questions(int(session_choice)))
-            
-        
+            assistant_response = generate_response(user_input, session_prompt, temperature=0.2)
+            session['conversation_history'].append({"role": "user", "content": user_input})
+            session['conversation_history'].append({"role": "assistant", "content": assistant_response})
 
-        assistant_response = generate_response(user_input, session_prompt, temperature=0.2)
-        session['conversation_history'].append({"role": "user", "content": user_input})
-        session['conversation_history'].append({"role": "assistant", "content": assistant_response})
+            user_data[f"{session_choice}_conversationHistory"] = session['conversation_history']
+            USERS_REF.child(user_key).set(user_data)
 
-        user_data[session_choice+'_conversationHistory'] = session['conversation_history']
-        USERS_REF.child(session['random_key']).set(user_data)
-    
-        return jsonify({"assistant_response": assistant_response})
+            return jsonify({"assistant_response": assistant_response})
 
-        
     return render_template('chat.html', conversation_history=session['conversation_history'], current_session=session_number, remaining_time=remaining_time)
 
 
@@ -518,10 +504,10 @@ def end_session():
     user_data = USERS_REF.child(session['random_key']).get()
 
     # Get session numbers
-    session_from_ui = session.get('choice', 1)  # Default to 1 if 'choice' is not set
+    session_from_ui = request.args.get('selectedSession')
     session_from_db = getSessionNumber(user_data)
 
-    logging.debug("Ending session number ["+session_from_ui+"] for user ["+user_data['random_key']+"] ")
+    logging.debug("Ending session number ["+str(session_from_ui)+"] for user ["+user_data['random_key']+"] ")
     logging.debug("Session number from db "+str(session_from_db))
 
 
@@ -541,12 +527,14 @@ def end_session():
 
     # Reset session data
     logging.debug("calling initialize session from end session")
+    session_status()
     initialize_session()
     return redirect(url_for('chat'))
 
 
 
 def session_has_expired():
+    logging.debug("session has expired :: start time==="+str(time.time()-session.get('start_time', 0)))
     return time.time() - session.get('start_time', 0) >= 45 * 60
 
 
@@ -564,19 +552,28 @@ def update_remaining_time(remaining_time):
 
     return '', 204  # Return a 204 No Content status to indicate success
 
+def remove_remaining_time():
+    user_key = session.get('random_key')
+
+    USERS_REF = db.reference('users')
+    USERS_REF.child(user_key).update({'remaining_time': None})
+    
+
 @app.route('/session_status', methods=['GET'])
 def session_status():
 
     remaining_time = request.args.get('data')
-    update_remaining_time(remaining_time)
+    logging.debug("remaining time::::"+str(remaining_time))
 
-
-    if session_has_expired():
+    if session_has_expired() or remaining_time < 1000:
         # Generate a summary of the conversation
         summary = summarize(session.get('conversation_history'))
         session["summary"] = summary
+        remove_remaining_time()
         return jsonify({"expired": True, "summary": summary})
-
+    else:
+        update_remaining_time(remaining_time)
+    
     return jsonify({"expired": False})
 
 @app.route('/complete_session', methods=['POST'])

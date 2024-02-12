@@ -222,11 +222,14 @@
       let warningTime = sessionDuration - 60 * 1000;  // 44 minutes in milliseconds
       let hasWarned = false;
 
+      let noInteraction = false;
+
       let hasWarnedForEndSession = false;
 
       function checkTime() {
         let now = new Date().getTime();
         let elapsedTime = now - startTime;
+        console.log("Elapsed time : "+elapsedTime);
         let remainingTime = sessionDuration - elapsedTime;
         let minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
         let seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
@@ -250,18 +253,23 @@
          
           // Check if the user input is empty
           var userInput = $("#user_input").val().trim();
-          if (!chatBox.innerText.includes('User:') ) {
+          console.log(chatBox.innerText);
+          if (!chatBox.innerText.toLowerCase().includes('user:') && noInteraction == false ) {
             $(".modal-body").text("No interaction in the chat. Session will not be advanced.");
             $("#flashModal").modal('show');
             document.querySelector('[data-dismiss="modal"]').addEventListener('click', function() {
               $('#flashModal').modal('hide');
             });
+            noInteraction = true;
+            clearInterval(interval);
+            fetch('/initialize_session');
+            sessionStorage.removeItem('timer_start');
             return;  // Do not proceed with form submission
           }
 
           // Clear the chatbox
-          
-          fetch('/end_session');
+          let selectedSession = $("#session_choice").find(":selected").val();;
+          fetch('/end_session?selectedSession='+selectedSession);
 
           clearInterval(interval);  // stop the countdown when session ends
           document.getElementById("timer").innerHTML = "EXPIRED";
