@@ -7,7 +7,7 @@ from werkzeug.security import check_password_hash
 from flask import session
 from openai import OpenAI
 from dotenv import load_dotenv
-
+import json
 import logging
 
 
@@ -462,11 +462,24 @@ def chat():
         remaining_time = int(user_data.get('remaining_time', 45 * 60 * 1000))
         session['start_time'] = time.time() + (45 * 60 * 1000 - remaining_time) / 1000
 
+    if remaining_time != 45 * 60 * 1000:
+        session['greeted'] = True
+
     if 'greeted' not in session or not session['greeted']:
         greeting_prompt = 'Welcome the user. Present yourself as an AnnaAI psychologist and also mention that the duration of one session is 45 minutes. After that time passes, you have to inform the user that the time has passed and the session has ended.'
         greeting_message = greeting(greeting_prompt, temperature=0.5)
         session['conversation_history'].append({"role": "assistant", "content": greeting_message})
         session['greeted'] = True
+    
+    else:
+        catchup_prompt = 'You are an AnnaAI psychologist. You had a session with this user in the past and the user left the chat after some time.\
+            The sessions take 45 minutes. This user has '+str(remaining_time/1000)+ ' seconds left. Remind this time to user in the mm:ss format.\
+            Here is the conversation history from you previous chat belonging to this session: '+ json.dumps(session['conversation_history']) + '\
+            Also, catchup with the user.'
+        
+        greeting_message = greeting(catchup_prompt, temperature=0.5)
+        session['conversation_history'].append({"role": "assistant", "content": greeting_message})
+            
 
 
     if request.method == 'POST':
@@ -565,7 +578,7 @@ def session_status():
     remaining_time = request.args.get('data')
     logging.debug("remaining time::::"+str(remaining_time))
 
-    if session_has_expired() or remaining_time < 1000:
+    if session_has_expired() or int(remaining_time) < 1000:
         # Generate a summary of the conversation
         summary = summarize(session.get('conversation_history'))
         session["summary"] = summary

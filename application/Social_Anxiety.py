@@ -10,23 +10,23 @@ class Social_Anxiety(Disorder):
                 Ask these questions one by one, ensuring you listen actively and empathetically to each response. \
                 Remember to ask each querstion only once, ensuring you actively listen and emphatize with the user's responses. Never repeat a question to the user. \
                 If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. Even if you don't get an answer to your question, move on to another question instead of asking it again.\
-                Can you share with me what led you to seek therapy and what specific challenges or concerns you're facing related to social situations?, \
-                How long have you been experiencing symptoms of social anxiety, and have they changed or worsened over time?, \
-                Can you describe the specific situations or social settings where you feel most anxious or uncomfortable?, \
-                Have you noticed any triggers or patterns that intensify your social anxiety?, \
-                How does social anxiety impact your daily life, relationships, and overall well-being?, \
-                Have you attempted any coping mechanisms or strategies to manage your anxiety in social situations? \
-                How effective have they been for you?, Are there any past experiences or traumas that you think might be contributing to your social anxiety?, \
-                Do you have any concerns or fears about the therapy process itself, or is there anything specific you'd like to know about how therapy works?, \
-                Have you received any previous treatment or therapy for social anxiety, and if so, what was your experience like?, \
-                Are there any specific goals or outcomes you hope to achieve through therapy for social anxiety?, \
-                Are there any cultural, religious, or personal beliefs that may influence your approach to therapy or your experience of social anxiety?, \
-                Is there anything you'd like to know about social anxiety, its causes, or its treatment options?, \
-                How do you currently perceive yourself in social situations, and how would you like to see yourself in these situations in the future? \
-                What strengths or coping skills do you have that you feel might help you in overcoming social anxiety?, \
-                How comfortable are you with the idea of gradually confronting social situations that trigger your anxiety as part of therapy?, \
-                Conduct a comprehensive assessment to understand the extent and impact of social anxiety in their life. \
-                Help them and provide them with solutions to their problem.")
+                Can you share with me what led you to seek therapy and what specific challenges or concerns you're facing related to social situations?\
+                How long have you been experiencing symptoms of social anxiety, and have they changed or worsened over time?\
+                Can you describe the specific situations or social settings where you feel most anxious or uncomfortable?\
+                Have you noticed any triggers or patterns that intensify your social anxiety?\
+                How does social anxiety impact your daily life, relationships, and overall well-being?\
+                Have you attempted any coping mechanisms or strategies to manage your anxiety in social situations?\
+                How effective have they been for you?, Are there any past experiences or traumas that you think might be contributing to your social anxiety?\
+                Do you have any concerns or fears about the therapy process itself, or is there anything specific you'd like to know about how therapy works?\
+                Have you received any previous treatment or therapy for social anxiety, and if so, what was your experience like?\
+                Are there any specific goals or outcomes you hope to achieve through therapy for social anxiety?\
+                Are there any cultural, religious, or personal beliefs that may influence your approach to therapy or your experience of social anxiety?\
+                Is there anything you'd like to know about social anxiety, its causes, or its treatment options?\
+                How do you currently perceive yourself in social situations, and how would you like to see yourself in these situations in the future?\
+                What strengths or coping skills do you have that you feel might help you in overcoming social anxiety?\
+                How comfortable are you with the idea of gradually confronting social situations that trigger your anxiety as part of therapy?\
+                Conduct a comprehensive assessment to understand the extent and impact of social anxiety in their life.Help them and provide them with solutions to their problem.")
+          
         
         self.add_session(2, "Psychoeducation on Social Anxiety. Educate the client about the nature of social anxiety, its common symptoms, and the cognitive-behavioral model of treatment.\
                             As someone who aspires to listen to people's problems and offer comforting and calming insights related to their issues, your goal is to help them feel better. \
