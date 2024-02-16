@@ -132,14 +132,24 @@
       <div class="container">
         <h2>AnnaAI Psychologist</h2>
         <!-- Display countdown timer -->
-        <div id="timer"></div>
+        <div id="timer">
+          {% if session_summary %}
+          EXPIRED
+          {% endif %}
+        </div>
         <div class="chat-box">
-          <ul id='chat-list'>
-            {% for message in conversation_history %}
-            <li class="{{ message['role'].lower() }}"><strong>{{ message['role'] }}:</strong> {{ message['content'] }}
-            </li>
-            {% endfor %}
-          </ul>
+          {% if session_summary %}
+            <ul id='chat-list'>
+                <li><strong>Session Summary:</strong> {{session_summary}}</li>
+            </ul>
+          {% else %}
+            <ul id='chat-list'>
+              {% for message in conversation_history %}
+              <li class="{{ message['role'].lower() }}"><strong>{{ message['role'] }}:</strong> {{ message['content'] }}
+              </li>
+              {% endfor %}
+            </ul>
+          {% endif %}
         </div>
         <form id="chat-form" action="/chat" method="post">
           <label for="session_choice">Current session is</label>
@@ -147,14 +157,26 @@
 
           </select>
           <label for="user_input">Your message:</label>
-          <textarea id="user_input" name="user_input" rows="2" cols="90" required></textarea><br>
+          {% if session_summary %}
+            <textarea id="user_input" name="user_input" rows="2" cols="90" disabled></textarea><br>
+          {% else %}
+            <textarea id="user_input" name="user_input" rows="2" cols="90" required></textarea><br>
+          {% endif %}
 
 
-          <button type="submit" class="btn btn-primary" id="submit-btn">
-            <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
-              style="display: none;"></span>
-            Send
-          </button>
+          {% if session_summary %}
+            <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
+              <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                style="display: none;"></span>
+              Send
+            </button>
+          {% else %}
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+              <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                style="display: none;"></span>
+              Send
+            </button>
+          {% endif %}
 
         </form>
         <div class="modal fade" id="flashModal" tabindex="-1" role="dialog" aria-labelledby="flashModalLabel" aria-hidden="true">
@@ -206,6 +228,8 @@
     </script>
     
     <script>
+      var session_summary = {{session_summary | default("", true) | tojson }};
+      if (session_summary == ""){
 
       let startTime;
 
@@ -218,7 +242,7 @@
         sessionStorage.setItem('timer_start', startTime.toString());
       }
 
-      let sessionDuration = {{remaining_time | default(45 * 60 * 1000)}};  // 45 minutes in milliseconds
+      let sessionDuration = {{remaining_time | default(1 * 60 * 1000)}};  // 45 minutes in milliseconds
       let warningTime = sessionDuration - 60 * 1000;  // 44 minutes in milliseconds
       let hasWarned = false;
 
@@ -374,7 +398,7 @@
               }
           });
       });
-
+    }
     </script>
    
   </main><!-- End #main -->

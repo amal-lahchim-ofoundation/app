@@ -52,6 +52,8 @@ firebase_admin.initialize_app(cred, {
 })
 
 
+USERS_REF = db.reference('users')
+
 #A function that doesn't allow to access login page if you are already logged in/regiterd 
 def redirect_if_logged_in(route_function):
     @wraps(route_function)
@@ -112,9 +114,7 @@ def login():
     
 
     # Retrieve the user data from Firebase Realtime Database
-    ref = db.reference('users')
-    user_data = ref.child(random_key).get()
-
+    user_data = USERS_REF.child(random_key).get()
     if not user_data:
         flash('Invalid random key.')
         return redirect(url_for('login_page'))
@@ -151,6 +151,8 @@ def logout():
     logging.debug("setting user_logged_in flag to none")
     session.clear()
     logging.debug("session is cleared")
+    session['new_session_can_start']=True
+    logging.debug("new_session_can_start is set to True")
    # flash('Successfully logged out!')
     return redirect(url_for('home'))
 
@@ -227,7 +229,7 @@ def questions():
     result = None
     diagnosis_found = False
     saved_diagnosis = None  
-    USERS_REF = db.reference('users')
+    
 
     # Check if it's the user's first login based on the session variable
     first_login = session.get('first_login', True)
@@ -242,7 +244,7 @@ def questions():
             session['given_diagnose'] = diagnosis_result['given_diagnose']
 
             if diagnosis_found:
-                user_data = USERS_REF.child(session['random_key']).get()
+                user_data = get_user()
                 if user_data:
                     user_data['diagnosis'] = result
                     user_data['diagnosis_name'] = session['given_diagnose']
@@ -259,7 +261,7 @@ def questions():
             return render_template('diagnose.html', questions=diagnosequestions)
         else:
             # If it's not the user's first login, retrieve the saved diagnosis
-            user_data = USERS_REF.child(session['random_key']).get()
+            user_data = get_user()
             if user_data:
                 saved_diagnosis = user_data.get('diagnosis')
                 if saved_diagnosis:
@@ -450,12 +452,16 @@ def initialize_session():
 @app.route('/chat', methods=['GET', 'POST'])
 def chat():
    
-    user_key = session.get('random_key')
-    USERS_REF = db.reference('users')
-    user_data = USERS_REF.child(user_key).get() or {}
+    
+    user_data = get_user() or {}
     remaining_time = int(user_data.get('remaining_time', 45 * 60 * 1000))
 
     session_number = getSessionNumber(user_data)
+    if 'new_session_can_start' in session and session['new_session_can_start']==False:
+        session_number -= 1
+        session_summary = user_data.get(f"{session_number}_summary", [])
+        return render_template('chat.html', current_session=session_number+1,session_summary=session_summary)
+
 
     if 'conversation_history' not in session or (remaining_time != 45 * 60 * 1000 and remaining_time > 5):
         session['conversation_history'] = user_data.get(f"{session_number}_conversationHistory", [])
@@ -502,7 +508,7 @@ def chat():
             session['conversation_history'].append({"role": "assistant", "content": assistant_response})
 
             user_data[f"{session_choice}_conversationHistory"] = session['conversation_history']
-            USERS_REF.child(user_key).set(user_data)
+            USERS_REF.child(session['random_key']).set(user_data)
 
             return jsonify({"assistant_response": assistant_response})
 
@@ -513,8 +519,8 @@ def chat():
 def end_session():
     logging.debug("The time for the session has ended")
     # get user data
-    USERS_REF = db.reference('users')
-    user_data = USERS_REF.child(session['random_key']).get()
+    
+    user_data = get_user()
 
     # Get session numbers
     session_from_ui = request.args.get('selectedSession')
@@ -560,7 +566,6 @@ def update_remaining_time(remaining_time):
     user_key = session.get('random_key')
 
     # Update the remaining time in your database
-    USERS_REF = db.reference('users')
     USERS_REF.child(user_key).update({'remaining_time': remaining_time})
 
     return '', 204  # Return a 204 No Content status to indicate success
@@ -568,7 +573,7 @@ def update_remaining_time(remaining_time):
 def remove_remaining_time():
     user_key = session.get('random_key')
 
-    USERS_REF = db.reference('users')
+    
     USERS_REF.child(user_key).update({'remaining_time': None})
     
 
@@ -577,11 +582,24 @@ def session_status():
 
     remaining_time = request.args.get('data')
     logging.debug("remaining time::::"+str(remaining_time))
+    user = get_user()
+    
+    session_number=getSessionNumber(user)-1 # since session is already incremented in end_session
 
-    if session_has_expired() or int(remaining_time) < 1000:
+    if (session_has_expired() or (remaining_time and int(remaining_time) < 1000)) and str(session_number)+'_summary' not in user:
         # Generate a summary of the conversation
         summary = summarize(session.get('conversation_history'))
         session["summary"] = summary
+        
+        user_key = session.get('random_key')
+        
+        
+        user[str(session_number)+'_summary']=summary
+        USERS_REF.child(user_key).set(user)
+        logging.debug(str(session_number)+"_summary is stored in db")
+
+        session['new_session_can_start']=False
+        logging.debug("new_session_can_start is set to False")
         remove_remaining_time()
         return jsonify({"expired": True, "summary": summary})
     else:
@@ -598,6 +616,10 @@ def complete_session():
     session['current_session'] = current_session + 1
     return 'Session completed'  # Redirect or render template as needed
 
+
+def get_user():
+    user_data = USERS_REF.child(session['random_key']).get()
+    return user_data
 
 def process_pdf_file(filePath):
     pdf_text = ""  # initialize PDF text variable
