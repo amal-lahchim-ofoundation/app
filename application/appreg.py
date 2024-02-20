@@ -460,33 +460,31 @@ def chat():
     if 'new_session_can_start' in session and session['new_session_can_start']==False:
         session_number -= 1
         session_summary = user_data.get(f"{session_number}_summary", [])
-        return render_template('chat.html', current_session=session_number+1,session_summary=session_summary)
+        return render_template('chat.html', current_session=session_number,session_summary=session_summary)
 
 
     if 'conversation_history' not in session or (remaining_time != 45 * 60 * 1000 and remaining_time > 5):
         session['conversation_history'] = user_data.get(f"{session_number}_conversationHistory", [])
-        remaining_time = int(user_data.get('remaining_time', 45 * 60 * 1000))
         session['start_time'] = time.time() + (45 * 60 * 1000 - remaining_time) / 1000
 
     if remaining_time != 45 * 60 * 1000:
         session['greeted'] = True
 
-    if 'greeted' not in session or not session['greeted']:
+    if ('greeted' not in session or session['greeted']==False) and len(session['conversation_history']) == 0:
         greeting_prompt = 'Welcome the user. Present yourself as an AnnaAI psychologist and also mention that the duration of one session is 45 minutes. After that time passes, you have to inform the user that the time has passed and the session has ended.'
         greeting_message = greeting(greeting_prompt, temperature=0.5)
         session['conversation_history'].append({"role": "assistant", "content": greeting_message})
         session['greeted'] = True
     
-    else:
+    elif session['greeted'] == True and request.method != 'POST':
         catchup_prompt = 'You are an AnnaAI psychologist. You had a session with this user in the past and the user left the chat after some time.\
             The sessions take 45 minutes. This user has '+str(remaining_time/1000)+ ' seconds left. Remind this time to user in the mm:ss format.\
             Here is the conversation history from you previous chat belonging to this session: '+ json.dumps(session['conversation_history']) + '\
             Also, catchup with the user.'
         
         greeting_message = greeting(catchup_prompt, temperature=0.5)
-        session['conversation_history'].append({"role": "assistant", "content": greeting_message})
-            
-
+        session['conversation_history'].append({"role": "assistant", "content": greeting_message})          
+    
 
     if request.method == 'POST':
         user_input = request.form['user_input']
@@ -511,6 +509,8 @@ def chat():
             USERS_REF.child(session['random_key']).set(user_data)
 
             return jsonify({"assistant_response": assistant_response})
+
+   
 
     return render_template('chat.html', conversation_history=session['conversation_history'], current_session=session_number, remaining_time=remaining_time)
 
@@ -537,7 +537,6 @@ def end_session():
             logging.debug("Session from db and ui matched incrementing the session number")
             # update/set user data
             user_data['session_number'] = session_from_db + 1
-            print(" if int(session_from_ui) == session_from_db and int(session_from_ui) < 8:       icinde ")
             USERS_REF.child(session['random_key']).set(user_data)
     else:
         # Handle the case where there was no interaction
@@ -572,8 +571,6 @@ def update_remaining_time(remaining_time):
 
 def remove_remaining_time():
     user_key = session.get('random_key')
-
-    
     USERS_REF.child(user_key).update({'remaining_time': None})
     
 
@@ -602,8 +599,10 @@ def session_status():
         logging.debug("new_session_can_start is set to False")
         remove_remaining_time()
         return jsonify({"expired": True, "summary": summary})
-    else:
+    elif remaining_time and int(remaining_time) > -5000: # if remaning time is between 0 and -5
         update_remaining_time(remaining_time)
+    elif remaining_time and int(remaining_time) < -5000:
+        remove_remaining_time()
     
     return jsonify({"expired": False})
 

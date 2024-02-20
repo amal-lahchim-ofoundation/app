@@ -242,7 +242,7 @@
         sessionStorage.setItem('timer_start', startTime.toString());
       }
 
-      let sessionDuration = {{remaining_time | default(1 * 60 * 1000)}};  // 45 minutes in milliseconds
+      let sessionDuration = {{remaining_time | default(45 * 60 * 1000)}};  // 45 minutes in milliseconds
       let warningTime = sessionDuration - 60 * 1000;  // 44 minutes in milliseconds
       let hasWarned = false;
 
