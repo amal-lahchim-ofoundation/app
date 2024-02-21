@@ -231,178 +231,212 @@
       var session_summary = {{session_summary | default("", true) | tojson }};
       if (session_summary == ""){
 
-      let startTime;
+        let startTime;
 
-      if (sessionStorage.getItem('timer_start')) {
-        // If there's a start time saved in sessionStorage, use it
-        startTime = parseInt(sessionStorage.getItem('timer_start'));
-      } else {
-        // If not, create one and save it in sessionStorage
-        startTime = new Date().getTime();
-        sessionStorage.setItem('timer_start', startTime.toString());
-      }
-
-      let sessionDuration = {{remaining_time | default(45 * 60 * 1000)}};  // 45 minutes in milliseconds
-      let warningTime = sessionDuration - 60 * 1000;  // 44 minutes in milliseconds
-      let hasWarned = false;
-
-      let noInteraction = false;
-
-      let hasWarnedForEndSession = false;
-
-      function checkTime() {
-        let now = new Date().getTime();
-        let elapsedTime = now - startTime;
-        console.log("Elapsed time : "+elapsedTime);
-        let remainingTime = sessionDuration - elapsedTime;
-        let minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-        let seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-        document.getElementById("timer").innerText = minutes + "m " + seconds + "s left";
-
-        if (elapsedTime > warningTime && !hasWarned) {
-          // Inform the user that there's less than 1 minute left
-          alert("You have less than 1 minute left in this session.");
-          hasWarned = true;
-        }
-
-        if (elapsedTime > sessionDuration) {
-          if(!hasWarnedForEndSession){
-            alert("The session has ended.");
-          }
-          hasWarnedForEndSession = true;
-
-          
-         
-          const chatBox = document.querySelector('.chat-box ul');
-         
-          // Check if the user input is empty
-          var userInput = $("#user_input").val().trim();
-          console.log(chatBox.innerText);
-          if (!chatBox.innerText.toLowerCase().includes('user:') && noInteraction == false ) {
-            $(".modal-body").text("No interaction in the chat. Session will not be advanced.");
-            $("#flashModal").modal('show');
-            document.querySelector('[data-dismiss="modal"]').addEventListener('click', function() {
-              $('#flashModal').modal('hide');
-            });
-            noInteraction = true;
-            clearInterval(interval);
-            fetch('/initialize_session');
-            sessionStorage.removeItem('timer_start');
-            return;  // Do not proceed with form submission
-          }
-
-          // Clear the chatbox
-          let selectedSession = $("#session_choice").find(":selected").val();;
-          fetch('/end_session?selectedSession='+selectedSession);
-
-          clearInterval(interval);  // stop the countdown when session ends
-          document.getElementById("timer").innerHTML = "EXPIRED";
-          document.getElementById("submit-btn").disabled = true;
-          document.getElementById("user_input").disabled = true;
-          // sessionStorage.clear();
-          checkSessionStatus();
-
+        if (sessionStorage.getItem('timer_start')) {
+          // If there's a start time saved in sessionStorage, use it
+          startTime = parseInt(sessionStorage.getItem('timer_start'));
         } else {
-          var textarea = document.getElementById("user_input");
-          if (textarea.disabled !== true) {
-            document.getElementById("submit-btn").disabled = false;
-            document.getElementById("user_input").disabled = false;
-          }
+          // If not, create one and save it in sessionStorage
+          startTime = new Date().getTime();
+          sessionStorage.setItem('timer_start', startTime.toString());
         }
 
-        
-      }
+        let sessionDuration = {{remaining_time | default(45 * 60 * 1000)}};  // 45 minutes in milliseconds
+        let warningTime = sessionDuration - 60 * 1000;  // 44 minutes in milliseconds
+        let hasWarned = false;
 
-      let interval = setInterval(checkTime, 1000);  // check every second
-      let isPopupShown = false;
+        let noInteraction = false;
 
-      function checkSessionStatus() {
+        let hasWarnedForEndSession = false;
+
+        function checkTime() {
           let now = new Date().getTime();
           let elapsedTime = now - startTime;
+          console.log("Elapsed time : "+elapsedTime);
           let remainingTime = sessionDuration - elapsedTime;
-          fetch('/session_status?data='+encodeURIComponent(remainingTime))
-          .then(response => response.json())
-          .then(data => {
-            if (data.expired && !isPopupShown) {
-              isPopupShown = true;
-              //clearInterval(interval);  // stop the current countdown
-              document.getElementById("timer").innerHTML = "EXPIRED";
-              document.getElementById("submit-btn").disabled = true;
-              document.getElementById("user_input").disabled = true;
+          let minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+          let seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+          document.getElementById("timer").innerText = minutes + "m " + seconds + "s left";
 
-              // Clear chatbox and show summary
-              const chatBox = document.querySelector('.chat-box ul');
-              chatBox.innerHTML = "";
-              let summaryElem = document.createElement("li");
-              summaryElem.innerHTML = `<strong>Session Summary:</strong> ${data.summary}`;
-              chatBox.appendChild(summaryElem);
+          if (elapsedTime > warningTime && !hasWarned) {
+            // Inform the user that there's less than 1 minute left
+            alert("You have less than 1 minute left in this session.");
+            hasWarned = true;
+          }
 
-              // Prompt the user
-              let isAgreed = confirm("Do you agree with the summary of the session?");
-              if (isAgreed) {
-                // TODO: Handle user's agreement (e.g., send it to server or take other actions) save the summery into database
-              } else {
-                // TODO: Allow the user to change the summery 
-              }
+          if (elapsedTime > sessionDuration) {
+            if(!hasWarnedForEndSession){
+              alert("The session has ended.");
             }
-          });
+            hasWarnedForEndSession = true;
+
+            
+          
+            const chatBox = document.querySelector('.chat-box ul');
+          
+            // Check if the user input is empty
+            var userInput = $("#user_input").val().trim();
+            console.log(chatBox.innerText);
+            if (!chatBox.innerText.toLowerCase().includes('user:') && noInteraction == false ) {
+              $(".modal-body").text("No interaction in the chat. Session will not be advanced.");
+              $("#flashModal").modal('show');
+              document.querySelector('[data-dismiss="modal"]').addEventListener('click', function() {
+                $('#flashModal').modal('hide');
+              });
+              noInteraction = true;
+              clearInterval(interval);
+              fetch('/initialize_session');
+              sessionStorage.removeItem('timer_start');
+              return;  // Do not proceed with form submission
+            }
+
+            // Clear the chatbox
+            let selectedSession = $("#session_choice").find(":selected").val();;
+            fetch('/end_session?selectedSession='+selectedSession);
+
+            clearInterval(interval);  // stop the countdown when session ends
+            document.getElementById("timer").innerHTML = "EXPIRED";
+            document.getElementById("submit-btn").disabled = true;
+            document.getElementById("user_input").disabled = true;
+            // sessionStorage.clear();
+            checkSessionStatus();
+
+          } else {
+            var textarea = document.getElementById("user_input");
+            if (textarea.disabled !== true) {
+              document.getElementById("submit-btn").disabled = false;
+              document.getElementById("user_input").disabled = false;
+            }
+          }
+
+          
+        }
+
+        let interval = setInterval(checkTime, 1000);  // check every second
+        let isPopupShown = false;
+
+        function checkSessionStatus() {
+            let now = new Date().getTime();
+            let elapsedTime = now - startTime;
+            let remainingTime = sessionDuration - elapsedTime;
+            fetch('/session_status?data='+encodeURIComponent(remainingTime))
+            .then(response => response.json())
+            .then(data => {
+              if (data.expired && !isPopupShown) {
+                isPopupShown = true;
+                //clearInterval(interval);  // stop the current countdown
+                document.getElementById("timer").innerHTML = "EXPIRED";
+                document.getElementById("submit-btn").disabled = true;
+                document.getElementById("user_input").disabled = true;
+
+                // Clear chatbox and show summary
+                const chatBox = document.querySelector('.chat-box ul');
+                chatBox.innerHTML = "";
+                let summaryElem = document.createElement("li");
+                summaryElem.innerHTML = `<strong>Session Summary:</strong> ${data.summary}`;
+                chatBox.appendChild(summaryElem);
+
+                // Prompt the user
+                let isAgreed = confirm("Do you agree with the summary of the session?");
+                if (isAgreed) {
+                  // TODO: Handle user's agreement (e.g., send it to server or take other actions) save the summery into database
+                } else {
+                  // TODO: Allow the user to change the summery 
+                }
+              }
+            });
+          
+        }
+
+
+        // Check the session status every 5 seconds
+        setInterval(checkSessionStatus, 5000);
+
+        document.getElementById('chat-form').addEventListener('submit', function (event) {
+          event.preventDefault();  // Prevent the default form submission
+
+          // Show spinner and disable submit button
+          $("#spinner").show();
+          $("#submit-btn").prop("disabled", true);
+
+          let formData = new FormData(this);  // Get the form data
+          formData.append('session_choice', document.getElementById('session_choice').value);
+
+          document.getElementById('user_input').value = ''; // Clear the message box here after the message is sent
+
+          fetch('/chat', {
+            method: 'POST',
+            body: formData
+          })
+            .then(response => response.json())
+            .then(data => {
+              // Process the response here...
+              // Hide spinner and enable submit button
+              $("#spinner").hide();
+              $("#submit-btn").prop("disabled", false);
+
+              let chatList = document.getElementById('chat-list');
+
+              // Append the user's message to the chatbox
+              let userMessageElem = document.createElement('li');
+              userMessageElem.className = 'user';
+              userMessageElem.innerHTML = `<strong>User:</strong> ${formData.get('user_input')}`;
+              chatList.appendChild(userMessageElem);
+
+              // Append the assistant's response to the chatbox
+              let assistantMessageElem = document.createElement('li');
+              assistantMessageElem.className = 'assistant';
+              assistantMessageElem.innerHTML = `<strong>Assistant:</strong> ${data.assistant_response}`;
+              let messageContentSpan = document.createElement('span');
+              messageContentSpan.className = 'message-content';
+              assistantMessageElem.appendChild(messageContentSpan);
+              chatList.appendChild(assistantMessageElem);
+              
+            
+              displayMessageWordByWord(data.assistant_response, messageContentSpan);
         
+            })
+            .catch(error => {
+              // Handle any errors here
+              // Hide spinner and enable submit button
+              $("#spinner").hide();
+                var textarea = document.getElementById("user_input");
+                if (textarea.disabled !== true) {
+                  $("#submit-btn").prop("disabled", false);
+                }
+            });
+        });
       }
 
+    
+      function displayMessageWordByWord(message, element) {
+      const words = message.split(' '); // Split the message into words
+      let index = 0; // Start with the first word
+  
+      const intervalId = setInterval(() => {
+          if (index < words.length) {
+            element.textContent += words[index] + ' ';
+            index++;
 
-      // Check the session status every 5 seconds
-      setInterval(checkSessionStatus, 5000);
+            // Scroll the chat area to the bottom
+            const chatBox = document.querySelector('.chat-box');
+            chatBox.scrollTop = chatBox.scrollHeight;
+          } else {
+              // Once all words are displayed, clear the interval
+              clearInterval(intervalId);
+              // Also make sure to scroll down after the last word is displayed
+              const chatBox = document.querySelector('.chat-box');
+              chatBox.scrollTop = chatBox.scrollHeight;
+          }
+      }, 200); // Adjust the speed as needed
+  }
 
-      document.getElementById('chat-form').addEventListener('submit', function (event) {
-        event.preventDefault();  // Prevent the default form submission
-
-        // Show spinner and disable submit button
-        $("#spinner").show();
-        $("#submit-btn").prop("disabled", true);
-
-        let formData = new FormData(this);  // Get the form data
-        formData.append('session_choice', document.getElementById('session_choice').value);
-
-        fetch('/chat', {
-          method: 'POST',
-          body: formData
-        })
-          .then(response => response.json())
-          .then(data => {
-            // Process the response here...
-            // Hide spinner and enable submit button
-            $("#spinner").hide();
-            $("#submit-btn").prop("disabled", false);
-
-            let chatList = document.getElementById('chat-list');
-
-            // Append the user's message to the chatbox
-            let userMessageElem = document.createElement('li');
-            userMessageElem.className = 'user';
-            userMessageElem.innerHTML = `<strong>User:</strong> ${formData.get('user_input')}`;
-            chatList.appendChild(userMessageElem);
-
-            // Append the assistant's response to the chatbox
-            let assistantMessageElem = document.createElement('li');
-            assistantMessageElem.className = 'assistant';
-            assistantMessageElem.innerHTML = `<strong>Assistant:</strong> ${data.assistant_response}`;
-            chatList.appendChild(assistantMessageElem);
-          })
-          .catch(error => {
-            // Handle any errors here
-            // Hide spinner and enable submit button
-             $("#spinner").hide();
-              var textarea = document.getElementById("user_input");
-              if (textarea.disabled !== true) {
-                $("#submit-btn").prop("disabled", false);
-              }
-          });
-      });
-    }
+  
     </script>
    
-  </main><!-- End #main -->
-  <!-- Scripts -->
+  </main>
+ 
   <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
   <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
