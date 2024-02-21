@@ -363,8 +363,6 @@
           let formData = new FormData(this);  // Get the form data
           formData.append('session_choice', document.getElementById('session_choice').value);
 
-          document.getElementById('user_input').value = ''; // Clear the message box here after the message is sent
-
           fetch('/chat', {
             method: 'POST',
             body: formData
@@ -395,6 +393,8 @@
               
             
               displayMessageWordByWord(data.assistant_response, messageContentSpan);
+
+              document.getElementById('user_input').value = '';  // Clear the message box for the next message
         
             })
             .catch(error => {
