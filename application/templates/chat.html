@@ -30,7 +30,7 @@
 
   <!---- Scripts Jquery-->
 
-  <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
+<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
 
 
   <!-- =======================================================
@@ -40,7 +40,7 @@
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
 
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -84,8 +84,8 @@
       cursor: not-allowed;
       /* Not-allowed cursor */
     }
-
     
+
   </style>
 
 
@@ -188,18 +188,18 @@
                   <span aria-hidden="false">&times;</span>
                 </button>
               </div>
-              <div class="modal-body">
-                <!-- Flash message content will go here -->
-              </div>
-              
-            </div>
+           <div class="modal-body">
+        <!-- Flash message content will go here -->
+      </div>
+
+</div>
           </div>
         </div>
 
 
       </div>
     </section>
-    
+        
 
     <script>
       // Assuming you are using a templating engine that allows embedding server-side values in the template
@@ -228,7 +228,7 @@
     </script>
     
     <script>
-      var session_summary = {{session_summary | default("", true) | tojson }};
+    var session_summary = {{session_summary | default("", true) | tojson }};
       if (session_summary == ""){
 
         let startTime;
@@ -325,27 +325,28 @@
             .then(data => {
               if (data.expired && !isPopupShown) {
                 isPopupShown = true;
-                //clearInterval(interval);  // stop the current countdown
+//clearInterval(interval);  // stop the current countdown
                 document.getElementById("timer").innerHTML = "EXPIRED";
                 document.getElementById("submit-btn").disabled = true;
                 document.getElementById("user_input").disabled = true;
 
                 // Clear chatbox and show summary
                 const chatBox = document.querySelector('.chat-box ul');
-                chatBox.innerHTML = "";
+chatBox.innerHTML = "";
                 let summaryElem = document.createElement("li");
                 summaryElem.innerHTML = `<strong>Session Summary:</strong> ${data.summary}`;
                 chatBox.appendChild(summaryElem);
 
-                // Prompt the user
+                setTimeout(() => {
                 let isAgreed = confirm("Do you agree with the summary of the session?");
                 if (isAgreed) {
                   // TODO: Handle user's agreement (e.g., send it to server or take other actions) save the summery into database
                 } else {
                   // TODO: Allow the user to change the summery 
                 }
-              }
-            });
+              },100);
+            }
+        });
           
         }
 
@@ -412,7 +413,7 @@
     
       function displayMessageWordByWord(message, element) {
       const words = message.split(' '); // Split the message into words
-      let index = 0; // Start with the first word
+      let index = 0; // Start with the first word 
   
       const intervalId = setInterval(() => {
           if (index < words.length) {
@@ -433,8 +434,8 @@
   }
 
   
-    </script>
-   
+      </script>
+         
   </main>
  
   <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
