@@ -647,6 +647,9 @@ def getSessionNumber(user_data):
     
     return session_number
 
+@app.route('/agree_to_summary', methods=['POST'])
+def agree_to_summary():
+     return jsonify({"success": True, "message": "Summary agreement recorded."})
 
 if __name__ == '__main__':
     # Configure the logging system

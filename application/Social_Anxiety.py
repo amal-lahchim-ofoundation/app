@@ -8,11 +8,11 @@ class Social_Anxiety(Disorder):
                 This is the first session . Start first with a short introduction, establish rapport and explain the treatment process. \
                 The goal is to gather information to create an appropriate treatment plan while also establishing trust and rapport. \
                 Ask these questions one by one, ensuring you listen actively and empathetically to each response. \
-                Remember to ask each querstion only once, ensuring you actively listen and emphatize with the user's responses. Never repeat a question to the user. \
+                Ask each querstion only once, ensuring you actively listen and emphatize with the user's responses. Never repeat a question to the user. \
                 If you do not receive a clear answer, do not repeat the same question; instead, approach the topic from a different angle or ask related questions. Even if you don't get an answer to your question, move on to another question instead of asking it again.\
-                Can you share with me what led you to seek therapy and what specific challenges or concerns you're facing related to social situations?\
+                Can you share with me what led you to seek therapy? \
                 How long have you been experiencing symptoms of social anxiety, and have they changed or worsened over time?\
-                Can you describe the specific situations or social settings where you feel most anxious or uncomfortable?\
+                Can you describe  situations or social settings where you feel most anxious or uncomfortable?\
                 Have you noticed any triggers or patterns that intensify your social anxiety?\
                 How does social anxiety impact your daily life, relationships, and overall well-being?\
                 Have you attempted any coping mechanisms or strategies to manage your anxiety in social situations?\
