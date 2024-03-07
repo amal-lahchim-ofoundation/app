@@ -194,10 +194,9 @@ def extract_disorder(text, disorders): #extracts the disorder from text if it ex
         if disorder.lower() in text.lower(): #check if disorder exists in text, case insensitive
             matches[disorder]=disorder
             logging.debug("extract_disorder matching disorder found " + text.lower())
-    if matches:
+    
         return max(matches, key=len)
-    else:
-        return None
+   
 
 def check_similarity(disorder_list1, disorder_list2):
     if disorder_list1 == disorder_list2:
