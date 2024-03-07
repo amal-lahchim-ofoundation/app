@@ -194,7 +194,10 @@ def extract_disorder(text, disorders): #extracts the disorder from text if it ex
         if disorder.lower() in text.lower(): #check if disorder exists in text, case insensitive
             matches[disorder]=disorder
             logging.debug("extract_disorder matching disorder found " + text.lower())
-    return max(matches, key=len)
+    if matches:
+        return max(matches, key=len)
+    else:
+        return None
 
 def check_similarity(disorder_list1, disorder_list2):
     if disorder_list1 == disorder_list2:
@@ -471,13 +474,13 @@ def chat():
         session['greeted'] = True
 
     if ('greeted' not in session or session['greeted']==False) and len(session['conversation_history']) == 0:
-        greeting_prompt = 'Welcome the user. Present yourself as an AnnaAI psychologist and also mention that the duration of one session is 45 minutes. After that time passes, you have to inform the user that the time has passed and the session has ended.'
+        greeting_prompt = 'Welcome the user. Present yourself as an psychologist and your name is AnnaAI and also mention that the duration of one session is 45 minutes.'
         greeting_message = greeting(greeting_prompt, temperature=0.5)
         session['conversation_history'].append({"role": "assistant", "content": greeting_message})
         session['greeted'] = True
     
     elif session['greeted'] == True and request.method != 'POST':
-        catchup_prompt = 'You are an AnnaAI psychologist. You had a session with this user in the past and the user left the chat after some time.\
+        catchup_prompt = 'You are an psychologist and your name is AnnaAI. You had a session with this user in the past and the user left the chat after some time.\
             The sessions take 45 minutes. This user has '+str(remaining_time/1000)+ ' seconds left. Remind this time to user in the mm:ss format.\
             Here is the conversation history from you previous chat belonging to this session: '+ json.dumps(session['conversation_history']) + '\
             Also, catchup with the user.'
