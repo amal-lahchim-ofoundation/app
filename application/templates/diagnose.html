@@ -26,6 +26,38 @@
   <link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+  <style>
+#submit-btn {
+    position: relative;
+    background-color: #e38748;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#spinner {
+    margin-right: 0.25rem; /* This margin creates space when spinner is visible */
+    display: none; /* Spinner should be hidden by default */
+    position: absolute;
+    right: 1rem; /* Adjust this value if the spinner needs to move closer to or further from the text */
+}
+
+#submit-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+#submit-btn.spinner-visible {
+    padding-right: 2.5rem; /* Extra padding is added only when spinner is visible */
+}
+
+  </style>
 </head>
 <body>
     <!-- Header -->
@@ -88,7 +120,10 @@
               <p>Explain your problem with more details:</p>
               <textarea name="prompt" required></textarea>
               <br>
-              <input type="submit" value="Submit">
+              <button type="submit" class="btn btn-primary" id="submit-btn">
+                Send
+                <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              </button>
           </form>
         {% else %}
           <!-- Display the saved diagnosis for returning users -->
@@ -111,10 +146,19 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      var form = document.querySelector('form');
+      var submitButton = document.getElementById('submit-btn');
+      var spinner = document.getElementById('spinner');
+    
+      form.onsubmit = function() {
+        spinner.style.display = 'inline-block';
+        submitButton.classList.add('spinner-visible'); 
+        submitButton.disabled = true;
+      };
       var sliders = document.querySelectorAll('input[type="range"]');
       sliders.forEach(function(slider) {
         slider.oninput = function() {
-          var output = document.getElementById(this.id + 'Output'); // Assumes output has same ID + 'Output'
+          var output = document.getElementById(this.id + 'Output');
           output.value = this.value;
         }
       });
