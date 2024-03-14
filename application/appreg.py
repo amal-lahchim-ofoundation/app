@@ -396,21 +396,18 @@ def generate_response(user_input, session_prompt, temperature=0.3): # start a ch
         messages=messages,
         temperature=temperature)
         return response.choices[0].message.content
-    except openai.OpenAIError as e:
-        # Handle OpenAI API errors
-        return f"OpenAI API Error: {str(e)}"
     except openai.RateLimitError as e:
         # Handle rate limit errors
         return f"Rate Limit Error: {str(e)}"
     except openai.AuthenticationError as e:
         # Handle authentication errors
         return f"Authentication Error: {str(e)}"
-    except openai.InvalidRequestError as e:
-        # Handle invalid request errors
-        return f"Invalid Request Error: {str(e)}"
     except openai.APIConnectionError as e:
         # Handle API connection errors
         return f"API Connection Error: {str(e)}"
+    except openai.OpenAIError as e:
+        # Handle OpenAI API errors
+        return f"OpenAI API Error: {str(e)}"
     except Exception as e:
         # Handle any other unexpected errors
         return f"Error: {str(e)}"
