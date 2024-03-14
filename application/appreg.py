@@ -9,12 +9,6 @@ import openai
 from dotenv import load_dotenv
 import json
 import logging
-
-
-
-load_dotenv() 
-openAI = openai.OpenAI()
-
 import os
 import time
 from langchain_community.llms import OpenAI
@@ -23,13 +17,13 @@ from langchain.chains import LLMChain
 from langchain.memory import ConversationBufferMemory
 from langchain_community.utilities import WikipediaAPIWrapper
 from functools import wraps
-
 from Disorders import Disorders
- 
 import fitz
 
 app = Flask(__name__, static_folder='static')  #creates a Flask web application object named app. It's a fundamental step in setting up a Flask web application
 app.secret_key = 'your_secret_key_here'
+load_dotenv() 
+openAI = openai.OpenAI()
 
 
 DATABASE_URL = os.getenv('FIREBASE_DATABASE_URL')
@@ -392,7 +386,7 @@ def generate_response(user_input, session_prompt, temperature=0.3): # start a ch
     
     try:
         # generate chat response 
-        response = openai.chat.completions.create(model="gpt-4",
+        response = openAI.chat.completions.create(model="gpt-4",
         messages=messages,
         temperature=temperature)
         return response.choices[0].message.content
