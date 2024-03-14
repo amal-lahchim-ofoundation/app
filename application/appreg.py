@@ -5,7 +5,7 @@ import uuid
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from flask import session
-from openai import OpenAI
+import openai
 from dotenv import load_dotenv
 import json
 import logging
@@ -13,7 +13,7 @@ import logging
 
 
 load_dotenv() 
-openai = OpenAI()
+openAI = openai.OpenAI()
 
 import os
 import time
@@ -22,7 +22,6 @@ from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.memory import ConversationBufferMemory
 from langchain_community.utilities import WikipediaAPIWrapper
-from PyPDF2 import PdfReader
 from functools import wraps
 
 from Disorders import Disorders
@@ -423,7 +422,7 @@ def greeting(greeting_prompt, temperature=0.5): # start greeting function
         {"role": "system", "content": greeting_prompt},
     ]
 
-    response = openai.chat.completions.create(model="gpt-4", messages=messages, temperature=temperature) # generate greeting response 
+    response = openAI.chat.completions.create(model="gpt-4", messages=messages, temperature=temperature) # generate greeting response 
 
     return response.choices[0].message.content
 
@@ -437,7 +436,7 @@ def summarize(conversation_history, temperature=0.5): # join conversation conten
     messages = [
         {"role": "system", "content": prompt},
     ]
-    response = openai.chat.completions.create(model="gpt-4",
+    response = openAI.chat.completions.create(model="gpt-4",
         messages=messages,
         temperature=temperature)
    
