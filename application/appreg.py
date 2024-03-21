@@ -463,7 +463,7 @@ def chat():
         session['greeted'] = True
 
     if ('greeted' not in session or session['greeted']==False) and len(session['conversation_history']) == 0:
-        greeting_prompt = 'Welcome the user. Present yourself as an psychologist and your name is AnnaAI and also mention that the duration of one session is 45 minutes.'
+        greeting_prompt = 'Welcome the user. Introduce yourself as a psychologist named AnnaAI. Inform the user that each session lasts 45 minutes. Emphasize the importance of answering each question, explaining that their responses are crucial for understanding their needs and tailoring the session effectively. Encourage them to share openly, as this will help in providing the most relevant support and guidance.'
         greeting_message = greeting(greeting_prompt, temperature=0.5)
         session['conversation_history'].append({"role": "assistant", "content": greeting_message})
         session['greeted'] = True
