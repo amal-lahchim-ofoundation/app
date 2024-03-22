@@ -5,6 +5,7 @@ import uuid
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from flask import session
+import openai
 from openai import OpenAI
 from dotenv import load_dotenv
 import json
@@ -13,7 +14,7 @@ import logging
 
 
 load_dotenv() 
-openai = OpenAI()
+client = OpenAI()
 
 import os
 import time
@@ -393,7 +394,7 @@ def generate_response(user_input, session_prompt, temperature=0.3): # start a ch
     
     try:
         # generate chat response 
-        response = openai.chat.completions.create(model="gpt-4",
+        response = client.chat.completions.create(model="gpt-4",
         messages=messages,
         temperature=temperature)
         return response.choices[0].message.content
@@ -406,9 +407,9 @@ def generate_response(user_input, session_prompt, temperature=0.3): # start a ch
     except openai.AuthenticationError as e:
         # Handle authentication errors
         return f"Authentication Error: {str(e)}"
-    except openai.InvalidRequestError as e:
+    except openai.InternalServerError as e:
         # Handle invalid request errors
-        return f"Invalid Request Error: {str(e)}"
+        return f"Invalid Server Error: {str(e)}"
     except openai.APIConnectionError as e:
         # Handle API connection errors
         return f"API Connection Error: {str(e)}"
@@ -423,7 +424,7 @@ def greeting(greeting_prompt, temperature=0.5): # start greeting function
         {"role": "system", "content": greeting_prompt},
     ]
 
-    response = openai.chat.completions.create(model="gpt-4", messages=messages, temperature=temperature) # generate greeting response 
+    response = client.chat.completions.create(model="gpt-4", messages=messages, temperature=temperature) # generate greeting response 
 
     return response.choices[0].message.content
 
@@ -437,7 +438,7 @@ def summarize(conversation_history, temperature=0.5): # join conversation conten
     messages = [
         {"role": "system", "content": prompt},
     ]
-    response = openai.chat.completions.create(model="gpt-4",
+    response = client.chat.completions.create(model="gpt-4",
         messages=messages,
         temperature=temperature)
    
