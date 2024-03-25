@@ -315,54 +315,61 @@
       
    
           let interval = setInterval(checkTime, 1000);  // check every second
-          let isPopupShown = false;
+let isPopupShown = false;
+let waitingForSummaryAgreement = false;
 
-          function checkSessionStatus() {
-                let now = new Date().getTime();
-                let elapsedTime = now - startTime;
-                let remainingTime = sessionDuration - elapsedTime;
-                fetch('/session_status?data=' + encodeURIComponent(remainingTime))
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.expired && !isPopupShown) {
-                            isPopupShown = true;
+function checkSessionStatus() {
+    let now = new Date().getTime();
+    let elapsedTime = now - startTime;
+    let remainingTime = sessionDuration - elapsedTime;
+    fetch('/session_status?data=' + encodeURIComponent(remainingTime))
+        .then(response => response.json())
+        .then(data => {
+            if (data.expired && !isPopupShown) {
+                isPopupShown = true;
 
-                            document.getElementById("timer").innerHTML = "EXPIRED";
-                            document.getElementById("submit-btn").disabled = true;
-                            document.getElementById("user_input").disabled = true;
+                document.getElementById("timer").innerHTML = "EXPIRED";
+                document.getElementById("submit-btn").disabled = true;
+                document.getElementById("user_input").disabled = true;
 
-                            // Clear chatbox and show summary
-                            const chatBox = document.querySelector('.chat-box ul');
-                            chatBox.innerHTML = "";
-                            let summaryElem = document.createElement("li");
-                            summaryElem.innerHTML = `<strong>Session Summary:</strong> ${data.summary}`;
-                            chatBox.appendChild(summaryElem);
+                // Clear chatbox and show summary
+                const chatBox = document.querySelector('.chat-box ul');
+                chatBox.innerHTML = "";
+                let summaryElem = document.createElement("li");
+                summaryElem.innerHTML = `<strong>Session Summary:</strong> ${data.summary}`;
+                chatBox.appendChild(summaryElem);
 
-                            setTimeout(() => {
-                                let questionElem = document.createElement("li");
-                                questionElem.innerHTML = `Do you agree with the summary of the session? 
-                                <button class="summary-agree-btn" data-agree="yes">Yes</button>
-                                <button class="summary-agree-btn" data-agree="no">No</button>`;
-                                questionElem.className = 'chatbot';
-                                chatBox.appendChild(questionElem);
-                                chatBox.scrollTop = chatBox.scrollHeight;
+                setTimeout(() => {
+                    let questionElem = document.createElement("li");
+                    questionElem.innerHTML = `Do you agree with the summary of the session? 
+                    <button class="summary-agree-btn" data-agree="yes">Yes</button>
+                    <button class="summary-agree-btn" data-agree="no">No</button>`;
+                    questionElem.className = 'chatbot';
+                    chatBox.appendChild(questionElem);
+                    chatBox.scrollTop = chatBox.scrollHeight;
 
-                                document.getElementById("user_input").disabled = false;
-                                document.getElementById("submit-btn").disabled = false;
+                    document.getElementById("user_input").disabled = false;
+                    document.getElementById("submit-btn").disabled = false;
+                    waitingForSummaryAgreement = true;
 
-                                document.querySelectorAll('.summary-agree-btn').forEach(button => {
-                                    button.addEventListener('click', function(event) {
-                                        let userAgreement = event.target.getAttribute('data-agree');
-                                        if (userAgreement === 'yes') {
-                                            agreeToSummary();
-                                        } else {}
-                                    });
-                                });
-                            });
-                        }
+                    document.querySelectorAll('.summary-agree-btn').forEach(button => {
+                        button.addEventListener('click', function(event) {
+                            let userAgreement = event.target.getAttribute('data-agree');
+                            if (userAgreement === 'yes' && waitingForSummaryAgreement === true) {
+                                agreeToSummary();
+                                waitingForSummaryAgreement = false;
+                            } else {
+                                // Optionally handle 'no' response
+                                waitingForSummaryAgreement = true;
+                            }
+                        });
                     });
+                });
             }
-        }
+        });
+}
+}     
+        
 
       // Check the session status every 5 seconds
       setInterval(checkSessionStatus, 5000);
@@ -371,14 +378,7 @@
             event.preventDefault(); // Prevent the default form submission
             let userInput = document.getElementById('user_input').value.trim().toLowerCase();
 
-            if (userInput === 'yes' || userInput === 'no') {
-                if (userInput === 'yes') {
-                    agreeToSummary();
-                } else {}
-                document.getElementById('user_input').value = '';
-            } else {
-
-            }
+            
 
             // Show spinner and disable submit button
             $("#spinner").show();
