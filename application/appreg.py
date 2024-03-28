@@ -11,7 +11,7 @@ import json
 import logging
 import os
 import time
-from langchain_community.llms import OpenAI
+from langchain_openai import OpenAI
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.memory import ConversationBufferMemory
@@ -169,7 +169,9 @@ def login_required(route_function):
 @app.route('/treatment')
 @login_required  # Ensure user is logged in to access this route
 def treatment():
-    return render_template('treatment.html')
+    user_data = get_user()
+    diagnosis_complete = 'diagnosis_name' in user_data and bool(user_data['diagnosis_name'])
+    return render_template('treatment.html', diagnosis_complete=diagnosis_complete)
 
 ###########################################Diagnose Page ########################################
 

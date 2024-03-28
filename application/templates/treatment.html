@@ -95,6 +95,7 @@
                     <span>02</span>
                     <h4>Chatbot</h4>
                     <p>Once you've completed your diagnostic assessment, you can begin your chatbot treatments. You'll have multiple sessions to attend, and after each session, you'll receive valuable advice and homework. Make sure to attend all the sessions for the treatment to be effective, aiming for one session per week.</p>
+                    <a href="{{ url_for('chat') if diagnosis_complete else '#' }}" class="btn btn-primary" style="color:white;background-color:#e38748; {{ 'cursor:pointer;' if diagnosis_complete else 'cursor:not-allowed;opacity:0.5;' }}">Chatbot</a>
                   </div>
                 </div>
         
