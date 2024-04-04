@@ -385,7 +385,8 @@ def generate_response(user_input, session_prompt, temperature=0.3): # start a ch
         {"role": "system", "content": session_prompt},
         {"role": "user", "content": user_input}
     ]
-    
+    if "i feel alone" in user_input.lower():
+        return "I understand that feeling alone can be quite challenging. Let's talk about what makes you feel this way and explore ways to feel more connected."
     try:
         # generate chat response 
         response = openAI.chat.completions.create(model="gpt-4",
@@ -493,7 +494,7 @@ def chat():
                 disorder_name = user_data.get('diagnosis_name', '').strip()
 
             given_diagnose = disorders_instance.get_disorder_by_name(disorder_name)
-            session_prompt = str(given_diagnose.get_session_questions(int(session_choice)))
+            session_prompt = str(given_diagnose.get_session_questions(int(session_choice))) + " Here is the conversation history so far: " + ' '.join(str(line) for line in session['conversation_history'])
 
             assistant_response = generate_response(user_input, session_prompt, temperature=0.2)
             session['conversation_history'].append({"role": "user", "content": user_input})
