@@ -1,4 +1,5 @@
-from flask import Flask, request, render_template, redirect, url_for, flash, jsonify
+from flask import Flask, session, request, render_template, redirect, url_for, flash, jsonify
+from flask_session import Session
 import firebase_admin
 from firebase_admin import credentials, db
 import uuid
@@ -22,6 +23,9 @@ import fitz
 
 app = Flask(__name__, static_folder='static')  #creates a Flask web application object named app. It's a fundamental step in setting up a Flask web application
 app.secret_key = 'your_secret_key_here'
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_PERMANENT'] = False
+Session(app)
 load_dotenv() 
 openAI = openai.OpenAI()
 
@@ -381,11 +385,12 @@ def result():
 #########################################################Chat Page##############################################
 
 def generate_response(user_input, session_prompt, temperature=0.3): # start a chat page function
+    logging.debug("chatbot is generating respons")
     messages = [ # initialize message list with system and user messages
         {"role": "system", "content": session_prompt},
         {"role": "user", "content": user_input}
     ]
-    if "i feel alone" in user_input.lower():
+    if "alone" in user_input.lower():
         return "I understand that feeling alone can be quite challenging. Let's talk about what makes you feel this way and explore ways to feel more connected."
     try:
         # generate chat response 
