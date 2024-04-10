@@ -390,8 +390,9 @@ def generate_response(user_input, session_prompt, temperature=0.3): # start a ch
         {"role": "system", "content": session_prompt},
         {"role": "user", "content": user_input}
     ]
-    if "alone" in user_input.lower():
-        return "I understand that feeling alone can be quite challenging. Let's talk about what makes you feel this way and explore ways to feel more connected."
+    keywords = ["alone", "lonely", "isolated","not happy","'t happy","feel","mental health","cry","be happy","depressed","helpless","worthless","numb","desperate","ashamed","heartbroken","hopeless","despondent","agitated","disheartened","traumatized","distressed","dispirited","somber","Aaonized","dismayed","desolate","dejected","anguished","disappointed","hurt"]  
+    if any(keyword in user_input.lower() for keyword in keywords):
+        return "Whatever you're feeling right now, I'm here to support you. By sharing your emotions and experiences, we can overcome this together. Talking about the challenges in your life, we can explore the best solutions together. Can you tell me about what's been happening in your life? This will help us understand where to begin."
     try:
         # generate chat response 
         response = openAI.chat.completions.create(model="gpt-4",
