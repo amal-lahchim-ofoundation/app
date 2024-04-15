@@ -68,7 +68,7 @@
 
    
           <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
-          <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatmant</a>
+          <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatment</a>
       </div>
       {% else %}
       <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
@@ -96,14 +96,12 @@
           </div>
           <div class="row">
             <div class="col-lg-12">
-              <h3> Please answer these question and explain in more detail what is bothering you!!</span></h3>
+              <h3> Please respond to these questions and explain in more detail what is bothering you.!!</span></h3>
             </div>
           </div>
       </div>
 
     </section>
-
-
     <section class="inner-page">
       <div class="container">
         {% if session['first_login'] %}

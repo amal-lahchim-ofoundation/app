@@ -26,17 +26,6 @@
     <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
 
-    <!---- Scripts Jquery-->
-
-   <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
-
-
-  <!-- =======================================================
-  * Template Name: Restaurantly - v3.1.0
-  * Template URL: https://bootstrapmade.com/restaurantly-restaurant-template/
-  * Author: BootstrapMade.com
-  * License: https://bootstrapmade.com/license/
-  ======================================================== -->
 </head>
 
 <body>
@@ -49,7 +38,7 @@
 
     
           <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
-          <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatmant</a>        
+          <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatment</a>        
       </div>
       {% else %}
       <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
@@ -108,7 +97,7 @@
     </div>
   </section><!-- End Hero -->
 
-  
+
   <!-- Scripts -->
   <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
   <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
@@ -118,7 +107,7 @@
   <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
   <script src="{{ url_for('static', filename='assets/js/firebase.js') }}"></script>
-  
+
   
   
   

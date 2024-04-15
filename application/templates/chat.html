@@ -27,12 +27,7 @@
   <link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
-
-  <!---- Scripts Jquery-->
-
-  <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
-
-
+  
   <!-- =======================================================
   * Template Name: Restaurantly - v3.1.0
   * Template URL: https://bootstrapmade.com/restaurantly-restaurant-template/
@@ -102,7 +97,7 @@
 
 
       <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
-      <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatmant</a>
+      <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatment</a>
     </div>
     {% else %}
     <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
@@ -200,9 +195,7 @@
       </div>
     </section>
 
-
     <script>
-      // Assuming you are using a templating engine that allows embedding server-side values in the template
       var current_session = {{ current_session }}; // Replace this with your actual syntax for retrieving the session value
 
       if (sessionStorage.getItem('stored_session_number')) {
@@ -231,7 +224,6 @@
       var session_summary = {{session_summary | default("", true) | tojson }};
       let startTime;
       if (session_summary == "") {
-      
       
         
           if (sessionStorage.getItem('timer_start')) {
@@ -271,8 +263,6 @@
                       alert("The session has ended.");
                   }
                   hasWarnedForEndSession = true;
-
-
 
                   const chatBox = document.querySelector('.chat-box ul');
 
@@ -367,16 +357,14 @@ function checkSessionStatus() {
         });
 }
 }     
-        
 
+        
       // Check the session status every 5 seconds
       setInterval(checkSessionStatus, 5000);
 
       document.getElementById('chat-form').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent the default form submission
             let userInput = document.getElementById('user_input').value.trim().toLowerCase();
-
-            
 
             // Show spinner and disable submit button
             $("#spinner").show();
@@ -466,10 +454,6 @@ function checkSessionStatus() {
                 });
       } 
 
-
-
-
-
       function displayMessageWordByWord(message, element) {
         const words = message.split(' '); // Split the message into words
         let index = 0; // Start with the first word 
@@ -491,8 +475,6 @@ function checkSessionStatus() {
             }
         }, 200); // Adjust the speed as needed
       }
-
-
 
     </script>
 
