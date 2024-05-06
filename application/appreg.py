@@ -20,6 +20,7 @@ from langchain_community.utilities import WikipediaAPIWrapper
 from functools import wraps
 from Disorders import Disorders
 import fitz
+import pycountry
 
 app = Flask(__name__, static_folder='static')  #creates a Flask web application object named app. It's a fundamental step in setting up a Flask web application
 app.secret_key = 'your_secret_key_here'
@@ -171,11 +172,73 @@ def login_required(route_function):
 ############################################Treatment Page #######################################
 
 @app.route('/treatment')
-@login_required  # Ensure user is logged in to access this route
+@login_required
 def treatment():
     user_data = get_user()
     diagnosis_complete = 'diagnosis_name' in user_data and bool(user_data['diagnosis_name'])
+    personal_info_complete = user_data.get('personal_info_completed', False)  # Use the database flag
+
+    if not personal_info_complete:
+        return redirect(url_for('personal_info'))
+
     return render_template('treatment.html', diagnosis_complete=diagnosis_complete)
+
+###########################################personal info Page ########################################
+personal_info_questions = [
+    {"question":"What is your age?", "type":"number", "placeholder":""},
+    {"question":"What is your gender?", "type":"select", "options":["Male", "Female", "Other"],"placeholder":""},
+    {"question": "What is your nationality?", "type": "select", "options": [country.name for country in pycountry.countries], "placeholder": "Select your nationality"},
+    {"question": "What is your current country of residence?", "type": "select", "options": [country.name for country in pycountry.countries], "placeholder": "Select your current country of residence"},
+    {"question":"What cultural or ethnic background do you identify with? How does this influence your daily life?", "type":"text","placeholder":""},
+    {"question":"What is your marital status?", "type":"select","options":["Single","Married","Divorced","Other"],"placeholder":""},
+    {"question":"What is your education level?", "type":"select", "options":["High School","Bachelor's, Master's","Other"], "placeholder":""},
+    {"question":"What is your employment status?", "type":"select", "options":["Employed","Unemployed","Retired","Other"],"placeholder":""},
+    {"question":"what is your living situation?","type":"select","options":["Alone","With Family","With Friends","Other"],"placeholder":""},
+    {"question":"Do you have a stable support system?","type":"text","placeholder":"Yes/No; If yes, please specify"},
+    {"question":"Who are the most significant people in your life, and what kind of relationships do you have with them?", "type":"text","placeholder":""},
+    {"question":"Are you actively involved in any community or social groups? How does this impact your social interactions?","type":"text","placeholder":""},
+    {"question":"Do you have any chronic physical illnesses?","type":"text","placeholder":"Yes/No; If yes, please specify"},
+    {"question":"Are you currently taking any medications?", "type":"text", "placeholder":"Yes/No; If yes, please specify"},
+    {"question":"Do you use substances like tobacco, alcohol, or recreational drugs?","type":"select", "options":["Yes","No"],"placeholder":""},
+    {"question":"How often do you exercise?", "type":"select", "options":["Daily","Weekly","Rarely","Never"],"placeholder":""},
+    {"question":"Can you describe your typical daily diet? Do you follow any specific dietary restrictions?", "type":"text","placeholder":""},
+    {"question":"How would you describe your typical sleep patterns and quality?", "type":"text","placeholder":""},
+    {"question":"Have you been diagnosed with any mental health disorders?", "type":"text","placeholder":"Yes/No; If yes, please specify"},
+    {"question":"Have you experienced significant life changes or stressors recently?","type":"text","placeholder":"Yes/No; If yes, please specify"},
+    {"question":"Rate your overall stress level on a scale from 1 to 10:","type":"select", "options":["1","2","3","4","5","6","7","8","9","10"], "placeholder":""},
+    {"question":"What are your primary ways of coping with stress or emotional distress?","type":"text","placeholder":""},
+    {"question":"Can you share an instance where you successfully managed a challenging life event?","type":"text","placeholder":""},
+    {"question":"Do you feel content with your personal life?", "type":"text","placeholder":"Yes/No; If no, what areas would you like to improve?"},
+    {"question":"How often do you engage in activities that you enjoy?","type":"select", "options":["Daily","Weekly","Rarely","Never"],"placeholder":""},
+    {"question":"Do you feel you have adequate social interactions?","type":"text","placeholder":"Yes/No; If no, what barriers do you face?"},
+    {"question":"How would you rate your overall happiness on a scale from 1 to 10?", "type":"select", "options":["1","2","3","4","5","6","7","8","9","10"], "placeholder":""},
+    {"question":"What aspects of your life are you most satisfied or dissatisfied with? Why?","type":"text","placeholder":""},
+    {"question":"What are your hopes and aspirations for the future? How do you plan to achieve them?","type":"text","placeholder":""},
+    {"question":"How would you describe your overall level of physical activity?","type":"select","options":["Very active","Moderately active","Lightly active","Sedentary"],"placeholder":""},
+    {"question":"What do you typically do in your leisure time? How do you balance relaxation with activity?","type":"text","placeholder":""},
+    {"question":"Would you describe yourself more as an introvert or an extrovert?","type":"text","placeholder":""},
+    {"question":"How comfortable do you feel in social gatherings and public speaking scenarios?","type":"select","options":["Very comfortable","Somewhat comfortable","Neutral","Somewhat uncomfortable","Very uncomfortable"],"placeholder":""},
+    {"question":"How do you typically react to meeting new people or being in unfamiliar social situations?","type":"text","placeholder":"Examples:Seek interaction,Observe first then join,Remain mostly on the sidelines,Avoid if possible"},
+    {"question":"What skills or talents do you believe you possess?","type":"text","placeholder":""},
+    {"question":"How have you developed these skills over time?","type":"text","placeholder":"Examples:Formal education,Self-taught,Mentorship,On-the-job experience"},
+    {"question":"Can you provide examples of how you apply these skills in your personal or professional life?", "type":"text","placeholder":""},
+    {"question":"What skills do you find most useful in social interactions?","type":"text","placeholder":"Examples: Active listening, Empathy, Clear communication, Persuasiveness, Conflict resolution"},
+]
+@app.route('/personal_info', methods=['GET', 'POST'])
+@login_required
+def personal_info():
+    user_data = get_user()   
+    if user_data.get('personal_info_completed', False):
+        return redirect(url_for('treatment'))
+    if request.method == 'POST':
+        personal_info_responses = {question['question']: request.form.get(str(index)) for index, question in enumerate(personal_info_questions)}
+        user_data['personal_info_completed'] = True
+        user_data['personal_info_responses'] = personal_info_responses
+        USERS_REF.child(session['random_key']).set(user_data)
+
+        return redirect(url_for('treatment'))
+
+    return render_template('personal_info.html', questions=personal_info_questions)
 
 ###########################################Diagnose Page ########################################
 
@@ -218,8 +281,11 @@ diagnosequestions = [
         "During the same period, have you found it difficult to enjoy activities that you previously found pleasurable or interesting?",
         "Have you noticed changes in your appetite or weight (either gain or loss) without attempting to diet?",
         "Can you tell me about your sleeping patterns lately? Have you experienced insomnia or excessive sleeping?",
-        "Have you felt unusually tired or low on energy most days, making even small tasks seem exhausting?"
-        
+        "Have you felt unusually tired or low on energy most days, making even small tasks seem exhausting?",
+        "Do you ever feel despair about your complaints or how you feel?",
+        "Have you ever had thoughts of death?",
+        "Have you ever considered harming yourself or ending your life?",
+        "Have you had these complaints before in your life?"
     ]
 
 @app.route("/questions", methods=['GET', 'POST']) 
@@ -237,9 +303,10 @@ def questions():
     
     if request.method == 'POST':
         if first_login:       
-            responses = [request.form.get(f'q{i+1}') for i in range(len(diagnosequestions))]  # get all the answers
+            diagnose_responses = [request.form.get(f'q{i+1}') for i in range(len(diagnosequestions))]  # get all the answers
+            personal_info_responses = {question['question']: request.form.get(str(index)) for index, question in enumerate(personal_info_questions)}
             prompt = request.form.get('prompt')  # get the prompt
-            diagnosis_result = process_data(responses, prompt)  # process these two data
+            diagnosis_result = process_data(diagnose_responses, personal_info_responses, prompt)  # process these two data
             result = diagnosis_result['message']  # add these processed data into message
             diagnosis_found = diagnosis_result['diagnosis_found']
             session['given_diagnose'] = diagnosis_result['given_diagnose']
@@ -271,8 +338,7 @@ def questions():
         
     
 
-def process_data(responses, prompt):
-    
+def process_data(diagnose_responses, personal_info_responses, prompt):
     # Initialize the various components
     llm = OpenAI(temperature=0.9)
     
@@ -288,14 +354,20 @@ def process_data(responses, prompt):
     if os.path.exists(depression_directory_path):
         depression_pdf_text = process_directory(depression_directory_path)    
 
-    
+    combined_input = {
+        'a': diagnose_responses,
+        'q': diagnosequestions,
+        'topic': prompt,
+        'personal_info': personal_info_responses
+    }
 
     problem_template = PromptTemplate(
-        input_variables=['a', 'q', 'topic'],
+        input_variables=['a', 'q', 'topic', 'personal_info'],
         template = "Act as a therapist to support the user's mental health needs. \
-        Carefully analyze the user's responses and behavior to identify potential mental health \
-        conditions. Utilize the information provided by the user in their description ({topic}) and their \
-        answers ({a}) to specific questions ({q}). Based on this data, formulate a precise diagnosis"
+    Carefully analyze the user's responses and behavior to identify potential mental health \
+    conditions. Utilize the information provided by the user in their description ({topic}) and their \
+    answers ({a}) to specific questions ({q}). Additionally, consider the following personal information \
+    provided by the user: {personal_info}. Based on this data, formulate a precise diagnosis."
     )
 
     
@@ -329,9 +401,7 @@ def process_data(responses, prompt):
     wiki = WikipediaAPIWrapper()
 
 
-    problem = problem_chain.run(
-        a=responses, q=diagnosequestions, topic=prompt
-    ) 
+    problem = problem_chain.run(**combined_input)
   
     wiki_research = wiki.run(prompt)
     script = script_chain.run(problem=problem, wikipedia_research=wiki_research)
@@ -448,6 +518,15 @@ def initialize_session():
     session["conversation_history"] = []
     session['greeted'] = False
     session['summary'] = ""
+
+  # Retrieve personal information responses from the user data
+    user_data = get_user() or {}
+    personal_info_responses = user_data.get('personal_info_responses', {})
+    
+    # Append personal information responses to the conversation history
+    for question, response in personal_info_responses.items():
+        session['conversation_history'].append({"role": "user", "content": f"{question}: {response}"})
+    
     return '', 204
 
 @app.route('/chat', methods=['GET', 'POST'])
