@@ -177,9 +177,13 @@ def treatment():
     user_data = get_user()
     diagnosis_complete = 'diagnosis_name' in user_data and bool(user_data['diagnosis_name'])
     personal_info_complete = user_data.get('personal_info_completed', False)  # Use the database flag
+    personal_insights_complete = user_data.get('personal_insights_completed', False)
 
     if not personal_info_complete:
         return redirect(url_for('personal_info'))
+    
+    if not personal_insights_complete:
+        return redirect(url_for('personal_insights'))
 
     return render_template('treatment.html', diagnosis_complete=diagnosis_complete)
 
@@ -224,6 +228,35 @@ personal_info_questions = [
     {"question":"Can you provide examples of how you apply these skills in your personal or professional life?", "type":"text","placeholder":""},
     {"question":"What skills do you find most useful in social interactions?","type":"text","placeholder":"Examples: Active listening, Empathy, Clear communication, Persuasiveness, Conflict resolution"},
 ]
+personal_insights_questions = [
+{"question":"How important is your cultural background to your identity?", "type":"text","placeholder":"Examples:Not important,Somewhat important,Very important"},
+{"question":"Do you feel your cultural background affects your mental health?","type":"text","placeholder":"Yes/No; If yes, please explain how","placeholder":""},
+{"question":"Do you face any discrimination or social stigma?","type":"text","placeholder":"Yes/No; If yes, please specify context and frequency","placeholder":""},
+{"question":"How well do you feel that your cultural or personal identity aligns with societal expectations?","type":"text","placeholder":""},
+{"question":"Do you face any challenges with language or communication in your daily life?","type":"text","placeholder":""},
+{"question":"What are the core values that you live by?","type":"text","placeholder":""},
+{"question":"From where or whom have you adopted most of your beliefs?","type":"text","placeholder":""},
+{"question":"How do your values influence your decision-making processes?","type":"text","placeholder":""},
+{"question":"Describe a situation where your values were challenged. How did you handle it?","placeholder":""},
+{"question":"How do your values affect your relationships with others?","type":"text","placeholder":""},
+{"question":"How do your values align with your professional life or career choices?","type":"text","placeholder":""},
+{"question":"In what ways do you try to promote your values in your community or social circle?","type":"text","placeholder":""},
+{"question":"How do your beliefs influence your daily behavior and interactions with others?","type":"text","placeholder":""},
+{"question":"How do your beliefs impact your feelings of happiness or contentment?","type":"text","placeholder":""},
+{"question":"Have you ever encountered situations where your beliefs were challenged? How did you react?","type":"text","placeholder":""},
+{"question":"Can you provide examples of significant life decisions that were guided by your beliefs?","type":"text","placeholder":""},
+{"question":"How has your identity evolved over the years? What factors have been most influential in shaping your identity?","type":"text","placeholder":""},
+{"question":"Have you faced any challenges due to your identity? How have you addressed these challenges?","type":"text","placeholder":""},
+{"question":"What aspects of your identity are you most proud of?","type":"text","placeholder":""},
+{"question":"How do you define spirituality? Does it involve religious beliefs, personal philosophy, or something else?","type":"text","placeholder":""},
+{"question":"How does spirituality manifest in your daily life?","type":"text","placeholder":""},
+{"question":"Are you part of a spiritual community? How does this community support your spiritual growth?","type":"text","placeholder":""},
+{"question":"How has your spirituality evolved over time? What events or experiences have led to significant changes in your spiritual outlook?","type":"text","placeholder":""},
+{"question":"How does your spirituality influence your relationships with others?","type":"text","placeholder":""},
+{"question":"What are the most important teachings or values you have learned from your spiritual beliefs?","type":"text","placeholder":""},
+{"question":"Do you have any goals related to your spiritual life? What steps are you taking to achieve them?","type":"text","placeholder":""},
+]
+
 @app.route('/personal_info', methods=['GET', 'POST'])
 @login_required
 def personal_info():
@@ -239,6 +272,23 @@ def personal_info():
         return redirect(url_for('treatment'))
 
     return render_template('personal_info.html', questions=personal_info_questions)
+
+###########################################Personal insights Page ########################################
+
+@app.route('/personal_insights', methods=['GET', 'POST'])
+@login_required
+def personal_insights():
+    user_data = get_user()
+    if user_data.get('personal_insights_completed', False):
+        return redirect(url_for('treatment'), questions=personal_insights_questions)
+    if request.method == 'POST':
+        personal_insights_responses = {index: request.form.get(str(index)) for index, item in enumerate(personal_insights_questions)}
+        user_data['personal_insights_completed'] = True
+        user_data['personal_insights_responses'] = personal_insights_responses
+        USERS_REF.child(session['random_key']).set(user_data)
+        return redirect(url_for('treatment'))
+    return render_template('personal_insights.html', questions=personal_insights_questions)
+
 
 ###########################################Diagnose Page ########################################
 
@@ -305,8 +355,9 @@ def questions():
         if first_login:       
             diagnose_responses = [request.form.get(f'q{i+1}') for i in range(len(diagnosequestions))]  # get all the answers
             personal_info_responses = {question['question']: request.form.get(str(index)) for index, question in enumerate(personal_info_questions)}
+            personal_insights_responses = {question['question']: request.form.get(str(index)) for index, question in enumerate(personal_insights_questions)}
             prompt = request.form.get('prompt')  # get the prompt
-            diagnosis_result = process_data(diagnose_responses, personal_info_responses, prompt)  # process these two data
+            diagnosis_result = process_data(diagnose_responses, personal_info_responses,personal_insights_responses, prompt)  # process these datas
             result = diagnosis_result['message']  # add these processed data into message
             diagnosis_found = diagnosis_result['diagnosis_found']
             session['given_diagnose'] = diagnosis_result['given_diagnose']
@@ -338,7 +389,7 @@ def questions():
         
     
 
-def process_data(diagnose_responses, personal_info_responses, prompt):
+def process_data(diagnose_responses, personal_info_responses, personal_insights_responses, prompt):
     # Initialize the various components
     llm = OpenAI(temperature=0.9)
     
@@ -358,17 +409,18 @@ def process_data(diagnose_responses, personal_info_responses, prompt):
         'a': diagnose_responses,
         'q': diagnosequestions,
         'topic': prompt,
-        'personal_info': personal_info_responses
+        'personal_info': personal_info_responses,
+        'personal_insights' : personal_insights_responses 
     }
 
     problem_template = PromptTemplate(
-        input_variables=['a', 'q', 'topic', 'personal_info'],
-        template = "Act as a therapist to support the user's mental health needs. \
-    Carefully analyze the user's responses and behavior to identify potential mental health \
-    conditions. Utilize the information provided by the user in their description ({topic}) and their \
-    answers ({a}) to specific questions ({q}). Additionally, consider the following personal information \
-    provided by the user: {personal_info}. Based on this data, formulate a precise diagnosis."
-    )
+    input_variables=['a', 'q', 'topic', 'personal_info', 'personal_insights'],  # Added 'personal_insights' to input variables
+    template = "Act as a therapist to support the user's mental health needs. \
+Carefully analyze the user's responses and behavior to identify potential mental health \
+conditions. Utilize the information provided by the user in their description ({topic}) and their \
+answers ({a}) to specific questions ({q}). Additionally, consider the following personal information and personal insights \
+provided by the user: {personal_info} {personal_insights}. Based on this data, formulate a precise diagnosis."
+)
 
     
     script_template = PromptTemplate(
