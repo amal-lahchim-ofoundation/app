@@ -34,13 +34,6 @@ openAI = openai.OpenAI()
 
 
 DATABASE_URL = os.getenv('FIREBASE_DATABASE_URL')
-
-try:
-    db = firestore.client()
-    WALLETS_REF = db.collection('wallets')
-    print("Firestore client created successfully")
-except Exception as e:
-    print(f"Error creating Firestore client: {e}")
     
 @app.route("/", methods=['GET', 'POST'])
 def home():
@@ -59,6 +52,13 @@ firebase_admin.initialize_app(cred, {
 
 
 USERS_REF = db.reference('users')
+
+try:
+    db = firestore.client()
+    WALLETS_REF = db.collection('wallets')
+    print("Firestore client created successfully")
+except Exception as e:
+    print(f"Error creating Firestore client: {e}")
 
 #A function that doesn't allow to access login page if you are already logged in/regiterd 
 def redirect_if_logged_in(route_function):
