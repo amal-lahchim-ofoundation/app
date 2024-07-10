@@ -1,7 +1,7 @@
-from flask import Flask, session, request, render_template, redirect, url_for, flash, jsonify
+from flask import Flask, session, request, render_template, redirect, url_for, flash, jsonify, make_response
 from flask_session import Session
 import firebase_admin
-from firebase_admin import credentials, db
+from firebase_admin import credentials, db, firestore
 import uuid
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
@@ -21,6 +21,8 @@ from functools import wraps
 from Disorders import Disorders
 import fitz
 import pycountry
+from datetime import datetime
+import random
 
 app = Flask(__name__, static_folder='static')  #creates a Flask web application object named app. It's a fundamental step in setting up a Flask web application
 app.secret_key = 'your_secret_key_here'
@@ -33,7 +35,13 @@ openAI = openai.OpenAI()
 
 DATABASE_URL = os.getenv('FIREBASE_DATABASE_URL')
 
-
+try:
+    db = firestore.client()
+    WALLETS_REF = db.collection('wallets')
+    print("Firestore client created successfully")
+except Exception as e:
+    print(f"Error creating Firestore client: {e}")
+    
 @app.route("/", methods=['GET', 'POST'])
 def home():
     logging.debug("redirecting index.html")
@@ -782,6 +790,68 @@ def getSessionNumber(user_data):
 @app.route('/agree_to_summary', methods=['POST'])
 def agree_to_summary():
      return jsonify({"success": True, "message": "Summary agreement recorded."})
+#### web3 routes ####
+@app.route('/nonce')
+def nonce():
+    wallet_address = request.args.get('walletAddress')
+    nonce = str(random.randint(1, 10000))
+    nonce_id = f"{nonce}-{datetime.now().timestamp()}" 
+    created_at = datetime.now()
+    
+    # Check if wallet address already exists in Firestore
+    doc_ref = WALLETS_REF.document(wallet_address)
+    doc = doc_ref.get()
+
+    if doc.exists:
+        # Wallet address already exists, update the nonce and updatedAt
+        doc_ref.update({
+            'nonce': nonce_id,
+            'updatedAt': datetime.now()
+        })
+    else:
+        # Wallet address does not exist, insert a new document with createdAt
+        WALLETS_REF.document(wallet_address).set({
+            'wallet_address': wallet_address,
+            'nonce': nonce_id,
+            'createdAt': created_at,
+            'updatedAt': created_at
+        })
+
+    return jsonify({'nonce': nonce_id})
+
+@app.route('/verify', methods=['GET'])
+def verify_signature():
+    wallet_address = request.args.get('walletAddress')
+    doc_ref = WALLETS_REF.document(wallet_address)
+    doc = doc_ref.get()
+    if doc.exists:
+        response = make_response(jsonify({'success': True}))
+        response.set_cookie('walletAddress', wallet_address)
+        return response
+    else:
+        return jsonify({'success': False, 'error': 'Wallet address not found'})
+
+@app.route('/check')
+def check_session():
+    wallet_address = request.cookies.get('walletAddress')
+    if wallet_address:
+        # Check if wallet address exists in Firestore
+        doc_ref = WALLETS_REF.document(wallet_address)
+        doc = doc_ref.get()
+        if doc.exists:
+            return jsonify({'success': True, 'walletAddress': wallet_address})
+        else:
+            return jsonify({'success': False, 'error': 'Wallet address not found in Firestore'})
+    else:
+        return jsonify({'success': False})
+
+@app.route('/disconnect')
+def disconnect():
+    response = make_response(jsonify({'success': True}))
+    response.set_cookie('walletAddress', '', expires=0)
+    return response
+
+### end web3 routes ####
 
 if __name__ == '__main__':
     # Configure the logging system
