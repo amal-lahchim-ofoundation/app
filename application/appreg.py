@@ -50,15 +50,20 @@ firebase_admin.initialize_app(cred, {
     'databaseURL': DATABASE_URL
 })
 
+################################################### Firestore ####################################################################
+firestore_db = firestore.client()
+try:
+    USERS_REF = db.reference('users') 
+    print("Firebase connected successfully")
+except Exception as e:
+    print(f"Error creating Realtime Database reference: {e}")
 
-USERS_REF = db.reference('users')
 
 try:
-    db = firestore.client()
-    WALLETS_REF = db.collection('wallets')
-    print("Firestore client created successfully")
+    WALLETS_REF = firestore_db.collection('wallets') 
+    print("Firestore connected successfully")
 except Exception as e:
-    print(f"Error creating Firestore client: {e}")
+    print(f"Error creating Firestore collection reference: {e}")
 
 #A function that doesn't allow to access login page if you are already logged in/regiterd 
 def redirect_if_logged_in(route_function):
