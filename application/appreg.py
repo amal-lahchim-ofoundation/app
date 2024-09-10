@@ -269,7 +269,7 @@ personal_insights_questions = [
 {"question":"What are the most important teachings or values you have learned from your spiritual beliefs?","type":"text","placeholder":""},
 {"question":"Do you have any goals related to your spiritual life? What steps are you taking to achieve them?","type":"text","placeholder":""},
 ]
-file_path = '/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/Mental_Health_Statistics_2024.docx'
+file_path = '/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/data/Mental_Health_Statistics_2024.docx'
 import docx
 api_key = os.getenv('OPENAI_API_KEY_2')
 @app.route('/personal_info', methods=['GET', 'POST'])
@@ -316,19 +316,12 @@ class ManagerAgent:
             return "Error: Could not extract text from DOCX."
 
         # Pass the responses to the PersonalInfoAIAgent for processing
-        result = self.personal_info_agent.process_responses(responses, docx_text)
+        result = self.personal_info_agent.compare_user_responses(responses, docx_text)
         return result
 
 class PersonalInfoAIAgent:
     def __init__(self, api_key):
         self.api_key = api_key
-
-    def process_responses(self, responses, docx_text):
-        """
-        Analyze user responses using GPT by comparing them with the extracted DOCX content.
-        """
-        result = self.gpt_analyze_responses(responses, docx_text)
-        return result
 
     def read_docx(self, file_path):
         """
@@ -343,48 +336,127 @@ class PersonalInfoAIAgent:
         except Exception as e:
             return f"Error reading DOCX: {e}"
 
-    def gpt_analyze_responses(self, responses, docx_text):
+    def compare_user_responses(self, user_responses, doc_statistics):
         """
-        Uses GPT to analyze user responses by comparing them with the content of the DOCX.
+        Compare user responses with mental health statistics to estimate the percentage likelihood of mental health issues.
+    
+        :param user_responses: A dictionary of user responses with question and answer pairs.
+        :param doc_statistics: A dictionary containing mental health statistics.
+        :return: A dictionary with estimated percentages based on the provided statistics.
         """
-        # Construct the detailed prompt
-        prompt = (
-            "You are an AI model capable of extracting statistical information from text documents. "
-            "Based on the user’s demographic and background data, identify and extract relevant statistics from the provided DOCX content. "
-            "The statistics should correlate with the user's responses and reflect any significant patterns or factors that could be relevant for mental health analysis. "
-            "Please analyze the document content and extract any statistics that relate to the following user responses:\n\n"
-        )
     
-        # Add the DOCX content to the prompt
-        # Limit the size if necessary
-        if len(docx_text) > 3000:
-            docx_text = docx_text[:3000] + "... (truncated)"
-            
-        prompt += f"Document Content: {docx_text}\n\n"
+        # Define statistics based on the document
+        statistics = {
+            'age_groups': {
+                '18 to 25': 33.7,
+                '26 to 49': 28.1,
+                '50 and older': 15.0
+            },
+            'mental_health_type': {
+                'anxiety_disorders': 19.1,
+                'major_depression': 8.3
+            },
+            'race': {
+                'American Indian or Alaska Native': 26.6,
+                'Mixed Race or Multiracial': 34.9
+            },
+            'gender': {
+                'Female': 11.9,  # Percentage of females with mental illness
+                'Male': 9.3      # Percentage of males with mental illness
+            },
+            'young_women': 16,  # Prevalence of mental illness among young women aged 20-29
+            'young_men': 8,     # Prevalence of mental illness among young men aged 20-29
+            'general_young_adults': 22,  # General prevalence for young adults aged 15-34
+            'general_older_adults': 14,  # General prevalence for adults aged 60 and over
+            'older_adults_disability': 10.6,  # Disability adjusted life years (DALYs) for older adults
+            'loneliness_isolation': 25,  # Percentage of older adults affected by loneliness and isolation
+            'abuse': 16,  # Percentage of older adults experiencing abuse
+            'employment_recovery_boost': 54  # Percentage increase in recovery likelihood due to employment
+        }
     
-        # Add user responses to the prompt
-        prompt += "User Responses:\n"
-        for question, answer in responses.items():
-            prompt += f"{question}: {answer}\n"
-        prompt += "\nPlease extract and list any relevant statistics related to the user responses from the document content."
+        # Extract user responses
         try:
-            client = OpenAI(api_key)
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",  # or "gpt-4"
-                messages=[
-                    {"role": "system", "content": "You are an expert in statistical analysis and mental health."},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=1500,
-                temperature=0.7
-            )
-
-            gpt_analysis = response.choices[0].message['content'].strip()
-            return gpt_analysis
+            age = int(user_responses.get('What is your age?', 0))
+        except ValueError:
+            age = 0  # Handle invalid age input
     
-        except Exception as e:
-            return f"Error calling GPT: {e}"
-        
+        race = user_responses.get('What cultural or ethnic background do you identify with?', '').strip()
+        gender = user_responses.get('What is your gender?', '').strip()
+        employment_status = user_responses.get('What is your employment status?', '').strip()
+        living_situation = user_responses.get('What is your living situation?', '').strip()  # New input field
+        social_factors = user_responses.get('Do you feel lonely or socially isolated?', '').strip()  # New input field
+        abuse_experience = user_responses.get('Have you experienced any form of abuse?', '').strip()  # New input field
+    
+        # Determine age group percentage
+        if 18 <= age <= 25:
+            age_group_percentage = statistics['age_groups']['18 to 25']
+        elif 26 <= age <= 49:
+            age_group_percentage = statistics['age_groups']['26 to 49']
+        elif age >= 60:
+            age_group_percentage = statistics['general_older_adults']
+            # Include additional factors for older adults
+            if social_factors.lower() == 'yes':
+                age_group_percentage += statistics['loneliness_isolation']
+            if abuse_experience.lower() == 'yes':
+                age_group_percentage += statistics['abuse']
+        else:
+            age_group_percentage = statistics['age_groups'].get('50 and older', 0)
+    
+        # Determine specific percentages for young adults
+        if 15 <= age <= 34:
+            if gender == 'Female':
+                age_group_percentage = statistics['young_women']
+            elif gender == 'Male':
+                age_group_percentage = statistics['young_men']
+            else:
+                age_group_percentage = statistics['general_young_adults']
+    
+        # Determine race-related percentage
+        race_percentage = statistics['race'].get(race, 0)  # Default to 0 if race is not listed
+    
+        # Determine gender-related percentage
+        gender_percentage = statistics['gender'].get(gender, 0)  # Default to 0 if gender is not listed
+    
+        # Employment status adjustment
+        if employment_status.lower() == 'employed':
+            if age <= 60:
+                recovery_boost = statistics['employment_recovery_boost']  # 54% recovery boost for employed under 60
+            else:
+                recovery_boost = 0  # No boost for those older than 60 years
+        else:
+            recovery_boost = 0
+    
+        # Living situation adjustment
+        if living_situation.lower() == 'with single parent' and age >= 18:
+            recovery_boost = 0  # No boost for those living with a single parent
+    
+        # Combine percentages and apply employment status adjustment
+        combined_percentage = max(age_group_percentage, race_percentage, gender_percentage)
+        adjusted_percentage = combined_percentage + recovery_boost
+    
+        return {
+            'age_group_percentage': age_group_percentage,
+            'race_percentage': race_percentage,
+            'gender_percentage': gender_percentage,
+            'combined_percentage': combined_percentage,
+            'adjusted_percentage': adjusted_percentage
+        }
+
+    
+    def call_llm_api(prompt):
+        """
+        Placeholder function to call the LLM API.
+        """
+        # Implementation will depend on the specific LLM service you are using.
+        pass
+    
+    def parse_llm_response(response):
+        """
+        Parse the LLM response to extract meaningful results.
+        """
+        # Implementation will depend on the format of the LLM response.
+        return response
+
 
 # Function to call CrewAI agent to process the user's personal info responses
 def call_crewai_agent(data, api_key, docx_path):
@@ -398,7 +470,6 @@ def call_crewai_agent(data, api_key, docx_path):
     print("User's responses:\n", data)
     print('--------------------------------')
     print("CrewAI Agent Data:\n", result)
-
 
 ###########################################Personal insights Page ########################################
 
