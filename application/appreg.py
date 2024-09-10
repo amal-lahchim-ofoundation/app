@@ -279,7 +279,19 @@ def personal_info():
     if user_data.get('personal_info_completed', False):
         return redirect(url_for('treatment'))
     if request.method == 'POST':
-        personal_info_responses = {question['question']: request.form.get(str(index)) for index, question in enumerate(personal_info_questions)}
+        # personal_info_responses = {question['question']: request.form.get(str(index)) for index, question in enumerate(personal_info_questions)}
+        
+        # personal_info_responses = {
+        #     f"Question {index}": request.form.get(str(index)) 
+        #     for index in range(1, len(personal_info_questions) + 1)
+        # }
+        personal_info_responses = {}
+        # Map form data to questions
+        for index, question in enumerate(personal_info_questions, start=1):
+            question_text = question.get('question', f"Question {index}")
+            answer = request.form.get(str(index))
+            personal_info_responses[question_text] = answer
+            
         user_data['personal_info_completed'] = True
         user_data['personal_info_responses'] = personal_info_responses
         USERS_REF.child(session['random_key']).set(user_data)
