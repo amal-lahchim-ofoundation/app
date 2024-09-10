@@ -270,6 +270,7 @@ personal_insights_questions = [
 {"question":"Do you have any goals related to your spiritual life? What steps are you taking to achieve them?","type":"text","placeholder":""},
 ]
 file_path = '/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/data/Mental_Health_Statistics_2024.docx'
+txt_path = "/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/data/personal_info_statistic.txt"
 import docx
 api_key = os.getenv('OPENAI_API_KEY_2')
 @app.route('/personal_info', methods=['GET', 'POST'])
@@ -308,20 +309,39 @@ class ManagerAgent:
         self.api_key = api_key
         self.personal_info_agent = PersonalInfoAIAgent(api_key)
 
-    def pass_to_personal_info_agent(self, responses, docx_path):
+    def pass_to_personal_info_agent(self, responses, docx_path, txt_path):
         # Extract the DOCX content
         docx_text = self.personal_info_agent.read_docx(docx_path)
-        
+        txt_text = self.personal_info_agent.read_txt(txt_path)
+        if not txt_text:
+            return "Error: Could not extract text from DOCX."
         if not docx_text:
             return "Error: Could not extract text from DOCX."
 
         # Pass the responses to the PersonalInfoAIAgent for processing
         result = self.personal_info_agent.compare_user_responses(responses, docx_text)
-        return result
+        analyze_results = self.personal_info_agent.analyze_mental_health(result, docx_text)
+        return analyze_results
 
 class PersonalInfoAIAgent:
     def __init__(self, api_key):
         self.api_key = api_key
+    
+    def read_txt(file_path):
+        """
+        Reads a TXT file and returns its content.
+        
+        :param file_path: The path to the TXT file.
+        :return: The content of the TXT file as a string, or an error message if the file cannot be read.
+        """
+        try:
+            with open(file_path, 'r', encoding='utf-8') as file:
+                content = file.read()
+            return content
+        except Exception as e:
+            return f"Error reading TXT file: {e}"
+    
+    
 
     def read_docx(self, file_path):
         """
@@ -442,20 +462,90 @@ class PersonalInfoAIAgent:
             'adjusted_percentage': adjusted_percentage
         }
 
+    def analyze_mental_health(self, user_responses, doc_statistics):
+        """
+        Analyze the likelihood of mental health conditions based on user responses and statistical data.
     
-    def call_llm_api(prompt):
+        :param user_responses: A dictionary of user responses with question and answer pairs.
+        :param doc_statistics: A dictionary containing mental health statistics.
+        :return: A dictionary listing potential mental health conditions with their likelihood percentages.
         """
-        Placeholder function to call the LLM API.
-        """
-        # Implementation will depend on the specific LLM service you are using.
-        pass
     
-    def parse_llm_response(response):
-        """
-        Parse the LLM response to extract meaningful results.
-        """
-        # Implementation will depend on the format of the LLM response.
-        return response
+        # Define mental health disorder statistics from the document
+        statistics = {
+            'mental_health_type': {
+                'anxiety_disorders': 19.1,
+                'major_depression': 8.3,
+                'bipolar_disorder': 2.8,
+                'schizophrenia': 1.1
+            },
+            'age_groups': {
+                '18 to 25': 33.7,
+                '26 to 49': 28.1,
+                '50 and older': 15.0
+            },
+            'race': {
+                'American Indian or Alaska Native': 26.6,
+                'Mixed Race or Multiracial': 34.9,
+                'White': 20.6,
+                'Black or African American': 16.2
+            },
+            'gender': {
+                'Female': 11.9,  # Percentage of females with mental illness
+                'Male': 9.3      # Percentage of males with mental illness
+            },
+            'employment_recovery_boost': 54  # Recovery likelihood increase due to employment
+        }
+    
+        # Extract user details
+        age = int(user_responses.get('What is your age?', 0))
+        race = user_responses.get('What cultural or ethnic background do you identify with?', '').strip()
+        gender = user_responses.get('What is your gender?', '').strip()
+        employment_status = user_responses.get('What is your employment status?', '').strip()
+        
+        # Initialize mental health condition likelihoods with base disorder percentages
+        mental_health_risks = {
+            'anxiety_disorders': statistics['mental_health_type']['anxiety_disorders'],
+            'major_depression': statistics['mental_health_type']['major_depression'],
+            'bipolar_disorder': statistics['mental_health_type']['bipolar_disorder'],
+            'schizophrenia': statistics['mental_health_type']['schizophrenia']
+        }
+        
+        # Adjust likelihoods based on user's age group
+        if 18 <= age <= 25:
+            age_risk_modifier = statistics['age_groups']['18 to 25']
+        elif 26 <= age <= 49:
+            age_risk_modifier = statistics['age_groups']['26 to 49']
+        else:
+            age_risk_modifier = statistics['age_groups']['50 and older']
+    
+        # Adjust based on race
+        race_modifier = statistics['race'].get(race, 0)
+    
+        # Adjust based on gender
+        gender_modifier = statistics['gender'].get(gender, 0)
+    
+        # Employment adjustment
+        if employment_status.lower() == 'unemployed' and age <= 60:
+            employment_modifier = -statistics['employment_recovery_boost']
+        else:
+            employment_modifier = 0
+    
+        # Calculate total likelihood for each mental health condition
+        for condition in mental_health_risks:
+            base_percentage = mental_health_risks[condition]
+            # Apply demographic-based adjustments
+            adjusted_percentage = base_percentage + age_risk_modifier + race_modifier + gender_modifier + employment_modifier
+            mental_health_risks[condition] = max(0, adjusted_percentage)  # Ensure no negative percentages
+    
+        # Sort conditions by highest likelihood
+        sorted_conditions = sorted(mental_health_risks.items(), key=lambda x: x[1], reverse=True)
+    
+        return {
+            'most_likely_conditions': sorted_conditions,
+            'overall_risk_assessment': mental_health_risks
+        }
+    
 
 
 # Function to call CrewAI agent to process the user's personal info responses
@@ -464,7 +554,7 @@ def call_crewai_agent(data, api_key, docx_path):
     manager_agent = ManagerAgent(api_key)
     
     # Call the agent to analyze the responses using GPT
-    result = manager_agent.pass_to_personal_info_agent(data, docx_path)
+    result = manager_agent.pass_to_personal_info_agent(data, docx_path, txt_path)
     
     # Log or save the result
     print("User's responses:\n", data)
