@@ -1,0 +1,196 @@
+research_task:
+  description: >
+    Conduct a thorough research about {topic}
+    Make sure you find any interesting and relevant information given
+    the current year is 2024.
+  expected_output: >
+    A list with 10 bullet points of the most relevant information about {topic}
+  agent: researcher
+
+reporting_task:
+  description: >
+    Review the context you got and expand each topic into a full section for a report.
+    Make sure the report is detailed and contains any and all relevant information.
+  expected_output: >
+    A fully fledge reports with the mains topics, each with a full section of information.
+    Formatted as markdown without '```'
+  agent: reporting_analyst
+
+manager_task:
+  description: >
+    Coordinate the distribution of user data (personal info, personal insight, and questionnaire results) from the database to the appropriate research agents. 
+    Ensure that each research agent (DSM-5 Comparison Agent, Online Resource Comparison Agent, Clinical Experience Agent) receives the correct data inputs for analysis. 
+    Manage the data flow and track the progress of each research task, ensuring timely and accurate processing.
+  expected_output: >
+    Successful and accurate distribution of data to each research agent.
+    Verified completion of analysis tasks by all research agents.
+    Summary of the data flow and status of each research agent’s analysis, ensuring that all tasks are executed correctly and on time.
+  agent: manager
+
+
+personal_info_research_task:
+  description: >
+    Analyze the user’s demographic and background data to identify relevant mental health factors.
+    Correlate the demographic data with up-to-date external research and trends as of 2024.
+    Ensure that the analysis covers any significant relationships or factors that could impact mental health based on the demographic information provided.
+  expected_output: >
+    A list with 10 bullet points of the most relevant mental health factors related to the user’s demographic and background data, supported by external research findings.
+  agent: personal_info_researcher
+
+
+personal_info_reporting_task:
+  description: >
+    Review the identified mental health factors from the demographic and background data analysis.
+    Expand each factor into a detailed section for a comprehensive report, integrating relevant research findings.
+    Ensure the report clearly explains the connections between the user’s demographic data and potential mental health risks, making the information actionable for stakeholders.
+  expected_output: >
+    A fully-fledged report with the main factors, each with a detailed section explaining the correlation with mental health.
+    Formatted as markdown without '```'
+  agent: personal_info_reporting_analyst
+
+personal_insight_research_task:
+  description: >
+    Analyze user-reported subjective experiences, such as emotional states and personal insights, in relation to current empirical research on mental health factors.
+    Compare these personal insights with up-to-date research to identify relevant mental health risks and factors.
+    Ensure that the analysis includes trends, patterns, and any significant findings related to the user's reported experiences and current research as of 2024.
+  expected_output: >
+    A list with 10 bullet points of the most relevant mental health factors related to the user's reported subjective experiences and empirical research findings.
+  agent: personal_insight_researcher
+
+
+personal_insight_reporting_task:
+  description: >
+    Review the identified mental health factors based on user-reported subjective experiences and empirical research.
+    Expand each factor into a detailed section for a comprehensive report, integrating relevant research findings with personal insights.
+    Ensure the report clearly articulates the connections between personal insights and potential mental health risks, providing actionable information for stakeholders.
+  expected_output: >
+    A fully-fledged report with the main factors, each with a detailed section explaining the correlation between personal insights and mental health risks.
+    Formatted as markdown without '```'
+  agent: personal_insight_reporting_analyst
+
+
+questionnaire_research_task:
+  description: >
+    Analyze user-reported symptoms from symptom questionnaires and cross-reference these with the latest research findings on mental health conditions.
+    Evaluate and identify potential mental health conditions based on the integration of user-reported data and current research.
+    Ensure that the analysis is comprehensive and reflects the most up-to-date information as of 2024.
+  expected_output: >
+    A list with 10 bullet points detailing potential mental health conditions based on the analysis of user-reported symptoms and current research findings.
+  agent: questionnaire_researcher
+
+questionnaire_reporting_task:
+  description: >
+    Review and expand on the potential mental health conditions identified from symptom questionnaires and related research findings.
+    Create a detailed report that integrates and explains the findings from the data analysis, highlighting the connections between symptoms and potential conditions.
+    Ensure the report is clear, comprehensive, and actionable for stakeholders to make informed decisions about mental health assessments.
+  expected_output: >
+    A fully-fledged report with sections detailing each identified mental health condition, integrating user-reported symptoms with relevant research findings.
+    Formatted as markdown without '```'
+  agent: questionnaire_reporting_analyst
+
+dsm5_reader_research_task:
+  description: >
+    Extract and process diagnostic criteria from the DSM-5 manual based on user-reported symptoms.
+    Ensure that the criteria are accurately matched to the symptoms provided and reflect the most current DSM-5 guidelines.
+    Your task involves utilizing Natural Language Processing (NLP) techniques to transform complex diagnostic information into actionable data.
+  expected_output: >
+    A list with specific DSM-5 diagnostic criteria relevant to the user-reported symptoms.
+  agent: dsm5_reader_specialist
+
+dsm5_comparison_research_task:
+  description: >
+    Evaluate diagnostic results by comparing them against DSM-5 criteria to validate potential diagnoses.
+    Your task is to ensure that the results align with DSM-5 guidelines and to verify the accuracy and consistency of the diagnoses.
+    Integrate data from multiple sources to determine the validity and severity of potential mental health conditions.
+  expected_output: >
+    A summary of findings comparing diagnostic results with DSM-5 criteria, highlighting any discrepancies or validations.
+  agent: dsm5_comparison_researcher
+
+dsm5_reporting_task:
+  description: >
+    Review the comparison of diagnostic results against DSM-5 criteria and expand on these findings in a detailed report.
+    Your report should validate potential diagnoses, integrating multiple data sources, and ensure that the diagnoses are consistent with DSM-5 guidelines.
+    Provide a clear and comprehensive report to aid in determining the accuracy and severity of mental health conditions.
+  expected_output: >
+    A fully-fledged report detailing the comparison between diagnostic results and DSM-5 criteria.
+    The report should be formatted as markdown without '```', and include sections that explain the alignment or discrepancies with DSM-5 guidelines.
+  agent: dsm5_reporting_analyst
+
+online_resource_research_task:
+  description: >
+    Conduct thorough online research to gather the most current guidelines and studies relevant to mental health symptoms.
+    Focus on sourcing information from reputable databases, journals, and expert guidelines to provide up-to-date and comprehensive data.
+    Ensure that the information gathered supports and complements existing diagnostic criteria for mental health evaluations.
+  expected_output: >
+    A list of 10 bullet points summarizing the most relevant and current guidelines and studies on mental health symptoms.
+  agent: online_resource_researcher
+
+online_resource_reporting_task:
+  description: >
+    Review the gathered online research and guidelines, and integrate them with existing diagnostic data to create a detailed report.
+    The report should present the current guidelines and studies in a clear and actionable format, highlighting how they complement and enhance existing diagnostic criteria.
+    Ensure the report is comprehensive and useful for decision-making in mental health evaluations.
+  expected_output: >
+    A fully-fledged report formatted as markdown without '```', detailing the integration of online research with existing diagnostic data.
+    The report should include sections summarizing the current guidelines and studies, their relevance to existing criteria, and any implications for mental health evaluations.
+  agent: online_resource_reporting_analyst
+
+clinical_experience_research_task:
+  description: >
+    Analyze real-world case data and therapist notes to identify patterns and insights that can enhance diagnostic accuracy.
+    Focus on integrating clinical case studies with practical experience to provide deeper understanding and refine diagnostic processes.
+    Ensure that the findings bridge theoretical criteria with practical, real-world applications.
+  expected_output: >
+    A list of 10 key insights and patterns identified from the analysis of clinical case data and therapist notes.
+  agent: clinical_experience_researcher
+
+clinical_experience_reporting_task:
+  description: >
+    Create a detailed report based on the analysis of clinical case data and therapist notes.
+    The report should clearly outline how the clinical insights enhance diagnostic accuracy and align with theoretical criteria.
+    Ensure the report includes comprehensive sections that detail the findings, their implications for diagnostic processes, and how they support practical experience.
+  expected_output: >
+    A fully-fledged report formatted as markdown without '```', detailing the insights gained from clinical case data and therapist notes.
+    The report should include sections summarizing key findings, their relevance to diagnostic accuracy, and recommendations for refining diagnostic processes.
+  agent: clinical_experience_reporting_analyst
+
+research_comparison_research_task:
+  description: >
+    Conduct online research to gather the latest psychological studies and expert guidelines relevant to mental health diagnoses.
+    Cross-reference your findings with DSM-5 standards and user-reported symptoms to validate potential diagnoses.
+    Ensure that all relevant research is accurately matched with DSM-5 criteria and user data for comprehensive diagnostic validation.
+  expected_output: >
+    A list of 10 key research findings that are cross-referenced with DSM-5 standards and user-reported symptoms.
+    Each finding should include a brief summary of how it aligns with DSM-5 criteria and its relevance to the user-reported symptoms.
+  agent: research_comparison_researcher
+
+
+research_comparison_reporting_task:
+  description: >
+    Create a detailed report based on the research findings and their alignment with DSM-5 standards and user-reported symptoms.
+    The report should integrate and synthesize research data with diagnostic criteria to provide a comprehensive assessment.
+    Include sections on key findings, how they align with DSM-5 criteria, their relevance to user-reported symptoms, and implications for diagnostic accuracy.
+  expected_output: >
+    A fully-fledged report formatted as markdown without '```', detailing the synthesis of research findings with DSM-5 standards and user-reported symptoms.
+    The report should include sections summarizing key findings, their alignment with DSM-5 criteria, and their impact on diagnostic accuracy and decision-making.
+  agent: research_comparison_reporting_analyst
+
+symptom_determination_research_task:
+  description: >
+    Analyze user-reported symptoms and current research findings to evaluate potential mental health conditions.
+    Integrate user-reported symptoms with the latest research to refine potential diagnoses.
+    Ensure that the evaluation is accurate, comprehensive, and reflects the most recent research.
+  expected_output: >
+    A list of 10 key insights on potential mental health conditions based on the integration of user-reported symptoms and current research findings.
+    Each insight should include a summary of how the symptoms align with research findings and their implications for diagnosis.
+  agent: symptom_determination_researcher
+
+symptom_determination_reporting_task:
+  description: >
+    Create a detailed report based on the analysis of user-reported symptoms and relevant research findings.
+    The report should clearly present how symptoms have been evaluated in light of recent research and how this affects potential diagnoses.
+    Ensure the report includes sections on key findings, their implications for mental health conditions, and recommendations based on the analysis.
+  expected_output: >
+    A fully-fledged report formatted as markdown without '```', detailing the analysis of user-reported symptoms and research findings.
+    The report should include sections summarizing the evaluation of symptoms, how they align with research, implications for potential diagnoses, and recommendations for further action.
+  agent: symptom_determination_reporting_analyst

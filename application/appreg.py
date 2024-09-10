@@ -269,7 +269,9 @@ personal_insights_questions = [
 {"question":"What are the most important teachings or values you have learned from your spiritual beliefs?","type":"text","placeholder":""},
 {"question":"Do you have any goals related to your spiritual life? What steps are you taking to achieve them?","type":"text","placeholder":""},
 ]
-
+file_path = '/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/Mental_Health_Statistics_2024.docx'
+import docx
+api_key = os.getenv('OPENAI_API_KEY_2')
 @app.route('/personal_info', methods=['GET', 'POST'])
 @login_required
 def personal_info():
@@ -281,10 +283,110 @@ def personal_info():
         user_data['personal_info_completed'] = True
         user_data['personal_info_responses'] = personal_info_responses
         USERS_REF.child(session['random_key']).set(user_data)
-
+        # Call the CrewAI agent to process the personal info responses
+        call_crewai_agent(user_data['personal_info_responses'], api_key, file_path)
         return redirect(url_for('treatment'))
 
     return render_template('personal_info.html', questions=personal_info_questions)
+
+
+# ManagerAgent class for handling interactions between user and CrewAI
+class ManagerAgent:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.personal_info_agent = PersonalInfoAIAgent(api_key)
+
+    def pass_to_personal_info_agent(self, responses, docx_path):
+        # Extract the DOCX content
+        docx_text = self.personal_info_agent.read_docx(docx_path)
+        
+        if not docx_text:
+            return "Error: Could not extract text from DOCX."
+
+        # Pass the responses to the PersonalInfoAIAgent for processing
+        result = self.personal_info_agent.process_responses(responses, docx_text)
+        return result
+
+class PersonalInfoAIAgent:
+    def __init__(self, api_key):
+        self.api_key = api_key
+
+    def process_responses(self, responses, docx_text):
+        """
+        Analyze user responses using GPT by comparing them with the extracted DOCX content.
+        """
+        result = self.gpt_analyze_responses(responses, docx_text)
+        return result
+
+    def read_docx(self, file_path):
+        """
+        Reads a DOCX file and returns its text content.
+        """
+        try:
+            # Open the DOCX file
+            doc = docx.Document(file_path)
+            extracted_text = "\n".join([para.text for para in doc.paragraphs])
+
+            return extracted_text
+        except Exception as e:
+            return f"Error reading DOCX: {e}"
+
+    def gpt_analyze_responses(self, responses, docx_text):
+        """
+        Uses GPT to analyze user responses by comparing them with the content of the DOCX.
+        """
+        # Construct the detailed prompt
+        prompt = (
+            "You are an AI model capable of extracting statistical information from text documents. "
+            "Based on the user’s demographic and background data, identify and extract relevant statistics from the provided DOCX content. "
+            "The statistics should correlate with the user's responses and reflect any significant patterns or factors that could be relevant for mental health analysis. "
+            "Please analyze the document content and extract any statistics that relate to the following user responses:\n\n"
+        )
+    
+        # Add the DOCX content to the prompt
+        # Limit the size if necessary
+        if len(docx_text) > 3000:
+            docx_text = docx_text[:3000] + "... (truncated)"
+            
+        prompt += f"Document Content: {docx_text}\n\n"
+    
+        # Add user responses to the prompt
+        prompt += "User Responses:\n"
+        for question, answer in responses.items():
+            prompt += f"{question}: {answer}\n"
+        prompt += "\nPlease extract and list any relevant statistics related to the user responses from the document content."
+        try:
+            client = OpenAI(api_key)
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",  # or "gpt-4"
+                messages=[
+                    {"role": "system", "content": "You are an expert in statistical analysis and mental health."},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=1500,
+                temperature=0.7
+            )
+
+            gpt_analysis = response.choices[0].message['content'].strip()
+            return gpt_analysis
+    
+        except Exception as e:
+            return f"Error calling GPT: {e}"
+        
+
+# Function to call CrewAI agent to process the user's personal info responses
+def call_crewai_agent(data, api_key, docx_path):
+    # Instantiate the ManagerAgent
+    manager_agent = ManagerAgent(api_key)
+    
+    # Call the agent to analyze the responses using GPT
+    result = manager_agent.pass_to_personal_info_agent(data, docx_path)
+    
+    # Log or save the result
+    print("User's responses:\n", data)
+    print('--------------------------------')
+    print("CrewAI Agent Data:\n", result)
+
 
 ###########################################Personal insights Page ########################################
 
