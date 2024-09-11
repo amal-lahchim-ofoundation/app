@@ -309,6 +309,7 @@ class ManagerAgent:
     def __init__(self, api_key):
         self.api_key = api_key
         self.personal_info_agent = PersonalInfoAIAgent(api_key)
+        self.personal_info_agent = PersonalInsightsAgent(api_key)
 
     def pass_to_personal_info_agent(self, responses, docx_path, txt_path):
         # Extract the DOCX content
@@ -323,6 +324,17 @@ class ManagerAgent:
         result = self.personal_info_agent.compare_user_responses(responses, docx_text)
         analyze_results = self.personal_info_agent.analyze_mental_health(result, docx_text)
         return analyze_results
+
+    def pass_to_personal_insights_agent(self, responses, docx_path, txt_path):
+        """
+        Passes the user responses to PersonalInsightsAgent for analysis.
+        
+        :param responses: Dictionary of user responses.
+        :return: Analysis result from PersonalInsightsAgent.
+        """
+        personal_insights_agent = PersonalInsightsAgent()
+        analysis_result = personal_insights_agent.analyze_responses(responses)
+        return analysis_result
 
 class PersonalInfoAIAgent:
     def __init__(self, api_key):
@@ -341,8 +353,6 @@ class PersonalInfoAIAgent:
             return content
         except Exception as e:
             return f"Error reading TXT file: {e}"
-    
-    
 
     def read_docx(self, file_path):
         """
@@ -548,6 +558,109 @@ class PersonalInfoAIAgent:
         }
     
 
+class PersonalInsightsAgent:
+    def __init__(self):
+        # You can initialize any analysis criteria or models here
+        self.mental_health_keywords = {
+            "stress": ["stressed", "overwhelmed", "anxious", "tense"],
+            "depression": ["sad", "depressed", "hopeless", "empty"],
+            "anxiety": ["worried", "nervous", "anxious", "fearful"]
+        }
+        # You can add more categories and keywords as per your analysis requirements
+
+    def analyze_responses(self, responses):
+        """
+        Analyzes user responses and categorizes them based on predefined mental health criteria.
+        
+        :param responses: Dictionary where the key is the question index, and value is the user's response.
+        :return: Dictionary with analysis results.
+        """
+        analysis_result = {}
+
+        # Loop through each response and analyze based on keywords and patterns
+        for question_id, answer in responses.items():
+            # Initialize the result for this question
+            analysis_result[question_id] = {
+                "response": answer,
+                "category": "normal",  # Default to normal unless criteria are met
+                "concern_level": "low"  # Default concern level
+            }
+            
+            # Check for mental health keywords in the response
+            for category, keywords in self.mental_health_keywords.items():
+                if any(keyword in answer.lower() for keyword in keywords):
+                    analysis_result[question_id]["category"] = category
+                    analysis_result[question_id]["concern_level"] = self._determine_concern_level(answer, category)
+                    break  # Stop checking after finding a match
+
+        return analysis_result
+
+    def _determine_concern_level(self, answer, category):
+        """
+        Determines the concern level based on the intensity of the response for a particular category.
+        
+        :param answer: User's response text.
+        :param category: Category identified (e.g., 'stress', 'depression').
+        :return: String representing the concern level ('low', 'moderate', 'high').
+        """
+        # Example logic to determine concern level; you can modify this based on your needs
+        if category == "depression" and "hopeless" in answer.lower():
+            return "high"
+        elif category == "stress" and "overwhelmed" in answer.lower():
+            return "moderate"
+        elif category == "anxiety" and "fearful" in answer.lower():
+            return "moderate"
+        else:
+            return "low"
+
+
+import fitz
+
+class PDFReaderAgent:
+    def __init__(self):
+        pass
+
+    def read_all_pdf_pages(self, pdf_path):
+        """
+        Reads all the text from a PDF file.
+
+        :param pdf_path: Path to the PDF file.
+        :return: Extracted text from the PDF.
+        """
+        text = ''
+        try:
+            with fitz.open(pdf_path) as pdf_document:
+                for page_num in range(pdf_document.page_count):
+                    page = pdf_document.load_page(page_num)
+                    text += page.get_text()
+            return text
+        except Exception as e:
+            return f"Error reading PDF: {e}"
+    
+    def read_specific_pages(self, pdf_path, page_numbers):
+        """
+        Reads specified pages from a PDF file.
+
+        :param pdf_path: Path to the PDF file.
+        :param page_numbers: List of page numbers to extract text from.
+        :return: Extracted text from the specified pages.
+        """
+        text = ''
+        try:
+            with fitz.open(pdf_path) as pdf_document:
+                for page_num in page_numbers:
+                    if page_num < 0 or page_num >= pdf_document.page_count:
+                        return f"Error: Page {page_num} is out of range."
+                    page = pdf_document.load_page(page_num)
+                    text += page.get_text()
+            return text
+        except Exception as e:
+            return f"Error reading specific pages: {e}"
+
+# Example usage:
+# agent = PDFReaderAgent()
+# full_text = agent.read_all_pdf_pages("path_to_pdf_file.pdf")
+# specific_text = agent.read_specific_pages("path_to_pdf_file.pdf", [0, 2, 5])
 
 # Function to call CrewAI agent to process the user's personal info responses
 def call_crewai_agent(data, api_key, docx_path):
@@ -556,14 +669,15 @@ def call_crewai_agent(data, api_key, docx_path):
     
     # Call the agent to analyze the responses using GPT
     result = manager_agent.pass_to_personal_info_agent(data, docx_path, txt_path)
+    insight_result = manager_agent.pass_to_personal_insight_agent(data, docx_path, txt_path)
     
     # Log or save the result
-    print("User's responses:\n", data)
+    print("Personal Info >> User's responses:\n", data)
     print('--------------------------------')
-    print("CrewAI Agent Data:\n", result)
+    print("CrewAI Agent Data:\nPersonal Info >>", result)
 
 ###########################################Personal insights Page ########################################
-
+insight_file_path=""
 @app.route('/personal_insights', methods=['GET', 'POST'])
 @login_required
 def personal_insights():
@@ -575,6 +689,7 @@ def personal_insights():
         user_data['personal_insights_completed'] = True
         user_data['personal_insights_responses'] = personal_insights_responses
         USERS_REF.child(session['random_key']).set(user_data)
+        call_crewai_agent(user_data['personal_insights_responses'], api_key, insight_file_path)
         return redirect(url_for('treatment'))
     return render_template('personal_insights.html', questions=personal_insights_questions)
 
