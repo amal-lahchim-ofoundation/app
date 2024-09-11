@@ -272,6 +272,7 @@ personal_insights_questions = [
 file_path = '/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/data/Mental_Health_Statistics_2024.docx'
 txt_path = "/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/data/personal_info_statistic.txt"
 import docx
+SERPER_API_KEY = os.getenv('SERPER_API_KEY')
 api_key = os.getenv('OPENAI_API_KEY_2')
 @app.route('/personal_info', methods=['GET', 'POST'])
 @login_required
@@ -327,7 +328,7 @@ class PersonalInfoAIAgent:
     def __init__(self, api_key):
         self.api_key = api_key
     
-    def read_txt(file_path):
+    def read_txt(self, file_path):
         """
         Reads a TXT file and returns its content.
         
