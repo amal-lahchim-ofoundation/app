@@ -107,13 +107,14 @@
             <div class="row">
                 <div class="col-lg-12">
                     <h3>Please fill out the following details to continue.</h3>
+                    <h3>PHASE 1</h3>
                 </div>
             </div>
         </div>
     </section>
     <section class="inner-page">
         <div class="container">
-          <form action="/personal_info" method="post">
+          <form action="/personal_info_phase_1" method="post">
             {% for item in questions %}
             <div class="mb-3">
                 <label class="form-label">{{ item.question }}</label>

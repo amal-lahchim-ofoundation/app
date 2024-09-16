@@ -23,7 +23,8 @@ import fitz
 import pycountry
 from datetime import datetime
 import random
-from personal_info import personal_info_questions
+from personal_info import personal_info_questions_phase_1, personal_info_questions_phase_2, personal_info_questions_phase_3
+
 from personal_insight import personal_insights_questions
 app = Flask(__name__, static_folder='static')  #creates a Flask web application object named app. It's a fundamental step in setting up a Flask web application
 app.secret_key = 'your_secret_key_here'
@@ -185,21 +186,51 @@ def login_required(route_function):
 
 ############################################Treatment Page #######################################
 
+# @app.route('/treatment')
+# @login_required
+# def treatment():
+#     user_data = get_user()
+#     diagnosis_complete = 'diagnosis_name' in user_data and bool(user_data['diagnosis_name'])
+#     personal_info_complete = user_data.get('personal_info_completed', False)  # Use the database flag
+#     personal_insights_complete = user_data.get('personal_insights_completed', False)
+
+#     # if not personal_info_complete:
+#     #     return redirect(url_for('personal_info'))
+#     if not personal_info_complete:
+#         return redirect(url_for('personal_info_phase_3'))    
+    
+#     if not personal_insights_complete:
+#         return redirect(url_for('personal_insights'))
+
+#     return render_template('treatment.html', diagnosis_complete=diagnosis_complete)
+
 @app.route('/treatment')
 @login_required
 def treatment():
     user_data = get_user()
-    diagnosis_complete = 'diagnosis_name' in user_data and bool(user_data['diagnosis_name'])
-    personal_info_complete = user_data.get('personal_info_completed', False)  # Use the database flag
+    
+    # Check completion flags
+    personal_info_phase_1_complete = user_data.get('personal_info_phase_1_completed', False)
+    personal_info_phase_2_complete = user_data.get('personal_info_phase_2_completed', False)
+    personal_info_phase_3_complete = user_data.get('personal_info_phase_3_completed', False)
+    personal_info_complete = all([
+        personal_info_phase_1_complete,
+        personal_info_phase_2_complete,
+        personal_info_phase_3_complete
+    ])
     personal_insights_complete = user_data.get('personal_insights_completed', False)
-
+    diagnosis_complete = 'diagnosis_name' in user_data and bool(user_data['diagnosis_name'])
+    
+    # Redirect to the appropriate page if any step is incomplete
     if not personal_info_complete:
-        return redirect(url_for('personal_info'))
+        return redirect(url_for('personal_info_phase_1'))
     
     if not personal_insights_complete:
         return redirect(url_for('personal_insights'))
 
     return render_template('treatment.html', diagnosis_complete=diagnosis_complete)
+
+
 
 ###########################################personal info Page ########################################
 
@@ -211,91 +242,204 @@ txt_path = "/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/data
 import docx
 SERPER_API_KEY = os.getenv('SERPER_API_KEY')
 api_key = os.getenv('OPENAI_API_KEY_2')
-@app.route('/personal_info', methods=['GET', 'POST'])
+# @app.route('/personal_info', methods=['GET', 'POST'])
+# @login_required
+# def personal_info():
+#     user_data = get_user()   
+#     if user_data.get('personal_info_completed', False):
+#         return redirect(url_for('treatment'))
+#     if request.method == 'POST':
+#         personal_info_responses = {}
+#         # Map form data to questions
+#         for index, question in enumerate(personal_info_questions, start=1):
+#             question_text = question.get('question', f"Question {index}")
+#             answer = request.form.get(str(index))
+#             personal_info_responses[question_text] = answer
+            
+#         user_data['personal_info_completed'] = True
+#         user_data['personal_info_responses'] = personal_info_responses
+#         USERS_REF.child(session['random_key']).set(user_data)
+#         # Call the CrewAI agent to process the personal info responses
+#         # call_crewai_agent(user_data['personal_info_responses'], api_key, file_path)
+#         return redirect(url_for('treatment'))
+
+#     return render_template('personal_info.html', questions=personal_info_questions)
+
+
+# @app.route('/personal_info_phase_1', methods=['GET', 'POST'])
+# @login_required
+# def personal_info_phase_1():
+#     user_data = get_user()   
+#     if user_data.get('personal_info_completed', False):
+#         return redirect(url_for('treatment'))
+#     if request.method == 'POST':
+#         personal_info_responses = {}
+#         # Map form data to questions
+#         for index, question in enumerate(personal_info_questions_phase_1, start=1):
+#             question_text = question.get('question', f"Question {index}")
+#             answer = request.form.get(str(index))
+#             personal_info_responses[question_text] = answer
+            
+#         user_data['personal_info_completed'] = True
+#         user_data['personal_info_responses'] = personal_info_responses
+#         USERS_REF.child(session['random_key']).set(user_data)
+#         # Call the agent to process the personal info responses
+#         call_phase1_agent(user_data['personal_info_responses'], api_key, file_path)
+#         return redirect(url_for('treatment'))
+
+#     return render_template('personal_info_phase_1.html', questions=personal_info_questions_phase_1)
+
+# @app.route('/personal_info_phase_2', methods=['GET', 'POST'])
+# @login_required
+# def personal_info_phase_2():
+#     user_data = get_user()   
+#     if user_data.get('personal_info_completed', False):
+#         return redirect(url_for('treatment'))
+#     if request.method == 'POST':
+#         personal_info_responses = {}
+#         # Map form data to questions
+#         for index, question in enumerate(personal_info_questions_phase_1, start=1):
+#             question_text = question.get('question', f"Question {index}")
+#             answer = request.form.get(str(index))
+#             personal_info_responses[question_text] = answer
+            
+#         user_data['personal_info_completed'] = True
+#         user_data['personal_info_responses'] = personal_info_responses
+#         USERS_REF.child(session['random_key']).set(user_data)
+#         # Call the agent to process the personal info responses
+#         call_phase2_agent(user_data['personal_info_responses'], api_key, file_path)
+#         return redirect(url_for('treatment'))
+
+#     return render_template('personal_info_phase_2.html', questions=personal_info_questions_phase_2)
+
+@app.route('/personal_info_phase_1', methods=['GET', 'POST'])
 @login_required
-def personal_info():
-    user_data = get_user()   
-    if user_data.get('personal_info_completed', False):
-        return redirect(url_for('treatment'))
+def personal_info_phase_1():
+    user_data = get_user()
+    
+    # Check if personal info phase 1 is already completed
+    if user_data.get('personal_info_phase_1_completed', False):
+        return redirect(url_for('personal_info_phase_2'))
+    
     if request.method == 'POST':
-        # personal_info_responses = {question['question']: request.form.get(str(index)) for index, question in enumerate(personal_info_questions)}
-        
-        # personal_info_responses = {
-        #     f"Question {index}": request.form.get(str(index)) 
-        #     for index in range(1, len(personal_info_questions) + 1)
-        # }
-        
-        #FIXME - Adjust responses with new questions.
         personal_info_responses = {}
         # Map form data to questions
-        for index, question in enumerate(personal_info_questions, start=1):
+        for index, question in enumerate(personal_info_questions_phase_1, start=1):
             question_text = question.get('question', f"Question {index}")
             answer = request.form.get(str(index))
             personal_info_responses[question_text] = answer
             
-        user_data['personal_info_completed'] = True
-        user_data['personal_info_responses'] = personal_info_responses
+        user_data['personal_info_phase_1_completed'] = True
+        user_data['personal_info_responses_phase_1'] = personal_info_responses
         USERS_REF.child(session['random_key']).set(user_data)
-        # Call the CrewAI agent to process the personal info responses
-        # call_crewai_agent(user_data['personal_info_responses'], api_key, file_path)
-        print("----PERSONAL INFO ANSWERS----")
-        print("------------------------------------------------")
-        print(user_data['personal_info_responses']);
+        # Call the agent to process the personal info responses
+        call_phase1_agent(user_data['personal_info_responses_phase_1'], api_key, file_path)
+        return redirect(url_for('personal_info_phase_2'))
+
+    return render_template('personal_info_phase_1.html', questions=personal_info_questions_phase_1)
+
+@app.route('/personal_info_phase_2', methods=['GET', 'POST'])
+@login_required
+def personal_info_phase_2():
+    user_data = get_user()
+    
+    # Check if personal info phase 2 is already completed
+    if user_data.get('personal_info_phase_2_completed', False):
+        return redirect(url_for('personal_info_phase_3'))
+    
+    if request.method == 'POST':
+        personal_info_responses = {}
+        # Map form data to questions
+        for index, question in enumerate(personal_info_questions_phase_2, start=1):
+            question_text = question.get('question', f"Question {index}")
+            answer = request.form.get(str(index))
+            personal_info_responses[question_text] = answer
+            
+        user_data['personal_info_phase_2_completed'] = True
+        user_data['personal_info_responses_phase_2'] = personal_info_responses
+        USERS_REF.child(session['random_key']).set(user_data)
+        # Call the agent to process the personal info responses
+        call_phase2_agent(user_data['personal_info_responses_phase_2'], api_key, file_path)
+        return redirect(url_for('personal_info_phase_3'))
+
+    return render_template('personal_info_phase_2.html', questions=personal_info_questions_phase_2)
+    
+@app.route('/personal_info_phase_3', methods=['GET', 'POST'])
+@login_required
+def personal_info_phase_3():
+    user_data = get_user()
+    
+    # Check if personal info phase 3 is already completed
+    if user_data.get('personal_info_phase_3_completed', False):
+        return redirect(url_for('treatment'))
+    
+    if request.method == 'POST':
+        personal_info_responses = {}
+        # Map form data to questions
+        for index, question in enumerate(personal_info_questions_phase_3, start=1):
+            question_text = question.get('question', f"Question {index}")
+            answer = request.form.get(str(index))
+            personal_info_responses[question_text] = answer
+            
+        user_data['personal_info_phase_3_completed'] = True
+        user_data['personal_info_responses_phase_3'] = personal_info_responses
+        USERS_REF.child(session['random_key']).set(user_data)
+        # Call the agent to process the personal info responses
+        call_phase3_agent(user_data['personal_info_responses_phase_3'], api_key, file_path)
         return redirect(url_for('treatment'))
 
-    return render_template('personal_info.html', questions=personal_info_questions)
+    return render_template('personal_info_phase_3.html', questions=personal_info_questions_phase_3)
 
-
-# # ManagerAgent class for handling interactions between user and CrewAI
-# class ManagerAgent:
-#     def __init__(self, api_key):
-#         self.api_key = api_key
-#         self.personal_info_agent = PersonalInfoAIAgent(api_key)
+# ManagerAgent class for handling interactions between user and CrewAI
+class ManagerAgent:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.personal_info_agent = PersonalInfoAIAgent(api_key)
         
-#     def generate_analysis_prompt(self, user_responses):
-#         # Parse the raw user data
-#         age = user_responses.get("What is your age?", "unknown")
-#         gender = user_responses.get("What is your gender?", "unknown")
-#         nationality = user_responses.get("What is your nationality?", "unknown")
-#         residence = user_responses.get("What is your current country of residence?", "unknown")
-#         ethnicity = user_responses.get("What cultural or ethnic background do you identify with? How does this influence your daily life?", "unknown")
-#         marital_status = user_responses.get("What is your marital status?", "unknown")
-#         education = user_responses.get("What is your education level?", "unknown")
-#         employment_status = user_responses.get("What is your employment status?", "unknown")
-#         living_situation = user_responses.get("What is your living situation?", "unknown")
-#         support_system = user_responses.get("Do you have a stable support system?", "unknown")
-#         community_involvement = user_responses.get("Are you actively involved in any community or social groups? How does this impact your social interactions?", "unknown")
+    def generate_analysis_prompt(self, user_responses):
+        # Parse the raw user data
+        age = user_responses.get("What is your age?", "unknown")
+        gender = user_responses.get("What is your gender?", "unknown")
+        nationality = user_responses.get("What is your nationality?", "unknown")
+        residence = user_responses.get("What is your current country of residence?", "unknown")
+        ethnicity = user_responses.get("What cultural or ethnic background do you identify with? How does this influence your daily life?", "unknown")
+        marital_status = user_responses.get("What is your marital status?", "unknown")
+        education = user_responses.get("What is your education level?", "unknown")
+        employment_status = user_responses.get("What is your employment status?", "unknown")
+        living_situation = user_responses.get("What is your living situation?", "unknown")
+        support_system = user_responses.get("Do you have a stable support system?", "unknown")
+        community_involvement = user_responses.get("Are you actively involved in any community or social groups? How does this impact your social interactions?", "unknown")
         
-#         # Generate dynamic analysis prompt
-#         prompt = (
-#             f"Search for Race and Ethnicity, Gender, Employment, Education, Social Support, Community Involvement, Exercise, "
-#             f"and Stress factors that impact mental health. Search can be separated for each category. "
-#             f"Use the results to analyze this user: The individual is a {age}-year-old {gender} from {residence}, "
-#             f"of {ethnicity} ethnic background, currently residing in {residence}. "
-#             f"He/She is {marital_status}, has a {education} education, is {employment_status}, and lives {living_situation}. "
-#             f"The individual has a stable support system ({support_system}), with close relationships and is actively involved in {community_involvement}. "
-#             f"Based on these factors, estimate the mental health risk for conditions such as anxiety, depression, and stress-related disorders, "
-#             f"considering how unemployment, community involvement, family support, and other demographics might impact overall well-being. "
-#             f"Provide a detailed report with percentage estimates for diagnoses."
-#         )
+        # Generate dynamic analysis prompt
+        prompt = (
+            f"Search for Race and Ethnicity, Gender, Employment, Education, Social Support, Community Involvement, Exercise, "
+            f"and Stress factors that impact mental health. Search can be separated for each category. "
+            f"Use the results to analyze this user: The individual is a {age}-year-old {gender} from {residence}, "
+            f"of {ethnicity} ethnic background, currently residing in {residence}. "
+            f"He/She is {marital_status}, has a {education} education, is {employment_status}, and lives {living_situation}. "
+            f"The individual has a stable support system ({support_system}), with close relationships and is actively involved in {community_involvement}. "
+            f"Based on these factors, estimate the mental health risk for conditions such as anxiety, depression, and stress-related disorders, "
+            f"considering how unemployment, community involvement, family support, and other demographics might impact overall well-being. "
+            f"Provide a detailed report with percentage estimates for diagnoses."
+        )
     
-#         return prompt
-#     def pass_to_personal_info_agent(self, prompt):
+        return prompt
+    def pass_to_personal_info_agent(self, prompt):
         
-#         #FIXME - fix solution to handle prompt, analyze_prompt not present
-#         return self.personal_info_agent.analyze_prompt(prompt)
+        #FIXME - fix solution to handle prompt, analyze_prompt not present
+        return self.personal_info_agent.analyze_prompt(prompt)
     
 
-# from dotenv import load_dotenv
-# from langchain import hub
-# from langchain.agents import AgentExecutor, create_structured_chat_agent
-# from langchain.memory import ConversationBufferMemory
-# from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-# from langchain_core.tools import Tool
-# from langchain_openai import ChatOpenAI
-# import pdfplumber
-# import requests
-# from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+from langchain import hub
+from langchain.agents import AgentExecutor, create_structured_chat_agent
+from langchain.memory import ConversationBufferMemory
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.tools import Tool
+from langchain_openai import ChatOpenAI
+import pdfplumber
+import requests
+from bs4 import BeautifulSoup
 
 
 # #FIXME - Adjust agent for new questions
@@ -446,24 +590,55 @@ def personal_info():
 #         # Add the agent's response to the conversation memory
 #         memory.chat_memory.add_message(AIMessage(content=response["output"]))
 
-
+def call_phase3_agent(data, api_key, docx_path):
+    # # Instantiate the ManagerAgent
+    # manager_agent = ManagerAgent(api_key)
+    
+    # # Generate the analysis prompt
+    # prompt = manager_agent.generate_analysis_prompt(data)
+    
+    # # Pass the prompt to the PersonalInfoAIAgent and get the result
+    # result = manager_agent.pass_to_personal_info_agent(prompt)
+    
+    # Log or save the result
+    print("Personal Info PHASE 3 >> User's responses:\n", data)
+    print('--------------------------------')
+    # print("Manager agent calling Personal Info agent >> Prompt:\n", prompt)
+    print('--------------------------------')
+    print("Personal Info Agent Analysis:\nReport >>", result)
 # Function to call CrewAI agent to process the user's personal info responses
-# def call_crewai_agent(data, api_key, docx_path):
-#     # Instantiate the ManagerAgent
-#     manager_agent = ManagerAgent(api_key)
+def call_phase2_agent(data, api_key, docx_path):
+    # # Instantiate the ManagerAgent
+    # manager_agent = ManagerAgent(api_key)
     
-#     # Generate the analysis prompt
-#     prompt = manager_agent.generate_analysis_prompt(data)
+    # # Generate the analysis prompt
+    # prompt = manager_agent.generate_analysis_prompt(data)
     
-#     # Pass the prompt to the PersonalInfoAIAgent and get the result
-#     result = manager_agent.pass_to_personal_info_agent(prompt)
+    # # Pass the prompt to the PersonalInfoAIAgent and get the result
+    # result = manager_agent.pass_to_personal_info_agent(prompt)
     
-#     # Log or save the result
-#     print("Personal Info >> User's responses:\n", data)
-#     print('--------------------------------')
-#     print("Manager agent calling Personal Info agent >> Prompt:\n", prompt)
-#     print('--------------------------------')
-#     print("Personal Info Agent Analysis:\nReport >>", result)
+    # Log or save the result
+    print("Personal Info PHASE 2 >> User's responses:\n", data)
+    print('--------------------------------')
+    # print("Manager agent calling Personal Info agent >> Prompt:\n", prompt)
+    print('--------------------------------')
+    print("Personal Info Agent Analysis:\nReport >>", result)
+def call_phase1_agent(data, api_key, docx_path):
+    # # Instantiate the ManagerAgent
+    # manager_agent = ManagerAgent(api_key)
+    
+    # # Generate the analysis prompt
+    # prompt = manager_agent.generate_analysis_prompt(data)
+    
+    # # Pass the prompt to the PersonalInfoAIAgent and get the result
+    # result = manager_agent.pass_to_personal_info_agent(prompt)
+    
+    # Log or save the result
+    print("Personal Info PHASE 1 >> User's responses:\n", data)
+    print('--------------------------------')
+    # print("Manager agent calling Personal Info agent >> Prompt:\n", prompt)
+    print('--------------------------------')
+    print("Personal Info Agent Analysis:\nReport >>", result)
 
 ###########################################Personal insights Page ########################################
 insight_file_path=""

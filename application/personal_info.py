@@ -1,6 +1,5 @@
 import pycountry
-
-personal_info_questions = [
+personal_info_questions_phase_1 = [
     # PHASE 1
     {"question":"What has led you to seek help at this particular moment?", "type":"text", "placeholder":""},
     {"question":"How would you summarize your biggest concerns or complaints in one or two sentences?", "type":"text", "placeholder":""},
@@ -23,7 +22,8 @@ personal_info_questions = [
     {"question":"What is your education level?", "type":"select", "options":["High School","Bachelor's, Master's","Other"], "placeholder":""},
     {"question":"What is your employment status?", "type":"select", "options":["Employed","Unemployed","Retired","Other"],"placeholder":""},
     {"question":"what is your living situation?","type":"select","options":["Alone","With Family","With Friends","Other"],"placeholder":""},
-    
+]
+personal_info_questions_phase_2 = [
     # PHASE 2
     {"question": "How would you describe your overall physical health at the moment?", "type": "text", "placeholder": ""},
 {"question": "Have you experienced any recent changes in your physical health, such as weight loss, changes in appetite, sleep patterns, or energy levels?", "type": "text", "placeholder": ""},
@@ -68,6 +68,10 @@ personal_info_questions = [
     {"question":"What are your hopes and aspirations for the future? How do you plan to achieve them?","type":"text","placeholder":""},
     {"question":"How would you describe your overall level of physical activity?","type":"select","options":["Very active","Moderately active","Lightly active","Sedentary"],"placeholder":""},
     {"question":"What do you typically do in your leisure time? How do you balance relaxation with activity?","type":"text","placeholder":""},
+]
+
+personal_info_questions_phase_3 = [
+    #Phase 3
     {"question":"Would you describe yourself more as an introvert or an extrovert?","type":"text","placeholder":""},
     {"question":"How comfortable do you feel in social gatherings and public speaking scenarios?","type":"select","options":["Very comfortable","Somewhat comfortable","Neutral","Somewhat uncomfortable","Very uncomfortable"],"placeholder":""},
     {"question":"How do you typically react to meeting new people or being in unfamiliar social situations?","type":"text","placeholder":"Examples:Seek interaction,Observe first then join,Remain mostly on the sidelines,Avoid if possible"},
