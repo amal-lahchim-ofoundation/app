@@ -23,7 +23,8 @@ import fitz
 import pycountry
 from datetime import datetime
 import random
-
+from personal_info import personal_info_questions
+from personal_insight import personal_insights_questions
 app = Flask(__name__, static_folder='static')  #creates a Flask web application object named app. It's a fundamental step in setting up a Flask web application
 app.secret_key = 'your_secret_key_here'
 app.config['SESSION_TYPE'] = 'filesystem'
@@ -201,74 +202,10 @@ def treatment():
     return render_template('treatment.html', diagnosis_complete=diagnosis_complete)
 
 ###########################################personal info Page ########################################
-personal_info_questions = [
-    {"question":"What is your age?", "type":"number", "placeholder":""},
-    {"question":"What is your gender?", "type":"select", "options":["Male", "Female", "Other"],"placeholder":""},
-    {"question": "What is your nationality?", "type": "select", "options": [country.name for country in pycountry.countries], "placeholder": "Select your nationality"},
-    {"question": "What is your current country of residence?", "type": "select", "options": [country.name for country in pycountry.countries], "placeholder": "Select your current country of residence"},
-    {"question":"What cultural or ethnic background do you identify with? How does this influence your daily life?", "type":"text","placeholder":""},
-    {"question":"What is your marital status?", "type":"select","options":["Single","Married","Divorced","Other"],"placeholder":""},
-    {"question":"What is your education level?", "type":"select", "options":["High School","Bachelor's, Master's","Other"], "placeholder":""},
-    {"question":"What is your employment status?", "type":"select", "options":["Employed","Unemployed","Retired","Other"],"placeholder":""},
-    {"question":"what is your living situation?","type":"select","options":["Alone","With Family","With Friends","Other"],"placeholder":""},
-    {"question":"Do you have a stable support system?","type":"text","placeholder":"Yes/No; If yes, please specify"},
-    {"question":"Who are the most significant people in your life, and what kind of relationships do you have with them?", "type":"text","placeholder":""},
-    {"question":"Are you actively involved in any community or social groups? How does this impact your social interactions?","type":"text","placeholder":""},
-    {"question":"Do you have any chronic physical illnesses?","type":"text","placeholder":"Yes/No; If yes, please specify"},
-    {"question":"Are you currently taking any medications?", "type":"text", "placeholder":"Yes/No; If yes, please specify"},
-    {"question":"Do you use substances like tobacco, alcohol, or recreational drugs?","type":"select", "options":["Yes","No"],"placeholder":""},
-    {"question":"How often do you exercise?", "type":"select", "options":["Daily","Weekly","Rarely","Never"],"placeholder":""},
-    {"question":"Can you describe your typical daily diet? Do you follow any specific dietary restrictions?", "type":"text","placeholder":""},
-    {"question":"How would you describe your typical sleep patterns and quality?", "type":"text","placeholder":""},
-    {"question":"Have you been diagnosed with any mental health disorders?", "type":"text","placeholder":"Yes/No; If yes, please specify"},
-    {"question":"Have you experienced significant life changes or stressors recently?","type":"text","placeholder":"Yes/No; If yes, please specify"},
-    {"question":"Rate your overall stress level on a scale from 1 to 10:","type":"select", "options":["1","2","3","4","5","6","7","8","9","10"], "placeholder":""},
-    {"question":"What are your primary ways of coping with stress or emotional distress?","type":"text","placeholder":""},
-    {"question":"Can you share an instance where you successfully managed a challenging life event?","type":"text","placeholder":""},
-    {"question":"Do you feel content with your personal life?", "type":"text","placeholder":"Yes/No; If no, what areas would you like to improve?"},
-    {"question":"How often do you engage in activities that you enjoy?","type":"select", "options":["Daily","Weekly","Rarely","Never"],"placeholder":""},
-    {"question":"Do you feel you have adequate social interactions?","type":"text","placeholder":"Yes/No; If no, what barriers do you face?"},
-    {"question":"How would you rate your overall happiness on a scale from 1 to 10?", "type":"select", "options":["1","2","3","4","5","6","7","8","9","10"], "placeholder":""},
-    {"question":"What aspects of your life are you most satisfied or dissatisfied with? Why?","type":"text","placeholder":""},
-    {"question":"What are your hopes and aspirations for the future? How do you plan to achieve them?","type":"text","placeholder":""},
-    {"question":"How would you describe your overall level of physical activity?","type":"select","options":["Very active","Moderately active","Lightly active","Sedentary"],"placeholder":""},
-    {"question":"What do you typically do in your leisure time? How do you balance relaxation with activity?","type":"text","placeholder":""},
-    {"question":"Would you describe yourself more as an introvert or an extrovert?","type":"text","placeholder":""},
-    {"question":"How comfortable do you feel in social gatherings and public speaking scenarios?","type":"select","options":["Very comfortable","Somewhat comfortable","Neutral","Somewhat uncomfortable","Very uncomfortable"],"placeholder":""},
-    {"question":"How do you typically react to meeting new people or being in unfamiliar social situations?","type":"text","placeholder":"Examples:Seek interaction,Observe first then join,Remain mostly on the sidelines,Avoid if possible"},
-    {"question":"What skills or talents do you believe you possess?","type":"text","placeholder":""},
-    {"question":"How have you developed these skills over time?","type":"text","placeholder":"Examples:Formal education,Self-taught,Mentorship,On-the-job experience"},
-    {"question":"Can you provide examples of how you apply these skills in your personal or professional life?", "type":"text","placeholder":""},
-    {"question":"What skills do you find most useful in social interactions?","type":"text","placeholder":"Examples: Active listening, Empathy, Clear communication, Persuasiveness, Conflict resolution"},
-]
-personal_insights_questions = [
-{"question":"How important is your cultural background to your identity?", "type":"text","placeholder":"Examples:Not important,Somewhat important,Very important"},
-{"question":"Do you feel your cultural background affects your mental health?","type":"text","placeholder":"Yes/No; If yes, please explain how","placeholder":""},
-{"question":"Do you face any discrimination or social stigma?","type":"text","placeholder":"Yes/No; If yes, please specify context and frequency","placeholder":""},
-{"question":"How well do you feel that your cultural or personal identity aligns with societal expectations?","type":"text","placeholder":""},
-{"question":"Do you face any challenges with language or communication in your daily life?","type":"text","placeholder":""},
-{"question":"What are the core values that you live by?","type":"text","placeholder":""},
-{"question":"From where or whom have you adopted most of your beliefs?","type":"text","placeholder":""},
-{"question":"How do your values influence your decision-making processes?","type":"text","placeholder":""},
-{"question":"Describe a situation where your values were challenged. How did you handle it?","placeholder":""},
-{"question":"How do your values affect your relationships with others?","type":"text","placeholder":""},
-{"question":"How do your values align with your professional life or career choices?","type":"text","placeholder":""},
-{"question":"In what ways do you try to promote your values in your community or social circle?","type":"text","placeholder":""},
-{"question":"How do your beliefs influence your daily behavior and interactions with others?","type":"text","placeholder":""},
-{"question":"How do your beliefs impact your feelings of happiness or contentment?","type":"text","placeholder":""},
-{"question":"Have you ever encountered situations where your beliefs were challenged? How did you react?","type":"text","placeholder":""},
-{"question":"Can you provide examples of significant life decisions that were guided by your beliefs?","type":"text","placeholder":""},
-{"question":"How has your identity evolved over the years? What factors have been most influential in shaping your identity?","type":"text","placeholder":""},
-{"question":"Have you faced any challenges due to your identity? How have you addressed these challenges?","type":"text","placeholder":""},
-{"question":"What aspects of your identity are you most proud of?","type":"text","placeholder":""},
-{"question":"How do you define spirituality? Does it involve religious beliefs, personal philosophy, or something else?","type":"text","placeholder":""},
-{"question":"How does spirituality manifest in your daily life?","type":"text","placeholder":""},
-{"question":"Are you part of a spiritual community? How does this community support your spiritual growth?","type":"text","placeholder":""},
-{"question":"How has your spirituality evolved over time? What events or experiences have led to significant changes in your spiritual outlook?","type":"text","placeholder":""},
-{"question":"How does your spirituality influence your relationships with others?","type":"text","placeholder":""},
-{"question":"What are the most important teachings or values you have learned from your spiritual beliefs?","type":"text","placeholder":""},
-{"question":"Do you have any goals related to your spiritual life? What steps are you taking to achieve them?","type":"text","placeholder":""},
-]
+
+#FIXME - Adding more data for each phases
+#FIXME - Add more agents for reading pdf, look for flow of data
+#FIXME - Check latency 
 file_path = '/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/data/Mental_Health_Statistics_2024.docx'
 txt_path = "/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/data/personal_info_statistic.txt"
 import docx
@@ -287,6 +224,8 @@ def personal_info():
         #     f"Question {index}": request.form.get(str(index)) 
         #     for index in range(1, len(personal_info_questions) + 1)
         # }
+        
+        #FIXME - Adjust responses with new questions.
         personal_info_responses = {}
         # Map form data to questions
         for index, question in enumerate(personal_info_questions, start=1):
@@ -298,383 +237,233 @@ def personal_info():
         user_data['personal_info_responses'] = personal_info_responses
         USERS_REF.child(session['random_key']).set(user_data)
         # Call the CrewAI agent to process the personal info responses
-        call_crewai_agent(user_data['personal_info_responses'], api_key, file_path)
+        # call_crewai_agent(user_data['personal_info_responses'], api_key, file_path)
+        print("----PERSONAL INFO ANSWERS----")
+        print("------------------------------------------------")
+        print(user_data['personal_info_responses']);
         return redirect(url_for('treatment'))
 
     return render_template('personal_info.html', questions=personal_info_questions)
 
 
-# ManagerAgent class for handling interactions between user and CrewAI
-class ManagerAgent:
-    def __init__(self, api_key):
-        self.api_key = api_key
-        self.personal_info_agent = PersonalInfoAIAgent(api_key)
-        self.personal_info_agent = PersonalInsightsAgent(api_key)
-
-    def pass_to_personal_info_agent(self, responses, docx_path, txt_path):
-        # Extract the DOCX content
-        docx_text = self.personal_info_agent.read_docx(docx_path)
-        txt_text = self.personal_info_agent.read_txt(txt_path)
-        if not txt_text:
-            return "Error: Could not extract text from DOCX."
-        if not docx_text:
-            return "Error: Could not extract text from DOCX."
-
-        # Pass the responses to the PersonalInfoAIAgent for processing
-        result = self.personal_info_agent.compare_user_responses(responses, docx_text)
-        analyze_results = self.personal_info_agent.analyze_mental_health(result, docx_text)
-        return analyze_results
-
-    def pass_to_personal_insights_agent(self, responses, docx_path, txt_path):
-        """
-        Passes the user responses to PersonalInsightsAgent for analysis.
+# # ManagerAgent class for handling interactions between user and CrewAI
+# class ManagerAgent:
+#     def __init__(self, api_key):
+#         self.api_key = api_key
+#         self.personal_info_agent = PersonalInfoAIAgent(api_key)
         
-        :param responses: Dictionary of user responses.
-        :return: Analysis result from PersonalInsightsAgent.
-        """
-        personal_insights_agent = PersonalInsightsAgent()
-        analysis_result = personal_insights_agent.analyze_responses(responses)
-        return analysis_result
-
-class PersonalInfoAIAgent:
-    def __init__(self, api_key):
-        self.api_key = api_key
-    
-    def read_txt(self, file_path):
-        """
-        Reads a TXT file and returns its content.
+#     def generate_analysis_prompt(self, user_responses):
+#         # Parse the raw user data
+#         age = user_responses.get("What is your age?", "unknown")
+#         gender = user_responses.get("What is your gender?", "unknown")
+#         nationality = user_responses.get("What is your nationality?", "unknown")
+#         residence = user_responses.get("What is your current country of residence?", "unknown")
+#         ethnicity = user_responses.get("What cultural or ethnic background do you identify with? How does this influence your daily life?", "unknown")
+#         marital_status = user_responses.get("What is your marital status?", "unknown")
+#         education = user_responses.get("What is your education level?", "unknown")
+#         employment_status = user_responses.get("What is your employment status?", "unknown")
+#         living_situation = user_responses.get("What is your living situation?", "unknown")
+#         support_system = user_responses.get("Do you have a stable support system?", "unknown")
+#         community_involvement = user_responses.get("Are you actively involved in any community or social groups? How does this impact your social interactions?", "unknown")
         
-        :param file_path: The path to the TXT file.
-        :return: The content of the TXT file as a string, or an error message if the file cannot be read.
-        """
-        try:
-            with open(file_path, 'r', encoding='utf-8') as file:
-                content = file.read()
-            return content
-        except Exception as e:
-            return f"Error reading TXT file: {e}"
-
-    def read_docx(self, file_path):
-        """
-        Reads a DOCX file and returns its text content.
-        """
-        try:
-            # Open the DOCX file
-            doc = docx.Document(file_path)
-            extracted_text = "\n".join([para.text for para in doc.paragraphs])
-
-            return extracted_text
-        except Exception as e:
-            return f"Error reading DOCX: {e}"
-
-    def compare_user_responses(self, user_responses, doc_statistics):
-        """
-        Compare user responses with mental health statistics to estimate the percentage likelihood of mental health issues.
+#         # Generate dynamic analysis prompt
+#         prompt = (
+#             f"Search for Race and Ethnicity, Gender, Employment, Education, Social Support, Community Involvement, Exercise, "
+#             f"and Stress factors that impact mental health. Search can be separated for each category. "
+#             f"Use the results to analyze this user: The individual is a {age}-year-old {gender} from {residence}, "
+#             f"of {ethnicity} ethnic background, currently residing in {residence}. "
+#             f"He/She is {marital_status}, has a {education} education, is {employment_status}, and lives {living_situation}. "
+#             f"The individual has a stable support system ({support_system}), with close relationships and is actively involved in {community_involvement}. "
+#             f"Based on these factors, estimate the mental health risk for conditions such as anxiety, depression, and stress-related disorders, "
+#             f"considering how unemployment, community involvement, family support, and other demographics might impact overall well-being. "
+#             f"Provide a detailed report with percentage estimates for diagnoses."
+#         )
     
-        :param user_responses: A dictionary of user responses with question and answer pairs.
-        :param doc_statistics: A dictionary containing mental health statistics.
-        :return: A dictionary with estimated percentages based on the provided statistics.
-        """
-    
-        # Define statistics based on the document
-        statistics = {
-            'age_groups': {
-                '18 to 25': 33.7,
-                '26 to 49': 28.1,
-                '50 and older': 15.0
-            },
-            'mental_health_type': {
-                'anxiety_disorders': 19.1,
-                'major_depression': 8.3
-            },
-            'race': {
-                'American Indian or Alaska Native': 26.6,
-                'Mixed Race or Multiracial': 34.9
-            },
-            'gender': {
-                'Female': 11.9,  # Percentage of females with mental illness
-                'Male': 9.3      # Percentage of males with mental illness
-            },
-            'young_women': 16,  # Prevalence of mental illness among young women aged 20-29
-            'young_men': 8,     # Prevalence of mental illness among young men aged 20-29
-            'general_young_adults': 22,  # General prevalence for young adults aged 15-34
-            'general_older_adults': 14,  # General prevalence for adults aged 60 and over
-            'older_adults_disability': 10.6,  # Disability adjusted life years (DALYs) for older adults
-            'loneliness_isolation': 25,  # Percentage of older adults affected by loneliness and isolation
-            'abuse': 16,  # Percentage of older adults experiencing abuse
-            'employment_recovery_boost': 54  # Percentage increase in recovery likelihood due to employment
-        }
-    
-        # Extract user responses
-        try:
-            age = int(user_responses.get('What is your age?', 0))
-        except ValueError:
-            age = 0  # Handle invalid age input
-    
-        race = user_responses.get('What cultural or ethnic background do you identify with?', '').strip()
-        gender = user_responses.get('What is your gender?', '').strip()
-        employment_status = user_responses.get('What is your employment status?', '').strip()
-        living_situation = user_responses.get('What is your living situation?', '').strip()  # New input field
-        social_factors = user_responses.get('Do you feel lonely or socially isolated?', '').strip()  # New input field
-        abuse_experience = user_responses.get('Have you experienced any form of abuse?', '').strip()  # New input field
-    
-        # Determine age group percentage
-        if 18 <= age <= 25:
-            age_group_percentage = statistics['age_groups']['18 to 25']
-        elif 26 <= age <= 49:
-            age_group_percentage = statistics['age_groups']['26 to 49']
-        elif age >= 60:
-            age_group_percentage = statistics['general_older_adults']
-            # Include additional factors for older adults
-            if social_factors.lower() == 'yes':
-                age_group_percentage += statistics['loneliness_isolation']
-            if abuse_experience.lower() == 'yes':
-                age_group_percentage += statistics['abuse']
-        else:
-            age_group_percentage = statistics['age_groups'].get('50 and older', 0)
-    
-        # Determine specific percentages for young adults
-        if 15 <= age <= 34:
-            if gender == 'Female':
-                age_group_percentage = statistics['young_women']
-            elif gender == 'Male':
-                age_group_percentage = statistics['young_men']
-            else:
-                age_group_percentage = statistics['general_young_adults']
-    
-        # Determine race-related percentage
-        race_percentage = statistics['race'].get(race, 0)  # Default to 0 if race is not listed
-    
-        # Determine gender-related percentage
-        gender_percentage = statistics['gender'].get(gender, 0)  # Default to 0 if gender is not listed
-    
-        # Employment status adjustment
-        if employment_status.lower() == 'employed':
-            if age <= 60:
-                recovery_boost = statistics['employment_recovery_boost']  # 54% recovery boost for employed under 60
-            else:
-                recovery_boost = 0  # No boost for those older than 60 years
-        else:
-            recovery_boost = 0
-    
-        # Living situation adjustment
-        if living_situation.lower() == 'with single parent' and age >= 18:
-            recovery_boost = 0  # No boost for those living with a single parent
-    
-        # Combine percentages and apply employment status adjustment
-        combined_percentage = max(age_group_percentage, race_percentage, gender_percentage)
-        adjusted_percentage = combined_percentage + recovery_boost
-    
-        return {
-            'age_group_percentage': age_group_percentage,
-            'race_percentage': race_percentage,
-            'gender_percentage': gender_percentage,
-            'combined_percentage': combined_percentage,
-            'adjusted_percentage': adjusted_percentage
-        }
-
-    def analyze_mental_health(self, user_responses, doc_statistics):
-        """
-        Analyze the likelihood of mental health conditions based on user responses and statistical data.
-    
-        :param user_responses: A dictionary of user responses with question and answer pairs.
-        :param doc_statistics: A dictionary containing mental health statistics.
-        :return: A dictionary listing potential mental health conditions with their likelihood percentages.
-        """
-    
-        # Define mental health disorder statistics from the document
-        statistics = {
-            'mental_health_type': {
-                'anxiety_disorders': 19.1,
-                'major_depression': 8.3,
-                'bipolar_disorder': 2.8,
-                'schizophrenia': 1.1
-            },
-            'age_groups': {
-                '18 to 25': 33.7,
-                '26 to 49': 28.1,
-                '50 and older': 15.0
-            },
-            'race': {
-                'American Indian or Alaska Native': 26.6,
-                'Mixed Race or Multiracial': 34.9,
-                'White': 20.6,
-                'Black or African American': 16.2
-            },
-            'gender': {
-                'Female': 11.9,  # Percentage of females with mental illness
-                'Male': 9.3      # Percentage of males with mental illness
-            },
-            'employment_recovery_boost': 54  # Recovery likelihood increase due to employment
-        }
-    
-        # Extract user details
-        age = int(user_responses.get('What is your age?', 0))
-        race = user_responses.get('What cultural or ethnic background do you identify with?', '').strip()
-        gender = user_responses.get('What is your gender?', '').strip()
-        employment_status = user_responses.get('What is your employment status?', '').strip()
+#         return prompt
+#     def pass_to_personal_info_agent(self, prompt):
         
-        # Initialize mental health condition likelihoods with base disorder percentages
-        mental_health_risks = {
-            'anxiety_disorders': statistics['mental_health_type']['anxiety_disorders'],
-            'major_depression': statistics['mental_health_type']['major_depression'],
-            'bipolar_disorder': statistics['mental_health_type']['bipolar_disorder'],
-            'schizophrenia': statistics['mental_health_type']['schizophrenia']
-        }
+#         #FIXME - fix solution to handle prompt, analyze_prompt not present
+#         return self.personal_info_agent.analyze_prompt(prompt)
+    
+
+# from dotenv import load_dotenv
+# from langchain import hub
+# from langchain.agents import AgentExecutor, create_structured_chat_agent
+# from langchain.memory import ConversationBufferMemory
+# from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+# from langchain_core.tools import Tool
+# from langchain_openai import ChatOpenAI
+# import pdfplumber
+# import requests
+# from bs4 import BeautifulSoup
+
+
+# #FIXME - Adjust agent for new questions
+# #FIXME - Adding tools for handling data
+# class PersonalInfoAIAgent:
+#     def __init__(self, api_key):
+#         self.api_key = api_key
+#     def get_current_time(*args, **kwargs):
+#         """Returns the current time in H:MM AM/PM format."""
+#         import datetime
+#         now = datetime.datetime.now()
+#         return now.strftime("%I:%M %p")
+
+#     def search_wikipedia(query):
+#         """Searches Wikipedia and returns the summary of the first result."""
+#         from wikipedia import summary
+#         try:
+#             return summary(query, sentences=2)
+#         except:
+#             return "I couldn't find any information on that."
+# # Define the PDF reading tool
+#     def pdf_reader_tool(file_path):
+#         """Tool to read PDF and return its content."""
+#         return read_pdf(file_path)
+#     def read_pdf(file_path):
+#         """Extracts text from a PDF file."""
+#         pdf_text = ""
+#         try:
+#             print(f"Opening PDF file: {file_path}")  # Debug statement
+#             with pdfplumber.open(file_path) as pdf:
+#                 for page in pdf.pages:
+#                     page_text = page.extract_text() or ""
+#                     # print(f"Page text: {page_text}")  # Print PDF content
+#                     if page_text.strip():
+#                         pdf_text += page_text + "\n"
+#             print("Personal Info Agent read pdf >> Completed")
+#         except Exception as e:
+#             return f"Error reading PDF: {e}"
         
-        # Adjust likelihoods based on user's age group
-        if 18 <= age <= 25:
-            age_risk_modifier = statistics['age_groups']['18 to 25']
-        elif 26 <= age <= 49:
-            age_risk_modifier = statistics['age_groups']['26 to 49']
-        else:
-            age_risk_modifier = statistics['age_groups']['50 and older']
+#         if not pdf_text.strip():
+#             return "No text found in the PDF."
+#         return "Personal Info Agent read pdf >> Completed"
+#         # return pdf_text
     
-        # Adjust based on race
-        race_modifier = statistics['race'].get(race, 0)
+#     def scrape_web(url):
+#         """Scrapes content from a given URL and returns the text."""
+#         try:
+#             response = requests.get(url)
+#             response.raise_for_status()  # Check for HTTP request errors
+#             soup = BeautifulSoup(response.text, 'html.parser')
+#             text = soup.get_text()
+#             return text
+#         except requests.RequestException as e:
+#             return f"Error scraping the web page: {e}"
     
-        # Adjust based on gender
-        gender_modifier = statistics['gender'].get(gender, 0)
+#     # Define the tools that the agent can use
+#     tools = [
+#         Tool(
+#             name="Time",
+#             func=get_current_time,
+#             description="Useful for when you need to know the current time.",
+#         ),
+#         Tool(
+#             name="Wikipedia",
+#             func=search_wikipedia,
+#             description="Useful for when you need to know information about a topic.",
+#         ),
+#         Tool(
+#             name="PDF Reader",
+#             func=pdf_reader_tool,
+#             description="Extracts text from a PDF file.",
+#         ),
+#         Tool(
+#             name="Web Scraper",
+#             func=scrape_web,
+#             description="Scrapes text content from a specified URL.",
+#         ),
+#     ]
     
-        # Employment adjustment
-        if employment_status.lower() == 'unemployed' and age <= 60:
-            employment_modifier = -statistics['employment_recovery_boost']
-        else:
-            employment_modifier = 0
+#     # Load the correct JSON Chat Prompt from the hub
+#     prompt = hub.pull("hwchase17/structured-chat-agent")
     
-        # Calculate total likelihood for each mental health condition
-        for condition in mental_health_risks:
-            base_percentage = mental_health_risks[condition]
-            # Apply demographic-based adjustments
-            adjusted_percentage = base_percentage + age_risk_modifier + race_modifier + gender_modifier + employment_modifier
-            mental_health_risks[condition] = max(0, adjusted_percentage)  # Ensure no negative percentages
+#     # Initialize a ChatOpenAI model
+#     llm = ChatOpenAI(model="gpt-4o")
     
-        # Sort conditions by highest likelihood
-        sorted_conditions = sorted(mental_health_risks.items(), key=lambda x: x[1], reverse=True)
+#     # Create a structured Chat Agent with Conversation Buffer Memory
+#     memory = ConversationBufferMemory(
+#         memory_key="chat_history", return_messages=True)
     
-        return {
-            'most_likely_conditions': sorted_conditions,
-            'overall_risk_assessment': mental_health_risks
-        }
+#     # Create the structured chat agent
+#     agent = create_structured_chat_agent(llm=llm, tools=tools, prompt=prompt)
     
-
-class PersonalInsightsAgent:
-    def __init__(self):
-        # You can initialize any analysis criteria or models here
-        self.mental_health_keywords = {
-            "stress": ["stressed", "overwhelmed", "anxious", "tense"],
-            "depression": ["sad", "depressed", "hopeless", "empty"],
-            "anxiety": ["worried", "nervous", "anxious", "fearful"]
-        }
-        # You can add more categories and keywords as per your analysis requirements
-
-    def analyze_responses(self, responses):
-        """
-        Analyzes user responses and categorizes them based on predefined mental health criteria.
-        
-        :param responses: Dictionary where the key is the question index, and value is the user's response.
-        :return: Dictionary with analysis results.
-        """
-        analysis_result = {}
-
-        # Loop through each response and analyze based on keywords and patterns
-        for question_id, answer in responses.items():
-            # Initialize the result for this question
-            analysis_result[question_id] = {
-                "response": answer,
-                "category": "normal",  # Default to normal unless criteria are met
-                "concern_level": "low"  # Default concern level
-            }
-            
-            # Check for mental health keywords in the response
-            for category, keywords in self.mental_health_keywords.items():
-                if any(keyword in answer.lower() for keyword in keywords):
-                    analysis_result[question_id]["category"] = category
-                    analysis_result[question_id]["concern_level"] = self._determine_concern_level(answer, category)
-                    break  # Stop checking after finding a match
-
-        return analysis_result
-
-    def _determine_concern_level(self, answer, category):
-        """
-        Determines the concern level based on the intensity of the response for a particular category.
-        
-        :param answer: User's response text.
-        :param category: Category identified (e.g., 'stress', 'depression').
-        :return: String representing the concern level ('low', 'moderate', 'high').
-        """
-        # Example logic to determine concern level; you can modify this based on your needs
-        if category == "depression" and "hopeless" in answer.lower():
-            return "high"
-        elif category == "stress" and "overwhelmed" in answer.lower():
-            return "moderate"
-        elif category == "anxiety" and "fearful" in answer.lower():
-            return "moderate"
-        else:
-            return "low"
-
-
-import fitz
-
-class PDFReaderAgent:
-    def __init__(self):
-        pass
-
-    def read_all_pdf_pages(self, pdf_path):
-        """
-        Reads all the text from a PDF file.
-
-        :param pdf_path: Path to the PDF file.
-        :return: Extracted text from the PDF.
-        """
-        text = ''
-        try:
-            with fitz.open(pdf_path) as pdf_document:
-                for page_num in range(pdf_document.page_count):
-                    page = pdf_document.load_page(page_num)
-                    text += page.get_text()
-            return text
-        except Exception as e:
-            return f"Error reading PDF: {e}"
+#     # Create an AgentExecutor with the agent and tools
+#     agent_executor = AgentExecutor.from_agent_and_tools(
+#         agent=agent,
+#         tools=tools,
+#         verbose=True,
+#         memory=memory,
+#         handle_parsing_errors=True,
+#     )
     
-    def read_specific_pages(self, pdf_path, page_numbers):
-        """
-        Reads specified pages from a PDF file.
+#     # Initial system message
+#     #FIXME - Adjust this according to new phases
+#     #FIXME - Check SRS 
+#     initial_message = (
+#         "You are an AI assistant that can provide helpful answers using available tools.\n"
+#         "You can use these tools: Time, Wikipedia, PDF Reader, and Web Scraper."
+#     )
+#     memory.chat_memory.add_message(SystemMessage(content=initial_message))
+    
+#     # Load PDF content into memory
+#     #FIXME - Make central data for many pdf
+#     pdf_file_path = "/Users/dandev947366/Desktop/test/llama/data/data-to-analyze.pdf"  # Update this path to your PDF file
+#     pdf_content = read_pdf(pdf_file_path)
+#     if pdf_content:
+#         memory.chat_memory.add_message(AIMessage(content=f"PDF Content:\n{pdf_content}"))
+    
+#     # Chat Loop to interact with the user
+#     while True:
+#     #!SECTION - prompt input
+#     #NOTE - prompt needs to be handled separately as personal info agent asks back manager agent for prompt
+#         user_input = input("User: ")
+#         # user_input = input(prompt)
+#         if user_input.lower() == "exit":
+#             break
+    
+#         # Add the user's message to the conversation memory
+#         memory.chat_memory.add_message(HumanMessage(content=user_input))
+    
+#         # Check if user input requests a web scraping action
+#         if user_input.lower().startswith("scrape"):
+#             # Extract the URL from user input (assuming URL is provided after the command)
+#             url = user_input[len("scrape"):].strip()
+#             if url:
+#                 scrape_result = scrape_web(url)
+#                 response = {"output": scrape_result}
+#             else:
+#                 response = {"output": "Please provide a URL to scrape."}
+#         else:
+#             # Invoke the agent with the user input and the current chat history
+#             try:
+#                 response = agent_executor.invoke({"input": user_input})
+#             except Exception as e:
+#                 response = {"output": f"Error during agent execution: {e}"}
+    
+#         print("Bot:", response["output"])
+    
+#         # Add the agent's response to the conversation memory
+#         memory.chat_memory.add_message(AIMessage(content=response["output"]))
 
-        :param pdf_path: Path to the PDF file.
-        :param page_numbers: List of page numbers to extract text from.
-        :return: Extracted text from the specified pages.
-        """
-        text = ''
-        try:
-            with fitz.open(pdf_path) as pdf_document:
-                for page_num in page_numbers:
-                    if page_num < 0 or page_num >= pdf_document.page_count:
-                        return f"Error: Page {page_num} is out of range."
-                    page = pdf_document.load_page(page_num)
-                    text += page.get_text()
-            return text
-        except Exception as e:
-            return f"Error reading specific pages: {e}"
-
-# Example usage:
-# agent = PDFReaderAgent()
-# full_text = agent.read_all_pdf_pages("path_to_pdf_file.pdf")
-# specific_text = agent.read_specific_pages("path_to_pdf_file.pdf", [0, 2, 5])
 
 # Function to call CrewAI agent to process the user's personal info responses
-def call_crewai_agent(data, api_key, docx_path):
-    # Instantiate the ManagerAgent
-    manager_agent = ManagerAgent(api_key)
+# def call_crewai_agent(data, api_key, docx_path):
+#     # Instantiate the ManagerAgent
+#     manager_agent = ManagerAgent(api_key)
     
-    # Call the agent to analyze the responses using GPT
-    result = manager_agent.pass_to_personal_info_agent(data, docx_path, txt_path)
-    insight_result = manager_agent.pass_to_personal_insight_agent(data, docx_path, txt_path)
+#     # Generate the analysis prompt
+#     prompt = manager_agent.generate_analysis_prompt(data)
     
-    # Log or save the result
-    print("Personal Info >> User's responses:\n", data)
-    print('--------------------------------')
-    print("CrewAI Agent Data:\nPersonal Info >>", result)
+#     # Pass the prompt to the PersonalInfoAIAgent and get the result
+#     result = manager_agent.pass_to_personal_info_agent(prompt)
+    
+#     # Log or save the result
+#     print("Personal Info >> User's responses:\n", data)
+#     print('--------------------------------')
+#     print("Manager agent calling Personal Info agent >> Prompt:\n", prompt)
+#     print('--------------------------------')
+#     print("Personal Info Agent Analysis:\nReport >>", result)
 
 ###########################################Personal insights Page ########################################
 insight_file_path=""
