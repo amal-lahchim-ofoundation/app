@@ -122,7 +122,7 @@
                 <select name="{{ loop.index }}" class="form-select" required>
                     <option value="" disabled selected>{{ item.placeholder | default('Choose an option') }}</option>
                     {% for option in item.options %}
-                    <option value="{{ option }}" placeholder="{{ option_labels }}">{{ option }}</option>
+                    <option value="{{ option }}">{{ option }}</option>
                     {% endfor %}
                 </select>
                 {% elif item.type == 'textarea' %}

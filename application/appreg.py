@@ -312,6 +312,10 @@ api_key = os.getenv('OPENAI_API_KEY_2')
 
 #     return render_template('personal_info_phase_2.html', questions=personal_info_questions_phase_2)
 
+
+
+
+
 @app.route('/personal_info_phase_1', methods=['GET', 'POST'])
 @login_required
 def personal_info_phase_1():
