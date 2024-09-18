@@ -13,31 +13,31 @@ personal_info_questions_phase_1 = [
     {"question":"what is your living situation?","type":"select","options":["Alone","With Family","With Friends","Other"],"placeholder":""},
  {"question": "To what extent do you believe your early childhood experiences influence your current mental health?",
      "type": "text", 
-     "placeholder":""
+     "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
 },
 
     {
     "question": "How often do you reflect on your childhood when thinking about your current mental health challenges?",
     "type": "text", 
-     "placeholder":""
+     "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
 },
 
 
    {
     "question": "To what extent do you feel your developmental milestones were met in a typical or healthy way?",
     "type": "text", 
-     "placeholder":""
+     "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
 },
 
 {
     "question": "To what extent do you believe unresolved issues from your childhood affect your relationships today?",
      "type": "text", 
-     "placeholder":""
+     "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
 },
 {
     "question": "To what extent do memories of your childhood evoke strong emotions in you today?",
      "type": "text", 
-     "placeholder":""
+     "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
 },
 {
     "question": "To what extent are you motivated to make changes in your life to improve your mental health?",
@@ -47,38 +47,38 @@ personal_info_questions_phase_1 = [
 {
     "question": "To what extent do you believe in your ability to make the changes necessary for your well-being?",
      "type": "text", 
-     "placeholder":""
+     "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
 },
 {
     "question": "To what extent do you feel ready to engage fully in therapy and the work it requires?",
      "type": "text", 
-     "placeholder":""
+     "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
 },
 {
     "question": "To what extent do you believe that change is possible for you at this time?",
      "type": "text", 
-     "placeholder":""
+     "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
 },
 
    {
         "question": "To what degree do you feel supported by others in your efforts to make changes?",
          "type": "text", 
-     "placeholder":""
+     "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
 },
     {
         "question": "How frequently do you use substances (e.g., drugs, alcohol) to cope with stress or emotions?",
          "type": "text", 
-     "placeholder":""
+     "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
 },
     {
         "question": "To what extent do you feel your substance use affects your mental health?",
          "type": "text", 
-     "placeholder":""
+     "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
 },
 {
     "question": "How much control do you feel you have over your substance use?",
     "type": "text", 
-     "placeholder":""
+     "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
 }
 
 ]

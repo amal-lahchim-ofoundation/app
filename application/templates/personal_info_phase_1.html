@@ -118,6 +118,8 @@
         justify-content: space-between;
         font-size: 0.75rem; /* Smaller font size for messages */
         margin-top: 0.5em; /* Space above messages */
+        
+        color: #E28647;
     }
     
     .form-control:valid,
@@ -188,14 +190,56 @@
       height: 30px;
       line-height: 30px;
       text-align: center;
+      font-size: 14px;
       border-radius: 50%; /* Rounded background */
       background-color: #E28647; /* Blue background */
       color: #ffffff; /* White text */
       font-weight: bold;
       margin-right: 10px; /* Space between number and question */
       flex-shrink: 0; /* Prevent the number from shrinking */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+      border: 1px solid;
     }
-    
+    input:focus::placeholder {
+      color: transparent;
+    }
+    input::placeholder {
+      color: #E28647; /* You can adjust this color as needed */
+  }
+  output {
+    background-color: #ffffff; /* White background for contrast */
+    color: #E28647; /* Text color */
+    width: 35px;  /* Reduced width */
+    height: 35px; /* Reduced height */
+    line-height: 35px; /* Adjust line height to match the new size */
+    text-align: center;
+    border-radius: 50%; /* Rounded shape */
+    position: absolute;
+    top: -40px; /* Adjusted position to keep it above the slider */
+    right:0px;
+    transform: translateX(-50%); /* Center it horizontally */
+    z-index: 2; /* Ensure it's above the slider */
+    font-size: 14px; /* Reduced font size */
+    font-weight: bold; /* Keep the number bold */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15); /* Slightly reduced shadow for better proportion */
+    transition: top 0.3s ease, left 0.3s ease; /* Smooth transition when moving */
+  }
+
+  input[type="range"] {
+    margin: 0.5rem auto;
+    font-size: 1.075rem;
+    width: 100%;
+  
+    &:after {
+      content: value;
+    }
+  }
+  :root {
+    --grid-size: 1rem;
+  }
+  
+  $baseHue: 190;
+  $gridColor: hsla($baseHue, 100%, 50%, 0.5);
 </style>
 
 </head>
@@ -245,13 +289,13 @@
         <form action="/personal_info_phase_1" method="post">
           {% for item in questions %}
           <div class="mb-4 rounded-section p-4">
-            <div class="question-header">
+            <div class="question-header p-2">
               <span class="question-number ">{{ loop.index }}</span>
-              <h5 class="form-label mb-2 p-1">{{ item.question }}</h5>
+              <h5 class="form-label mb-2 p-2">{{ item.question }}</h5>
             </div>
             
             {% if item.type == 'select' %}
-            <select name="{{ loop.index }}" class="form-select " required>
+            <select name="{{ loop.index }}" class="form-select" required>
               <option value="" disabled selected>{{ item.placeholder | default('Choose an option') }}</option>
               {% for option in item.options %}
               <option value="{{ option }}" placeholder="{{ option }}">{{ option }}</option>
@@ -263,16 +307,13 @@
             
             {% else %}
             <div class="slider-container">
-              <input type="range" id="slider{{ loop.index }}" class="slider" min="0" max="100" step="1" value="50">
+              <form oninput="result.value=range.value">
+	
+                <input type="range" name="range" id="range" min="0" max="100" step="1" value="50" />
+                <output name="result">0</output>
+              </form>
               <div class="slider-fill" id="slider{{ loop.index }}Fill"></div> <!-- Added fill -->
-              <div class="slider-labels">
-                <span>0</span>
-                <span>20</span>
-                <span>40</span>
-                <span>60</span>
-                <span>80</span>
-                <span>100</span>
-              </div>
+              
               <div class="slider-messages">
                 <span>Very Low</span>
                 <span>Low</span>
@@ -282,11 +323,14 @@
               </div>
               <input type="hidden" id="slider{{ loop.index }}Value" name="slider{{ loop.index }}Value" value="50">
             </div>
-            
+           
+			</p>
+
+
             {% endif %}
             
             {% if item.type == 'textarea' %}
-            <textarea name="{{ loop.index }}" class="form-control" rows="4" placeholder="{{ item.placeholder | default('Type your answer here...') }}" required></textarea>
+            <textarea name="{{ loop.index }}" class="form-control" rows="4" placeholder="{{ item.placeholder | default('Type your answer here...') }}"></textarea>
             
             {% elif item.type == 'text' %}
             <input type="text" name="{{ loop.index }}" class="form-control" placeholder="{{ item.placeholder | default('Enter your answer') }}" required>
@@ -326,10 +370,12 @@
       slider.oninput = function() {
         sliderValue.value = this.value;
       };
-      
+      document.getElementById('range').addEventListener('change', (e) => {
+        document.body.style.setProperty("--grid-size", e.target.value + 'rem');
+      });
       
     });
-
+    
   </script>
 
 </body>
