@@ -96,14 +96,15 @@
     }
     
     .slider-fill {
-        position: absolute;
-        height: 8px; /* Height of the fill */
-        background: #003366; /* Dark blue color */
-        top: 0;
-        left: 0;
-        z-index: 1;
-        border-radius: 8px; /* Rounded corners for the fill */
-        pointer-events: none; /* Ensure the fill doesn't interfere with slider interaction */
+      position: absolute;
+      height: 8px; /* Height of the fill */
+      background: linear-gradient(90deg, #E28647 0%, #66ccff 100%); /* Gradient from dark blue to light blue */
+      top: 0;
+      left: 0;
+      z-index: 1;
+      border-radius: 8px; /* Rounded corners for the fill */
+      pointer-events: none; /* Ensure the fill doesn't interfere with slider interaction */
+  }
     }
     
     .slider-labels {
@@ -180,6 +181,7 @@
    
     .question-header {
       display: flex;
+      
       align-items: center;
       margin-bottom: 10px; /* Space between number and question */
     }
@@ -202,9 +204,11 @@
     }
     input:focus::placeholder {
       color: transparent;
+      
     }
     input::placeholder {
       color: #E28647; /* You can adjust this color as needed */
+      
   }
   output {
     background-color: #ffffff; /* White background for contrast */
@@ -232,7 +236,9 @@
   
     &:after {
       content: value;
+      
     }
+    
   }
   :root {
     --grid-size: 1rem;
@@ -240,6 +246,7 @@
   
   $baseHue: 190;
   $gridColor: hsla($baseHue, 100%, 50%, 0.5);
+  
 </style>
 
 </head>
@@ -288,7 +295,7 @@
         
         <form action="/personal_info_phase_1" method="post">
           {% for item in questions %}
-          <div class="mb-4 rounded-section p-4">
+          <div class="mb-4 rounded-section p-4 mb-2">
             <div class="question-header p-2">
               <span class="question-number ">{{ loop.index }}</span>
               <h5 class="form-label mb-2 p-2">{{ item.question }}</h5>

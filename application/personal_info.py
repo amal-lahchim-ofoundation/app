@@ -6,11 +6,18 @@ personal_info_questions_phase_1 = [
     {"question":"What is your gender?", "type":"select", "options":["Male", "Female", "Other"],"placeholder":""},
     {"question": "What is your nationality?", "type": "select", "options": [country.name for country in pycountry.countries], "placeholder": "Select your nationality"},
     {"question": "What is your current country of residence?", "type": "select", "options": [country.name for country in pycountry.countries], "placeholder": "Select your current country of residence"},
-    {"question":"What cultural or ethnic background do you identify with? How does this influence your daily life?", "type":"text","placeholder":""},
     {"question":"What is your marital status?", "type":"select","options":["Single","Married","Divorced","Other"],"placeholder":""},
     {"question":"What is your education level?", "type":"select", "options":["High School","Bachelor's, Master's","Other"], "placeholder":""},
     {"question":"What is your employment status?", "type":"select", "options":["Employed","Unemployed","Retired","Other"],"placeholder":""},
     {"question":"what is your living situation?","type":"select","options":["Alone","With Family","With Friends","Other"],"placeholder":""},
+    
+    {"question":"What cultural or ethnic background do you identify with? How does this influence your daily life?", "type":"text","placeholder":"If this is an important topic related to your mental issue, please write more (optional)."},
+    
+     {"question": "To what extent do you believe your early childhood experiences influence your current mental health?",
+     "type": "text", 
+     "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
+},
+    
  {"question": "To what extent do you believe your early childhood experiences influence your current mental health?",
      "type": "text", 
      "placeholder":"If this is an important topic related to your mental issue, please write more (optional)."
