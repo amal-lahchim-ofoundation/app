@@ -4,7 +4,6 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
   <title>Chat Psychologist A.I</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
@@ -15,178 +14,292 @@
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i%7CPlayfair+Display:400,500,600,700,400i,500i,600i,700i%7CPoppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
   <!-- Additional CSS Files -->
   <link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/animate.css/animate.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
-  
+
   <style>
-#submit-btn {
-    position: relative;
-    background-color: #e38748;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
+    .question-container {
+        border: 1px solid #ddd; /* Light border color */
+        border-radius: 8px; /* Rounded corners */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+        padding: 1em; /* Padding inside the container */
+        margin-bottom: 1.5em; /* Space between questions */
+        background-color: #ffffff; /* Background color of the container */
+    }
 
-#spinner {
-    margin-right: 0.25rem; /* This margin creates space when spinner is visible */
-    display: none; /* Spinner should be hidden by default */
-    position: absolute;
-    right: 1rem; /* Adjust this value if the spinner needs to move closer to or further from the text */
-}
+    .slider-container {
+        position: relative;
+        width: 100%; /* Full width of the container */
+        margin: 1em 0;
+        text-align: left; /* Align to the left */
+    }
+    
+    .slider-container {
+        position: relative;
+        width: 100%; /* Full width of the container */
+        margin: 1em 0;
+        text-align: left; /* Align to the left */
+    }
+    
+    .slider {
+        width: 100%; /* Full width of the container */
+        -webkit-appearance: none;
+        height: 8px; /* Height of the track */
+        background: #cfd8dc; /* Light gray-blue background for the slider track */
+        outline: none;
+        opacity: 0.9; /* Less transparent */
+        transition: opacity .15s ease-in-out;
+        position: relative; /* To position the fill */
+    }
+    
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px; /* Larger thumb for easier interaction */
+        height: 20px; /* Larger thumb */
+        background: #003366; /* Dark blue color */
+        cursor: pointer;
+        border-radius: 50%; /* Round thumb */
+        border: 2px solid #ffffff; /* White border around thumb for better contrast */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+        transition: background-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+    
+    .slider::-webkit-slider-thumb:hover {
+        background-color: #002244; /* Slightly darker blue on hover */
+    }
+    
+    .slider::-moz-range-thumb {
+        width: 20px; /* Larger thumb for easier interaction */
+        height: 20px; /* Larger thumb */
+        background: #003366; /* Dark blue color */
+        cursor: pointer;
+        border-radius: 50%; /* Round thumb */
+        border: 2px solid #ffffff; /* White border around thumb for better contrast */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+        transition: background-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+    
+    .slider::-moz-range-thumb:hover {
+        background-color: #002244; /* Slightly darker blue on hover */
+    }
+    
+    .slider-fill {
+        position: absolute;
+        height: 8px; /* Height of the fill */
+        background: #003366; /* Dark blue color */
+        top: 0;
+        left: 0;
+        z-index: 1;
+        border-radius: 8px; /* Rounded corners for the fill */
+        pointer-events: none; /* Ensure the fill doesn't interfere with slider interaction */
+    }
+    
+    .slider-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem; /* Smaller font size for labels */
+        margin-top: 0.5em; /* Space above labels */
+    }
+    
+    .slider-messages {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem; /* Smaller font size for messages */
+        margin-top: 0.5em; /* Space above messages */
+    }
+    
+    .form-control:valid,
+    .form-select:valid {
+        background-color: #E0F2FE;
+    }
+    
+    
 
-#submit-btn:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
+    .form-control,
+    .form-select {
+        background-color: #FFFFFF;
+        transition: background-color 0.3s ease-in-out;
+    }
 
-#submit-btn.spinner-visible {
-    padding-right: 2.5rem; /* Extra padding is added only when spinner is visible */
-}
-.form-control:valid, .form-select:valid {
-            background-color: #E0F2FE; /* Light blue background when valid */
-        }
-        .form-control, .form-select {
-            background-color: #FFFFFF; /* Default white background */
-            transition: background-color 0.3s ease-in-out; /* Smooth transition for color change */
-        }
-        .form-select:required:invalid, .form-control:required:invalid {
-            background-color: #FFFFFF; /* Ensure the default state is white */
-        }
-  </style>
+    .form-select:required:invalid,
+    .form-control:required:invalid {
+        background-color: #FFFFFF;
+    }
+
+    #submit-btn {
+        position: relative;
+        background-color: #e38748;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #spinner {
+        margin-right: 0.25rem;
+        display: none;
+        position: absolute;
+        right: 1rem;
+    }
+
+    #submit-btn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    #submit-btn.spinner-visible {
+        padding-right: 2.5rem;
+    }
+</style>
+
 </head>
+
 <body>
-    <!-- Header -->
-    <header id="header" class="fixed-top d-flex align-items-center">
-      {% if session['user_logged_in'] %}
-      <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
-          <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
-
-   
-          <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
-          <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatment</a>
-      </div>
-      {% else %}
-      <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
-        <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
-        <nav id="navbar" class="navbar order-last order-lg-0">
-
-            <i class="bi bi-list mobile-nav-toggle"></i>
-        </nav>
-        <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Login</a>
+  <!-- Header -->
+  <header id="header" class="fixed-top d-flex align-items-center">
+    {% if session['user_logged_in'] %}
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+      <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
+      <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
+      <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatment</a>
+    </div>
+    {% else %}
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+      <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
+      <nav id="navbar" class="navbar order-last order-lg-0">
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav>
+      <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Login</a>
     </div>
     {% endif %}
   </header>
-  <section>
-    <div>
-    </div>
-  </section>
 
   <main id="main">
     <section class="inner-page">
-        <div class="container position-relative text-center text-lg-start" data-aos="zoom-in" data-aos-delay="100">
-            <div class="row">
-                <div class="col-lg-8">
-                    <h1>Begin with <span>Personal Information</span></h1>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <h3>Please fill out the following details to continue.</h3>
-                    <h3>PHASE 1</h3>
-                </div>
-            </div>
+      <div class="container position-relative text-center text-lg-start" data-aos="zoom-in" data-aos-delay="100">
+        <div class="row">
+          <div class="col-lg-8">
+            <h1>Begin with <span>Personal Information</span></h1>
+          </div>
         </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <h3>Please fill out the following details to continue.</h3>
+            <h3>PHASE 1</h3>
+          </div>
+        </div>
+      </div>
     </section>
+
     <section class="inner-page">
-        <div class="container">
-          <form action="/personal_info_phase_1" method="post">
-            {% for item in questions %}
-            <div class="mb-3">
-                <label class="form-label">{{ item.question }}</label>
-                {% if item.type == 'select' %}
-                <select name="{{ loop.index }}" class="form-select" required>
-                    <option value="" disabled selected>{{ item.placeholder | default('Choose an option') }}</option>
-                    {% for option in item.options %}
-                    <option value="{{ option }}" placeholder="{{ option_labels }}">{{ option }}</option>
-                    {% endfor %}
-                </select>
-                {% elif item.type == 'textarea' %}
-                <textarea name="{{ loop.index }}" class="form-control" rows="4" placeholder="{{ item.placeholder | default('Type your answer here...') }}" required></textarea>
-                {% else %}
-                <input type="{{ item.type }}" name="{{ loop.index }}" class="form-control" placeholder="{{ item.placeholder | default('Enter your answer') }}" required>
-                {% endif %}
-            </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-primary" id="submit-btn">
-                Submit <span id="spinner" class="spinner-border spinner-border-sm"></span>
-            </button>
-        </form>
+      <div class="container">
+        <h3>Please fill out the following details to continue.</h3>
+        <h3 class="mb-4">PHASE 1</h3>
         
-        </div>
+        <form action="/personal_info_phase_1" method="post">
+          {% for item in questions %}
+          <div class="mb-3">
+            <h5 class="form-label mb-2">{{ item.question }}</h5>
+            
+            {% if item.type == 'select' %}
+            <select name="{{ loop.index }}" class="form-select" required>
+              <option value="" disabled selected>{{ item.placeholder | default('Choose an option') }}</option>
+              {% for option in item.options %}
+              <option value="{{ option }}" placeholder="{{ option }}">{{ option }}</option>
+              {% endfor %}
+            </select>
+            
+            {% elif item.type == 'number' %}
+            <input type="number" name="{{ loop.index }}" class="form-control" placeholder="{{ item.placeholder | default('Enter a number') }}" required>
+            
+            {% else %}
+            <div class="slider-container">
+              <input type="range" id="slider{{ loop.index }}" class="slider" min="0" max="100" step="1" value="50">
+              <div class="slider-fill" id="slider{{ loop.index }}Fill"></div> <!-- Added fill -->
+              <div class="slider-labels">
+                <span>0</span>
+                <span>20</span>
+                <span>40</span>
+                <span>60</span>
+                <span>80</span>
+                <span>100</span>
+              </div>
+              <div class="slider-messages">
+                <span>Very Low</span>
+                <span>Low</span>
+                <span>Moderate</span>
+                <span>High</span>
+                <span>Very High</span>
+              </div>
+              <input type="hidden" id="slider{{ loop.index }}Value" name="slider{{ loop.index }}Value" value="50">
+            </div>
+            
+            {% endif %}
+            
+            {% if item.type == 'textarea' %}
+            <textarea name="{{ loop.index }}" class="form-control" rows="4" placeholder="{{ item.placeholder | default('Type your answer here...') }}" required></textarea>
+            
+            {% elif item.type == 'text' %}
+            <input type="text" name="{{ loop.index }}" class="form-control" placeholder="{{ item.placeholder | default('Enter your answer') }}" required>
+            
+            {% else %}
+            
+            
+            {% endif %}
+          </div>
+          {% endfor %}
+          
+          <button type="submit" class="btn btn-primary" id="submit-btn">
+            Submit <span id="spinner" class="spinner-border spinner-border-sm"></span>
+          </button>
+        </form>
+      </div>
     </section>
-</main><!-- End #main -->
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-      var form = document.querySelector('form');
-      var submitButton = document.getElementById('submit-btn');
-      var spinner = document.getElementById('spinner');
-  
-      form.onsubmit = function() {
-          spinner.style.display = 'inline-block';
-          submitButton.classList.add('spinner-visible'); 
-          submitButton.disabled = true;
-      };
-  
-      var sliders = document.querySelectorAll('input[type="range"]');
-      sliders.forEach(function(slider) {
-          slider.oninput = function() {
-              var output = document.getElementById(this.id + 'Output');
-              output.value = this.value;
-          }
-      });
-  });
-  </script>
+    
+
+  </main><!-- End #main -->
+
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var form = document.querySelector('form');
       var submitButton = document.getElementById('submit-btn');
       var spinner = document.getElementById('spinner');
-    
+
       form.onsubmit = function() {
         spinner.style.display = 'inline-block';
         submitButton.classList.add('spinner-visible'); 
         submitButton.disabled = true;
       };
-      var sliders = document.querySelectorAll('input[type="range"]');
-      sliders.forEach(function(slider) {
-        slider.oninput = function() {
-          var output = document.getElementById(this.id + 'Output');
-          output.value = this.value;
-        }
-      });
+
+      var slider = document.getElementById('slider1');
+      var sliderValue = document.getElementById('slider1Value');
+
+      slider.oninput = function() {
+        sliderValue.value = this.value;
+      };
+      
+      
     });
-    </script>
- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
- <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
- <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
- <script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
- <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
- <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
- 
+
+  </script>
+
 </body>
+
 </html>
