@@ -8,8 +8,11 @@
 /*--------------------------------------------------------------
 # General
 --------------------------------------------------------------*/
+
+
 body {
-  font-family: "Open Sans", sans-serif;
+  /* font-family: "Open Sans", sans-serif; */
+  font-family: "Roboto Slab", serif
   background: #131212;
   color: #0F3E77;
 }
@@ -706,7 +709,8 @@ section {
   margin: 0;
   font-size: 36px;
   font-weight: 700; 
-  font-family: "Playfair Display", serif;
+  font-family: "Montserrat", sans-serif;
+  /* font-family: "Playfair Display", serif; */
   color: #0b0b0b;
 }
 
@@ -1701,3 +1705,67 @@ a {
   margin-top: 20px;
   text-align: center;
 }
+
+//Personal info phase 1
+#submit-btn {
+  position: relative;
+  background-color: #e38748;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#spinner {
+  margin-right: 0.25rem; /* This margin creates space when spinner is visible */
+  display: none; /* Spinner should be hidden by default */
+  position: absolute;
+  right: 1rem; /* Adjust this value if the spinner needs to move closer to or further from the text */
+}
+
+#submit-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+#submit-btn.spinner-visible {
+  padding-right: 2.5rem; /* Extra padding is added only when spinner is visible */
+}
+.form-control:valid, .form-select:valid {
+          background-color: #E0F2FE; /* Light blue background when valid */
+      }
+      .form-control, .form-select {
+          background-color: #FFFFFF; /* Default white background */
+          transition: background-color 0.3s ease-in-out; /* Smooth transition for color change */
+      }
+      .form-select:required:invalid, .form-control:required:invalid {
+          background-color: #FFFFFF; /* Ensure the default state is white */
+      }
+      
+      .question-number {
+        display: inline-block;
+        width: 35px;
+        height: 35px;
+        line-height: 35px;
+        text-align: center;
+        font-size: 14px;
+        border-radius: 50%; /* Rounded background */
+        background-color: #E28647; /* Blue background */
+        color: #ffffff; /* White text */
+        font-weight: bold;
+        margin-right: 10px; /* Space between number and question */
+        flex-shrink: 0; /* Prevent the number from shrinking */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        border: 1px solid #ffffff;
+      }
+      
+      .slider-fill {
+        height: 5px;
+        background: #E28647; /* Change the color as needed */
+        transition: width 0.2s;
+      }

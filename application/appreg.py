@@ -242,36 +242,16 @@ txt_path = "/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/data
 import docx
 SERPER_API_KEY = os.getenv('SERPER_API_KEY')
 api_key = os.getenv('OPENAI_API_KEY_2')
-# @app.route('/personal_info', methods=['GET', 'POST'])
-# @login_required
-# def personal_info():
-#     user_data = get_user()   
-#     if user_data.get('personal_info_completed', False):
-#         return redirect(url_for('treatment'))
-#     if request.method == 'POST':
-#         personal_info_responses = {}
-#         # Map form data to questions
-#         for index, question in enumerate(personal_info_questions, start=1):
-#             question_text = question.get('question', f"Question {index}")
-#             answer = request.form.get(str(index))
-#             personal_info_responses[question_text] = answer
-            
-#         user_data['personal_info_completed'] = True
-#         user_data['personal_info_responses'] = personal_info_responses
-#         USERS_REF.child(session['random_key']).set(user_data)
-#         # Call the CrewAI agent to process the personal info responses
-#         # call_crewai_agent(user_data['personal_info_responses'], api_key, file_path)
-#         return redirect(url_for('treatment'))
-
-#     return render_template('personal_info.html', questions=personal_info_questions)
-
 
 # @app.route('/personal_info_phase_1', methods=['GET', 'POST'])
 # @login_required
 # def personal_info_phase_1():
-#     user_data = get_user()   
-#     if user_data.get('personal_info_completed', False):
-#         return redirect(url_for('treatment'))
+#     user_data = get_user()
+    
+#     # Check if personal info phase 1 is already completed
+#     if user_data.get('personal_info_phase_1_completed', False):
+#         return redirect(url_for('personal_info_phase_2'))
+    
 #     if request.method == 'POST':
 #         personal_info_responses = {}
 #         # Map form data to questions
@@ -280,67 +260,57 @@ api_key = os.getenv('OPENAI_API_KEY_2')
 #             answer = request.form.get(str(index))
 #             personal_info_responses[question_text] = answer
             
-#         user_data['personal_info_completed'] = True
-#         user_data['personal_info_responses'] = personal_info_responses
+#         user_data['personal_info_phase_1_completed'] = True
+#         user_data['personal_info_responses_phase_1'] = personal_info_responses
 #         USERS_REF.child(session['random_key']).set(user_data)
 #         # Call the agent to process the personal info responses
-#         call_phase1_agent(user_data['personal_info_responses'], api_key, file_path)
-#         return redirect(url_for('treatment'))
+#         call_phase1_agent(user_data['personal_info_responses_phase_1'], api_key, file_path)
+#         return redirect(url_for('personal_info_phase_2'))
 
 #     return render_template('personal_info_phase_1.html', questions=personal_info_questions_phase_1)
-
-# @app.route('/personal_info_phase_2', methods=['GET', 'POST'])
-# @login_required
-# def personal_info_phase_2():
-#     user_data = get_user()   
-#     if user_data.get('personal_info_completed', False):
-#         return redirect(url_for('treatment'))
-#     if request.method == 'POST':
-#         personal_info_responses = {}
-#         # Map form data to questions
-#         for index, question in enumerate(personal_info_questions_phase_1, start=1):
-#             question_text = question.get('question', f"Question {index}")
-#             answer = request.form.get(str(index))
-#             personal_info_responses[question_text] = answer
-            
-#         user_data['personal_info_completed'] = True
-#         user_data['personal_info_responses'] = personal_info_responses
-#         USERS_REF.child(session['random_key']).set(user_data)
-#         # Call the agent to process the personal info responses
-#         call_phase2_agent(user_data['personal_info_responses'], api_key, file_path)
-#         return redirect(url_for('treatment'))
-
-#     return render_template('personal_info_phase_2.html', questions=personal_info_questions_phase_2)
-
-
-
-
 
 @app.route('/personal_info_phase_1', methods=['GET', 'POST'])
 @login_required
 def personal_info_phase_1():
     user_data = get_user()
     
-    # Check if personal info phase 1 is already completed
     if user_data.get('personal_info_phase_1_completed', False):
         return redirect(url_for('personal_info_phase_2'))
     
     if request.method == 'POST':
         personal_info_responses = {}
-        # Map form data to questions
+        
         for index, question in enumerate(personal_info_questions_phase_1, start=1):
-            question_text = question.get('question', f"Question {index}")
-            answer = request.form.get(str(index))
-            personal_info_responses[question_text] = answer
+            if question['type'] == 'group':
+                # Capture range and text input for the grouped question
+                score = request.form.get(question['inputs'][0]['name'])
+                comments = request.form.get(question['inputs'][1]['name'])
+                personal_info_responses[question['question']] = {
+                    'score': score,
+                    'comments': comments
+                }
+            else:
+                # Capture other question types normally
+                question_text = question.get('question', f"Question {index}")
+                answer = request.form.get(str(index))
+                personal_info_responses[question_text] = answer
             
         user_data['personal_info_phase_1_completed'] = True
         user_data['personal_info_responses_phase_1'] = personal_info_responses
         USERS_REF.child(session['random_key']).set(user_data)
+        
         # Call the agent to process the personal info responses
         call_phase1_agent(user_data['personal_info_responses_phase_1'], api_key, file_path)
         return redirect(url_for('personal_info_phase_2'))
 
     return render_template('personal_info_phase_1.html', questions=personal_info_questions_phase_1)
+
+
+
+def sanitize_key(key):
+    # Replace invalid characters with an underscore or remove them
+    return key.replace('$', '_').replace('#', '_').replace('[', '_').replace(']', '_').replace('/', '_').replace('.', '_')
+
 
 @app.route('/personal_info_phase_2', methods=['GET', 'POST'])
 @login_required

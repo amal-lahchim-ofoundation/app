@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Chat Psychologist A.I</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{{ url_for('static', filename='assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+  <link href="{{ url_for('static', filename='assets/img/favicon.png') }}" rel="icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i%7CPlayfair+Display:400,500,600,700,400i,500i,600i,700i%7CPoppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Additional CSS Files -->
+  <link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/animate.css/animate.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <style>
+  h5 {
+    /*font-family: "Noto Sans", sans-serif;*/
+    font-family: "Lato", sans-serif;
+    color: #2D2F35;
+    }
+    .question-container {
+      font-family: "Montserrat", sans-serif;
+       /* border: 1px solid #ddd;  Light border color */
+     /*    border-radius: 8px; Rounded corners */
+        /*box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);  Light shadow for depth */
+        padding: 2em; /* Padding inside the container */
+        margin-bottom: 2.5em; /* Space between questions */
+    /*    background-color: #ffffff;  Background color of the container */
+    }
+
+    .slider-container {
+        position: relative;
+        width: 100%; /* Full width of the container */
+        margin: 1em 0;
+        text-align: left; /* Align to the left */
+    }
+    
+    .slider-container {
+        position: relative;
+        width: 100%; /* Full width of the container */
+        margin: 1em 0;
+        text-align: left; /* Align to the left */
+    }
+    
+    .slider {
+        width: 100%; /* Full width of the container */
+        -webkit-appearance: none;
+        height: 8px; /* Height of the track */
+        background: #cfd8dc; /* Light gray-blue background for the slider track */
+        outline: none;
+        opacity: 0.9; /* Less transparent */
+        transition: opacity .15s ease-in-out;
+        position: relative; /* To position the fill */
+    }
+    
+    .slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px; /* Larger thumb for easier interaction */
+        height: 20px; /* Larger thumb */
+        background: #003366; /* Dark blue color */
+        cursor: pointer;
+        border-radius: 50%; /* Round thumb */
+        border: 2px solid #ffffff; /* White border around thumb for better contrast */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+        transition: background-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+    
+    .slider::-webkit-slider-thumb:hover {
+        background-color: #002244; /* Slightly darker blue on hover */
+    }
+    
+    .slider::-moz-range-thumb {
+        width: 20px; /* Larger thumb for easier interaction */
+        height: 20px; /* Larger thumb */
+        background: #003366; /* Dark blue color */
+        cursor: pointer;
+        border-radius: 50%; /* Round thumb */
+        border: 2px solid #ffffff; /* White border around thumb for better contrast */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+        transition: background-color .15s ease-in-out, box-shadow .15s ease-in-out;
+    }
+    
+    .slider::-moz-range-thumb:hover {
+        background-color: #002244; /* Slightly darker blue on hover */
+    }
+    
+    .slider-fill {
+      position: absolute;
+      height: 8px; /* Height of the fill */
+      background: linear-gradient(90deg, #E28647 0%, #66ccff 100%); /* Gradient from dark blue to light blue */
+      top: 0;
+      left: 0;
+      z-index: 1;
+      border-radius: 8px; /* Rounded corners for the fill */
+      pointer-events: none; /* Ensure the fill doesn't interfere with slider interaction */
+  }
+    }
+    
+    .slider-labels {
+        display: flex;
+        font-family: "Raleway", sans-serif;
+        justify-content: space-between;
+        font-size: 0.75rem; /* Smaller font size for labels */
+        margin-top: 0.5em; /* Space above labels */
+    }
+    
+    .slider-messages {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem; /* Smaller font size for messages */
+        margin-top: 0.5em; /* Space above messages */
+        font-family: "Noto Sans", sans-serif;
+        color: #E28647;
+    }
+    
+    .form-control:valid,
+    .form-select:valid {
+        background-color: #E0F2FE;
+    }
+    
+    
+
+    .form-control,
+    .form-select {
+        background-color: #FFFFFF;
+        transition: background-color 0.3s ease-in-out;
+    }
+
+    .form-select:required:invalid,
+    .form-control:required:invalid {
+        background-color: #FFFFFF;
+    }
+
+    #submit-btn {
+        position: relative;
+        background-color: #e38748;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #spinner {
+        margin-right: 0.25rem;
+        display: none;
+        position: absolute;
+        right: 1rem;
+    }
+
+    #submit-btn:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
+
+    #submit-btn.spinner-visible {
+        padding-right: 2.5rem;
+    }
+    .rounded-section {
+      border: 1px solid #ffffff; /* Light grey border */
+      border-radius: 8px; /* Rounded corners */
+      padding: 15px; /* Padding inside the border */
+      margin-bottom: 30px; /* Increased space between questions */
+      background-color: #ffffff; /* White background for clarity */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+     /* box-shadow: 0 2px 5px rgba(109, 142, 198, 0.3);  Subtle shadow */
+    }
+   
+    .question-header {
+      display: flex;
+      
+      align-items: center;
+      margin-bottom: 10px; /* Space between number and question */
+    }
+    
+    .question-number {
+      display: inline-block;
+      width: 35px;
+      height: 35px;
+      line-height: 35px;
+      text-align: center;
+      font-size: 14px;
+      border-radius: 50%; /* Rounded background */
+      background-color: #E28647; /* Blue background */
+      color: #ffffff; /* White text */
+      font-weight: bold;
+      margin-right: 10px; /* Space between number and question */
+      flex-shrink: 0; /* Prevent the number from shrinking */
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+      border: 1px solid #ffffff;
+    }
+    input:focus::placeholder {
+      color: transparent;
+      
+    }
+    input::placeholder {
+      color: #E28647; /* You can adjust this color as needed */
+      
+  }
+  output {
+    background-color:#E28647; /* White background for contrast */
+    color: #ffffff; /* Text color */
+    width: 35px;  /* Reduced width */
+    height: 35px; /* Reduced height */
+    line-height: 35px; /* Adjust line height to match the new size */
+    text-align: center;
+    border-radius: 50%; /* Rounded shape */
+    position: absolute;
+    top: -40px; /* Adjusted position to keep it above the slider */
+    right:0px;
+    transform: translateX(-50%); /* Center it horizontally */
+    z-index: 2; /* Ensure it's above the slider */
+    font-size: 14px; /* Reduced font size */
+    font-weight: bold; /* Keep the number bold */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15); /* Slightly reduced shadow for better proportion */
+    transition: top 0.3s ease, left 0.3s ease; /* Smooth transition when moving */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    border: 1px solid;
+  }
+
+  input[type="range"] {
+    margin: 0.5rem auto;
+    font-size: 1.075rem;
+    width: 100%;
+    height: 30px;
+  
+    &:after {
+      content: value;
+      
+    }
+    
+  }
+  :root {
+    --grid-size: 1rem;
+  }
+  
+  $baseHue: 190;
+  $gridColor: hsla($baseHue, 100%, 50%, 0.5);
+  
+</style>
+
+</head>
+
+<body>
+  <!-- Header -->
+  <header id="header" class="fixed-top d-flex align-items-center">
+    {% if session['user_logged_in'] %}
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+      <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
+      <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
+      <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatment</a>
+    </div>
+    {% else %}
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+      <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
+      <nav id="navbar" class="navbar order-last order-lg-0">
+        <i class="bi bi-list mobile-nav-toggle"></i>
+      </nav>
+      <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Login</a>
+    </div>
+    {% endif %}
+  </header>
+
+  <main id="main">
+    <section class="inner-page">
+      <div class="container position-relative text-center text-lg-start" data-aos="zoom-in" data-aos-delay="100">
+        <div class="row">
+          <div class="col-lg-8">
+            <h1>Begin with <span>Personal Information</span></h1>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <h3>Please fill out the following details to continue.</h3>
+            <h3>PHASE 1</h3>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="inner-page">
+      <div class="container">
+    
+        
+        <form action="/personal_info_phase_1" method="post">
+          {% for item in questions %}
+          <div class="mb-4 rounded-section p-4 mb-2">
+            <div class="question-header p-2">
+              <span class="question-number ">{{ loop.index }}</span>
+              <h5 class="form-label mb-2 p-2">{{ item.question }}</h5>
+            </div>
+            
+            {% if item.type == 'select' %}
+            <select name="{{ loop.index }}" class="form-select" required>
+              <option value="" disabled selected>{{ item.placeholder | default('Choose an option') }}</option>
+              {% for option in item.options %}
+              <option value="{{ option }}" placeholder="{{ option }}">{{ option }}</option>
+              {% endfor %}
+            </select>
+            
+            {% elif item.type == 'number' %}
+            <input type="number" name="{{ loop.index }}" class="form-control" placeholder="{{ item.placeholder | default('Enter a number') }}" required>
+            
+            {% else %}
+            <div class="slider-container">
+              <div class="slider-container">
+                <input type="range" name="range" id="range" min="0" max="100" step="1" value="0" />
+                <output id="slider-output">0</output> <!-- Display the value here -->
+              </div>
+              <form oninput="result.value=range.value">
+                <input type="range" name="range" id="range" min="0" max="100" step="1" value="0" />
+                <output name="result">0</output>
+              </form>
+              <div class="slider-fill" id="slider{{ loop.index }}Fill"></div> <!-- Added fill -->
+              
+              <div class="slider-messages">
+                <span>Very Low</span>
+                <span>Low</span>
+                <span>Moderate</span>
+                <span>High</span>
+                <span>Very High</span>
+              </div>
+              <input type="hidden" id="slider{{ loop.index }}Value" name="slider{{ loop.index }}Value" value="50">
+            </div>
+           
+			</p>
+
+
+            {% endif %}
+            
+            {% if item.type == 'textarea' %}
+            <textarea name="{{ loop.index }}" class="form-control" rows="4" placeholder="{{ item.placeholder | default('Type your answer here...') }}"></textarea>
+            
+            {% elif item.type == 'text' %}
+            <input type="text" name="{{ loop.index }}" class="form-control" placeholder="{{ item.placeholder | default('Enter your answer') }}" required>
+            
+            {% else %}
+            
+            {% endif %}
+          </div>
+          {% endfor %}
+          
+          <button type="submit" class="btn btn-primary" id="submit-btn">
+            Submit <span id="spinner" class="spinner-border spinner-border-sm"></span>
+          </button>
+        </form>
+      </div>
+    </section>
+    
+    
+
+  </main><!-- End #main -->
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var form = document.querySelector('form');
+      var submitButton = document.getElementById('submit-btn');
+      var spinner = document.getElementById('spinner');
+
+      form.onsubmit = function() {
+        spinner.style.display = 'inline-block';
+        submitButton.classList.add('spinner-visible'); 
+        submitButton.disabled = true;
+      };
+
+      var slider = document.getElementById('slider1');
+      var sliderValue = document.getElementById('slider1Value');
+
+      slider.oninput = function() {
+        sliderValue.value = this.value;
+      };
+      document.getElementById('range').addEventListener('change', (e) => {
+        document.body.style.setProperty("--grid-size", e.target.value + 'rem');
+      });
+      // Get the slider and output elements
+    var slider = document.getElementById('range');
+    var output = document.getElementById('slider-output');
+
+    // Set the initial output value
+    output.value = slider.value;
+
+    // Listen for input events on the slider
+    slider.addEventListener('input', function() {
+      // Update the output element's value to match the slider's value
+      output.value = slider.value;
+    });
+    });
+    
+  </script>
+
+</body>
+
+</html>
