@@ -1693,6 +1693,7 @@ input[type="submit"] {
   color: #fff;
   cursor: pointer;
   transition: background-color 0.3s;
+
 }
 
 input[type="submit"]:hover {
@@ -1736,17 +1737,35 @@ a {
 #submit-btn.spinner-visible {
   padding-right: 2.5rem; /* Extra padding is added only when spinner is visible */
 }
-.form-control:valid, .form-select:valid {
-          background-color: #E0F2FE; /* Light blue background when valid */
+.form-control {
+  background-color: white; /* Default background color */
+  border: 1px solid #ced4da; /* Border color */
+  transition: background-color 0.3s; /* Smooth transition for background color */
+}
+
+.form-control:focus {
+  
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;
+}
+.form-control:valid{
+  
+} .form-select:valid {
+
+  }
       }
       .form-control, .form-select {
           background-color: #FFFFFF; /* Default white background */
           transition: background-color 0.3s ease-in-out; /* Smooth transition for color change */
+    
       }
       .form-select:required:invalid, .form-control:required:invalid {
           background-color: #FFFFFF; /* Ensure the default state is white */
+          
       }
-      
+      .form-label {
+        font-size: 25px;
+        font-family: 
+      }
       .question-number {
         display: inline-block;
         width: 35px;
@@ -1769,3 +1788,110 @@ a {
         background: #E28647; /* Change the color as needed */
         transition: width 0.2s;
       }
+      
+      .rounded-section {
+    background: rgba(255, 255, 255, 0.9); /* Light white background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px; /* Subtle shadow */
+    padding: 26px; /* Add some padding for better spacing */
+    transition: box-shadow 0.3s ease; /* Smooth transition for shadow on hover */
+}
+
+.rounded-section:hover {
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 4px 8px; /* Slightly stronger shadow on hover */
+    transition: box-shadow 0.3s ease;
+}
+
+.slider-container {
+  width: 100%;
+ 
+}
+
+.slider {
+  -webkit-appearance: none; /* Remove default styling in WebKit browsers */
+  width: 95%; /* Full width */
+  height: 2px; /* Height of the slider track */
+  background: #E28647; /* Make the default track transparent */
+  margin-right: 10px;
+  margin-bottom: 20px;
+ 
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Remove default styling */
+    appearance: none; /* Remove default styling */
+    width: 16px; /* Width of the thumb */
+    height: 16px; /* Height of the thumb */
+    border-radius: 50%; /* Make the thumb circular */
+    background: white; /* Color of the thumb */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Shadow for the thumb */
+    cursor: pointer; /* Change cursor on hover */
+    border: 1px solid #E28647; 
+}
+
+.slider::-moz-range-thumb {
+  -webkit-appearance: none; /* Remove default styling */
+  appearance: none; /* Remove default styling */
+  width: 16px; /* Width of the thumb */
+  height: 16px; /* Height of the thumb */
+  border-radius: 50%; /* Make the thumb circular */
+  background: white; /* Color of the thumb */
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Shadow for the thumb */
+  cursor: pointer; /* Change cursor on hover */
+  border: 1px solid #E28647; 
+}
+
+output {
+  border: 1px solid #E28647; 
+  border-radius: 50%; /* Fully rounded corners */
+  padding: 10px; /* Padding for spacing */
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px; /* Shadow effect */
+  transition: background-color 0.3s, transform 0.3s; /* Transition for background and transform */
+  transform: translateX(-5px); /* Move it a bit to the left */
+  margin-top: -30px; /* Adjust position relative to the slider */
+  font-weight: bold; /* Bold text for better visibility */
+  display: inline-flex; /* Center content within */
+  align-items: center; /* Vertically center the text */
+  justify-content: center; /* Horizontally center the text */
+  width: 40px; /* Fixed width for circular shape */
+  height: 40px; /* Fixed height for circular shape */
+  color: #E28647;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+
+}
+
+
+
+@keyframes slideUp {
+  0% {
+      transform: translateY(30px); /* Start lower */
+      opacity: 0; /* Start invisible */
+  }
+  100% {
+      transform: translateY(0); /* End at original position */
+      opacity: 1; /* End fully visible */
+  }
+}
+
+.question {
+  opacity: 0; /* Initially invisible */
+  animation: slideUp 1s ease forwards; /* Apply the animation, slower duration and smoother easing */
+}
+
+.question:nth-child(1) { animation-delay: 0.2s; }
+.question:nth-child(2) { animation-delay: 0.4s; }
+.question:nth-child(3) { animation-delay: 0.6s; }
+.question:nth-child(4) { animation-delay: 0.8s; }
+.question:nth-child(5) { animation-delay: 1s; }
+
+.question:hover {
+  background-color: #ffffff; /* Smooth background color transition */
+  border-color: rgba(226, 134, 71, 0.5); /* Subtle border color */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow effect on hover */
+  transform: translateY(-5px); /* Slight upward movement */
+  transition: background-color 0.3s ease, border-color 0.5s ease, box-shadow 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+}
+
+input[type="text"]{
+
+}
