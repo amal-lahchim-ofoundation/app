@@ -38,26 +38,26 @@
       <div class="container">
         <form action="/personal_info_phase_1" method="post">
             {% for item in questions %}
-                <div class="mb-4 rounded-section p-2 mb-2 question"> <!-- Add question class here -->
+                <div class="mb-4 rounded-section p-3 mb-2 question">
                     <span class="question-number">{{ loop.index }}</span>
-                    <label class="form-label p-3">{{ item.question }}</label>
+                    <label class="form-label p-2">{{ item.question }}</label>
                     {% if item.type == 'select' %}
-                        <select name="{{ loop.index }}" class="form-select" required>
+                        <select name="question_{{ loop.index }}" class="form-select" required>
                             <option value="" disabled selected>{{ item.placeholder | default('Choose an option') }}</option>
                             {% for option in item.options %}
                                 <option value="{{ option }}">{{ option }}</option>
                             {% endfor %}
                         </select>
                     {% elif item.type == 'textarea' %}
-                        <textarea name="{{ loop.index }}" class="form-control" rows="4" placeholder="{{ item.placeholder | default('If this is an important topic related to your mental issue, please write more (optional).') }}" required></textarea>
+                        <textarea name="question_{{ loop.index }}" class="form-control" rows="4" placeholder="{{ item.placeholder | default('If this is an important topic related to your mental issue, please write more (optional).') }}" required></textarea>
                     {% elif item.type == 'group' %}
                         <div class="slider-container">
-                            <input type="range" min="1" max="100" value="100" class="slider" id="slider{{ loop.index }}" name="support_score" oninput="updateOutput(this.value, {{ loop.index }})">
-                            <output id="slider-output{{ loop.index }}">100</output>
+                            <input type="range" min="0" max="100" value="0" class="slider" id="slider{{ loop.index }}" name="phase_1_score_{{ loop.index }}" oninput="updateOutput(this.value, {{ loop.index }})">
+                            <output id="slider-output{{ loop.index }}">0</output>
                         </div>
-                        <input type="text" name="support_comments" placeholder="If this is an important topic related to your mental issue, please write more (optional)." class="form-control mt-2">
+                        <input type="text" name="phase_1_comments_{{ loop.index }}" placeholder="If this is an important topic related to your mental issue, please write more (optional)." class="form-control mt-2">
                     {% else %}
-                        <input type="{{ item.type }}" name="{{ loop.index }}" class="form-control" placeholder="{{ item.placeholder | default('If this is an important topic related to your mental issue, please write more (optional).') }}" required>
+                        <input type="{{ item.type }}" name="question_{{ loop.index }}" class="form-control" placeholder="{{ item.placeholder | default('If this is an important topic related to your mental issue, please write more (optional).') }}" required>
                     {% endif %}
                 </div>
             {% endfor %}
@@ -65,6 +65,7 @@
                 Submit <span id="spinner" class="spinner-border spinner-border-sm" style="display:none;"></span>
             </button>
         </form>
+        
         
         
         

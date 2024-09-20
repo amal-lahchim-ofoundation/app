@@ -4,189 +4,98 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
   <title>Chat Psychologist A.I</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
-
-  <!-- Favicons -->
-  <link href="{{ url_for('static', filename='assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
   <link href="{{ url_for('static', filename='assets/img/favicon.png') }}" rel="icon">
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i%7CPlayfair+Display:400,500,600,700,400i,500i,600i,700i%7CPoppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Additional CSS Files -->
   <link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/animate.css/animate.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
-<link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
-  
-  <style>
-#submit-btn {
-    position: relative;
-    background-color: #e38748;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#spinner {
-    margin-right: 0.25rem; /* This margin creates space when spinner is visible */
-    display: none; /* Spinner should be hidden by default */
-    position: absolute;
-    right: 1rem; /* Adjust this value if the spinner needs to move closer to or further from the text */
-}
-
-#submit-btn:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-}
-
-#submit-btn.spinner-visible {
-    padding-right: 2.5rem; /* Extra padding is added only when spinner is visible */
-}
-.form-control:valid, .form-select:valid {
-            background-color: #E0F2FE; /* Light blue background when valid */
-        }
-        .form-control, .form-select {
-            background-color: #FFFFFF; /* Default white background */
-            transition: background-color 0.3s ease-in-out; /* Smooth transition for color change */
-        }
-        .form-select:required:invalid, .form-control:required:invalid {
-            background-color: #FFFFFF; /* Ensure the default state is white */
-        }
-  </style>
 </head>
+
 <body>
-    <!-- Header -->
-    <header id="header" class="fixed-top d-flex align-items-center">
-      {% if session['user_logged_in'] %}
+  <header id="header" class="fixed-top d-flex align-items-center">
+    {% if session['user_logged_in'] %}
       <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
           <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
-
-   
           <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
           <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatment</a>
       </div>
-      {% else %}
+    {% else %}
       <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
         <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
-        <nav id="navbar" class="navbar order-last order-lg-0">
-
-            <i class="bi bi-list mobile-nav-toggle"></i>
-        </nav>
         <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Login</a>
-    </div>
+      </div>
     {% endif %}
   </header>
-  <section>
-    <div>
-    </div>
-  </section>
 
   <main id="main">
     <section class="inner-page">
-        <div class="container position-relative text-center text-lg-start" data-aos="zoom-in" data-aos-delay="100">
-            <div class="row">
-                <div class="col-lg-8">
-                    <h1>Begin with <span>Personal Information</span></h1>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <h3>Please fill out the following details to continue.</h3>
-                    <h3>PHASE 3</h3>
-                </div>
-            </div>
-        </div>
+      <div class="container position-relative text-center text-lg-start">
+        <h1>Begin with <span>Personal Information</span></h1>
+        <h3>Please fill out the following details to continue.</h3>
+        <h3>PHASE 3</h3>
+      </div>
     </section>
     <section class="inner-page">
-        <div class="container">
-          <form action="/personal_info_phase_3" method="post">
+      <div class="container">
+        <form action="/personal_info_phase_3" method="post">
             {% for item in questions %}
-            <div class="mb-3">
-                <label class="form-label">{{ item.question }}</label>
-                {% if item.type == 'select' %}
-                <select name="{{ loop.index }}" class="form-select" required>
-                    <option value="" disabled selected>{{ item.placeholder | default('Choose an option') }}</option>
-                    {% for option in item.options %}
-                    <option value="{{ option }}">{{ option }}</option>
-                    {% endfor %}
-                </select>
-                {% elif item.type == 'textarea' %}
-                <textarea name="{{ loop.index }}" class="form-control" rows="4" placeholder="{{ item.placeholder | default('Type your answer here...') }}" required></textarea>
-                {% else %}
-                <input type="{{ item.type }}" name="{{ loop.index }}" class="form-control" placeholder="{{ item.placeholder | default('Enter your answer') }}" required>
-                {% endif %}
-            </div>
+                <div class="mb-4 rounded-section p-3 mb-2 question">
+                    <span class="question-number">{{ loop.index }}</span>
+                    <label class="form-label p-2">{{ item.question }}</label>
+                    {% if item.type == 'select' %}
+                        <select name="question_{{ loop.index }}" class="form-select" required>
+                            <option value="" disabled selected>{{ item.placeholder | default('Choose an option') }}</option>
+                            {% for option in item.options %}
+                                <option value="{{ option }}">{{ option }}</option>
+                            {% endfor %}
+                        </select>
+                    {% elif item.type == 'textarea' %}
+                        <textarea name="question_{{ loop.index }}" class="form-control" rows="4" placeholder="{{ item.placeholder | default('If this is an important topic related to your mental issue, please write more (optional).') }}" required></textarea>
+                    {% elif item.type == 'group' %}
+                        <div class="slider-container">
+                            <input type="range" min="0" max="100" value="0" class="slider" id="slider{{ loop.index }}" name="phase_3_score_{{ loop.index }}" oninput="updateOutput(this.value, {{ loop.index }})">
+                            <output id="slider-output{{ loop.index }}">0</output>
+                        </div>
+                        <input type="text" name="phase_3_comments_{{ loop.index }}" placeholder="If this is an important topic related to your mental issue, please write more (optional)." class="form-control mt-2">
+                    {% else %}
+                        <input type="{{ item.type }}" name="question_{{ loop.index }}" class="form-control" placeholder="{{ item.placeholder | default('If this is an important topic related to your mental issue, please write more (optional).') }}" required>
+                    {% endif %}
+                </div>
             {% endfor %}
             <button type="submit" class="btn btn-primary" id="submit-btn">
-                Submit <span id="spinner" class="spinner-border spinner-border-sm"></span>
+                Submit <span id="spinner" class="spinner-border spinner-border-sm" style="display:none;"></span>
             </button>
         </form>
         
-        </div>
+        
+        
+        
+        <script>
+        function updateOutput(value, index) {
+            document.getElementById('slider-output' + index).value = value;
+        }
+        </script>
+        
+      </div>
     </section>
-</main><!-- End #main -->
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-      var form = document.querySelector('form');
-      var submitButton = document.getElementById('submit-btn');
-      var spinner = document.getElementById('spinner');
-  
-      form.onsubmit = function() {
-          spinner.style.display = 'inline-block';
-          submitButton.classList.add('spinner-visible'); 
-          submitButton.disabled = true;
-      };
-  
-      var sliders = document.querySelectorAll('input[type="range"]');
-      sliders.forEach(function(slider) {
-          slider.oninput = function() {
-              var output = document.getElementById(this.id + 'Output');
-              output.value = this.value;
-          }
-      });
-  });
-  </script>
+  </main>
+
   <script>
+    function updateOutput(value, index) {
+      document.getElementById('slider-output' + index).value = value;
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
       var form = document.querySelector('form');
       var submitButton = document.getElementById('submit-btn');
       var spinner = document.getElementById('spinner');
-    
-      form.onsubmit = function() {
+
+      form.onsubmit = function () {
         spinner.style.display = 'inline-block';
-        submitButton.classList.add('spinner-visible'); 
         submitButton.disabled = true;
       };
-      var sliders = document.querySelectorAll('input[type="range"]');
-      sliders.forEach(function(slider) {
-        slider.oninput = function() {
-          var output = document.getElementById(this.id + 'Output');
-          output.value = this.value;
-        }
-      });
     });
-    </script>
- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
- <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
- <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
- <script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
- <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
- <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
- 
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

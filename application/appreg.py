@@ -243,37 +243,12 @@ import docx
 SERPER_API_KEY = os.getenv('SERPER_API_KEY')
 api_key = os.getenv('OPENAI_API_KEY_2')
 
-# @app.route('/personal_info_phase_1', methods=['GET', 'POST'])
-# @login_required
-# def personal_info_phase_1():
-#     user_data = get_user()
-    
-#     # Check if personal info phase 1 is already completed
-#     if user_data.get('personal_info_phase_1_completed', False):
-#         return redirect(url_for('personal_info_phase_2'))
-    
-#     if request.method == 'POST':
-#         personal_info_responses = {}
-#         # Map form data to questions
-#         for index, question in enumerate(personal_info_questions_phase_1, start=1):
-#             question_text = question.get('question', f"Question {index}")
-#             answer = request.form.get(str(index))
-#             personal_info_responses[question_text] = answer
-            
-#         user_data['personal_info_phase_1_completed'] = True
-#         user_data['personal_info_responses_phase_1'] = personal_info_responses
-#         USERS_REF.child(session['random_key']).set(user_data)
-#         # Call the agent to process the personal info responses
-#         call_phase1_agent(user_data['personal_info_responses_phase_1'], api_key, file_path)
-#         return redirect(url_for('personal_info_phase_2'))
-
-#     return render_template('personal_info_phase_1.html', questions=personal_info_questions_phase_1)
-
 @app.route('/personal_info_phase_1', methods=['GET', 'POST'])
 @login_required
 def personal_info_phase_1():
     user_data = get_user()
     
+    # Redirect to phase 2 if already completed
     if user_data.get('personal_info_phase_1_completed', False):
         return redirect(url_for('personal_info_phase_2'))
     
@@ -281,29 +256,41 @@ def personal_info_phase_1():
         personal_info_responses = {}
         
         for index, question in enumerate(personal_info_questions_phase_1, start=1):
+            question_text = sanitize_key(question.get('question', f"Question {index}"))
+            
             if question['type'] == 'group':
                 # Capture range and text input for the grouped question
-                score = request.form.get(question['inputs'][0]['name'])
-                comments = request.form.get(question['inputs'][1]['name'])
-                personal_info_responses[question['question']] = {
-                    'score': score,
-                    'comments': comments
+                score = request.form.get(f'phase_1_score_{index}')
+                comments = request.form.get(f'phase_1_comments_{index}')
+                # Log to console for debugging
+                print(f"Received score: {score}, comments: {comments} for question {index}")
+                personal_info_responses[question_text] = {
+                    'score': score if score else None,  # Default to None if score is empty
+                    'comments': comments if comments else None  # Default to None if comments are empty
                 }
+                
             else:
                 # Capture other question types normally
-                question_text = question.get('question', f"Question {index}")
-                answer = request.form.get(str(index))
-                personal_info_responses[question_text] = answer
+                answer = request.form.get(f'question_{index}')
+                # Log to console for debugging
+                print(f"Received answer: {answer} for question {index}")
+                
+                personal_info_responses[question_text] = answer if answer else None  # Default to None if answer is empty
             
+        # Update user data
         user_data['personal_info_phase_1_completed'] = True
         user_data['personal_info_responses_phase_1'] = personal_info_responses
+        
+        # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
         
         # Call the agent to process the personal info responses
         call_phase1_agent(user_data['personal_info_responses_phase_1'], api_key, file_path)
+        
         return redirect(url_for('personal_info_phase_2'))
 
     return render_template('personal_info_phase_1.html', questions=personal_info_questions_phase_1)
+
 
 
 
@@ -317,52 +304,105 @@ def sanitize_key(key):
 def personal_info_phase_2():
     user_data = get_user()
     
-    # Check if personal info phase 2 is already completed
+    # Redirect to phase 3 if phase 2 is already completed
     if user_data.get('personal_info_phase_2_completed', False):
         return redirect(url_for('personal_info_phase_3'))
     
     if request.method == 'POST':
         personal_info_responses = {}
-        # Map form data to questions
+        
         for index, question in enumerate(personal_info_questions_phase_2, start=1):
-            question_text = question.get('question', f"Question {index}")
-            answer = request.form.get(str(index))
-            personal_info_responses[question_text] = answer
+            question_text = sanitize_key(question.get('question', f"Question {index}"))
             
+            if question['type'] == 'group':
+                # Capture range and text input for the grouped question
+                score = request.form.get(f'phase_2_score_{index}')
+                comments = request.form.get(f'phase_2_comments_{index}')
+                
+                # Log to console for debugging
+                print(f"Received score: {score}, comments: {comments} for question {index}")
+                
+                personal_info_responses[question_text] = {
+                    'score': score if score else None,  # Default to None if score is empty
+                    'comments': comments if comments else None  # Default to None if comments are empty
+                }
+            else:
+                # Capture other question types normally
+                answer = request.form.get(f'question_{index}')
+                
+                # Log to console for debugging
+                print(f"Received answer: {answer} for question {index}")
+                
+                personal_info_responses[question_text] = answer if answer else None  # Default to None if answer is empty
+            
+        # Update user data
         user_data['personal_info_phase_2_completed'] = True
         user_data['personal_info_responses_phase_2'] = personal_info_responses
+        
+        # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
+        
         # Call the agent to process the personal info responses
         call_phase2_agent(user_data['personal_info_responses_phase_2'], api_key, file_path)
+        
         return redirect(url_for('personal_info_phase_3'))
 
     return render_template('personal_info_phase_2.html', questions=personal_info_questions_phase_2)
+
+
     
 @app.route('/personal_info_phase_3', methods=['GET', 'POST'])
 @login_required
 def personal_info_phase_3():
     user_data = get_user()
     
-    # Check if personal info phase 3 is already completed
+    # Redirect to phase 3 if phase 2 is already completed
     if user_data.get('personal_info_phase_3_completed', False):
         return redirect(url_for('treatment'))
     
     if request.method == 'POST':
         personal_info_responses = {}
-        # Map form data to questions
+        
         for index, question in enumerate(personal_info_questions_phase_3, start=1):
-            question_text = question.get('question', f"Question {index}")
-            answer = request.form.get(str(index))
-            personal_info_responses[question_text] = answer
+            question_text = sanitize_key(question.get('question', f"Question {index}"))
             
+            if question['type'] == 'group':
+                # Capture range and text input for the grouped question
+                score = request.form.get(f'phase_3_score_{index}')
+                comments = request.form.get(f'phase_3_comments_{index}')
+                
+                # Log to console for debugging
+                print(f"Received score: {score}, comments: {comments} for question {index}")
+                
+                personal_info_responses[question_text] = {
+                    'score': score if score else None,  # Default to None if score is empty
+                    'comments': comments if comments else None  # Default to None if comments are empty
+                }
+            else:
+                # Capture other question types normally
+                answer = request.form.get(f'question_{index}')
+                
+                # Log to console for debugging
+                print(f"Received answer: {answer} for question {index}")
+                
+                personal_info_responses[question_text] = answer if answer else None  # Default to None if answer is empty
+            
+        # Update user data
         user_data['personal_info_phase_3_completed'] = True
         user_data['personal_info_responses_phase_3'] = personal_info_responses
+        
+        # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
+        
         # Call the agent to process the personal info responses
         call_phase3_agent(user_data['personal_info_responses_phase_3'], api_key, file_path)
+        
         return redirect(url_for('treatment'))
 
     return render_template('personal_info_phase_3.html', questions=personal_info_questions_phase_3)
+
+
+
 
 # ManagerAgent class for handling interactions between user and CrewAI
 class ManagerAgent:
