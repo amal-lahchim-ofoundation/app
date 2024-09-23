@@ -24,7 +24,7 @@ import pycountry
 from datetime import datetime
 import random
 from personal_info import personal_info_questions_phase_1, personal_info_questions_phase_2, personal_info_questions_phase_3
-
+from phase1_agent import Phase1Agent
 from personal_insight import personal_insights_questions
 app = Flask(__name__, static_folder='static')  #creates a Flask web application object named app. It's a fundamental step in setting up a Flask web application
 app.secret_key = 'your_secret_key_here'
@@ -285,7 +285,7 @@ def personal_info_phase_1():
         USERS_REF.child(session['random_key']).set(user_data)
         
         # Call the agent to process the personal info responses
-        call_phase1_agent(user_data['personal_info_responses_phase_1'], api_key, file_path)
+        call_phase1_agent(user_data['personal_info_responses_phase_1'])
         
         return redirect(url_for('personal_info_phase_2'))
 
@@ -637,23 +637,20 @@ def call_phase2_agent(data, api_key, docx_path):
     # print("Manager agent calling Personal Info agent >> Prompt:\n", prompt)
     print('--------------------------------')
     print("Personal Info Agent Analysis:\nReport >>", result)
-def call_phase1_agent(data, api_key, docx_path):
-    # # Instantiate the ManagerAgent
-    # manager_agent = ManagerAgent(api_key)
     
-    # # Generate the analysis prompt
-    # prompt = manager_agent.generate_analysis_prompt(data)
+def call_phase1_agent(data):
+    # Instantiate the Phase1Agent
+    phase1_agent = Phase1Agent()
     
-    # # Pass the prompt to the PersonalInfoAIAgent and get the result
-    # result = manager_agent.pass_to_personal_info_agent(prompt)
-    
-    # Log or save the result
+    # Log the user's responses
     print("Personal Info PHASE 1 >> User's responses:\n", data)
     print('--------------------------------')
-    # print("Manager agent calling Personal Info agent >> Prompt:\n", prompt)
-    print('--------------------------------')
-    print("Personal Info Agent Analysis:\nReport >>", result)
-
+    
+    # Call the process_user_response method to generate the report
+    report = phase1_agent.process_user_response(data)
+    
+    # Print the report
+    print("Personal Info Agent Analysis:\nReport >>", report)
 ###########################################Personal insights Page ########################################
 insight_file_path=""
 @app.route('/personal_insights', methods=['GET', 'POST'])

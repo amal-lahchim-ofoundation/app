@@ -1890,6 +1890,7 @@ output {
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow effect on hover */
   transform: translateY(-5px); /* Slight upward movement */
   transition: background-color 0.3s ease, border-color 0.5s ease, box-shadow 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+  
 }
 
 .slider-interpretation {
@@ -1897,6 +1898,27 @@ output {
   font-weight: 400;
   font-style: normal;
   transition: all 0.3s ease 0.2s;
-
+ 
 }
 
+
+.question {
+  background:
+   linear-gradient(
+      to right,
+      rgba(240, 240, 240, 1), /* Light Gray (almost white) */
+      rgba(220, 220, 220, 1)  /* Light Gray */
+    ),
+    linear-gradient(
+      to right,
+      rgba(220, 220, 220, 1), /* Light Gray */
+      rgba(173, 216, 230, 1)  /* Light Blue */
+    );
+  background-size: 100% 3px, 0 3px;
+  background-position: 100% 100%, 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 400ms;
+}
+.question:hover{
+  background-size: 0 3px, 100% 3px;
+}
