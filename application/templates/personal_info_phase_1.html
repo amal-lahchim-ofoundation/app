@@ -8,6 +8,9 @@
   <link href="{{ url_for('static', filename='assets/img/favicon.png') }}" rel="icon">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Petit+Formal+Script&family=Satisfy&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -55,6 +58,7 @@
                             <input type="range" min="0" max="100" value="0" class="slider" id="slider{{ loop.index }}" name="phase_1_score_{{ loop.index }}" oninput="updateOutput(this.value, {{ loop.index }})">
                             <output id="slider-output{{ loop.index }}">0</output>
                         </div>
+                        <div id="slider-interpretation{{ loop.index }}" class="slider-interpretation">Never</div>
                         <input type="text" name="phase_1_comments_{{ loop.index }}" placeholder="If this is an important topic related to your mental issue, please write more (optional)." class="form-control mt-2">
                     {% else %}
                         <input type="{{ item.type }}" name="question_{{ loop.index }}" class="form-control" placeholder="{{ item.placeholder | default('If this is an important topic related to your mental issue, please write more (optional).') }}" required>
@@ -82,6 +86,26 @@
   <script>
     function updateOutput(value, index) {
       document.getElementById('slider-output' + index).value = value;
+      const interpretationElement = document.getElementById(`slider-interpretation${index}`);
+      let interpretation;
+      value = parseInt(value); // Convert the value to an integer
+  
+      if (value >= 80) {
+        interpretation = "Very Frequently";
+    } else if (value >= 60) {
+        interpretation = "Frequently";
+    } else if (value >= 40) {
+        interpretation = "Occasionally";
+    } else if (value >= 20) {
+        interpretation = "Rarely";
+    } else {
+        interpretation = "Never"; 
+    }
+    
+  
+      // Update the interpretation text
+      interpretationElement.textContent = interpretation;
+  
     }
 
     document.addEventListener('DOMContentLoaded', function () {

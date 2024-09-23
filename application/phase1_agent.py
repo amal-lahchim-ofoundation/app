@@ -1,48 +1,12 @@
-import pycountry
 import requests
-from bs4 import BeautifulSoup
-from langchain.chat_models import ChatOpenAI
-from langchain.memory import ConversationBufferMemory
-from langchain.agents import create_structured_chat_agent, AgentExecutor
-from langchain.prompts import SystemMessage, AIMessage, HumanMessage
 
 class Phase1Agent:
     def __init__(self, api_key, search_engine_id):
         self.api_key = api_key
         self.search_engine_id = search_engine_id
-        self.llm = ChatOpenAI(model="gpt-4")
-        self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-        self.agent, self.agent_executor = self.create_agent()
-
-    def create_agent(self):
-        # Define tools
-        tools = [
-            Tool(
-                name="Online Search",
-                func=self.search_online,
-                description="Searches the web using Google Custom Search API.",
-            ),
-        ]
-        
-        # Load the correct JSON Chat Prompt from the hub
-        prompt = hub.pull("hwchase17/structured-chat-agent")
-        
-        # Create the structured chat agent
-        agent = create_structured_chat_agent(llm=self.llm, tools=tools, prompt=prompt)
-        
-        # Create an AgentExecutor with the agent and tools
-        agent_executor = AgentExecutor.from_agent_and_tools(
-            agent=agent,
-            tools=tools,
-            verbose=True,
-            memory=self.memory,
-            handle_parsing_errors=True,
-        )
-        
-        return agent, agent_executor
 
     def search_online(self, query):
-        """Searches online using Google Custom Search API and returns results."""
+        """Searches online using Google Custom Search API."""
         url = "https://www.googleapis.com/customsearch/v1"
         params = {
             'key': self.api_key,
@@ -62,60 +26,70 @@ class Phase1Agent:
 
         return "\n".join(search_data)
 
-    def collect_user_data(self):
-        """Collects user responses for Phase 1."""
-        questions = [
-            {"question": "What has led you to seek help at this particular moment?", "type": "text"},
-            {"question": "How would you summarize your biggest concerns or complaints in one or two sentences?", "type": "text"},
-            {"question": "What changes have you noticed in your life since these issues began?", "type": "text"},
-            {"question": "What thoughts and feelings frequently come up in relation to these issues?", "type": "text"},
-            {"question": "What do you believe is the cause of these problems?", "type": "text"},
-            {"question": "Are there specific situations, people, or places that make your symptoms worse or better?", "type": "text"},
-            {"question": "How have aspects of your daily life, such as work, relationships, or sleep, been affected by these issues?", "type": "text"},
-            {"question": "What have you tried so far to cope with these issues, and what were the results?", "type": "text"},
-            {"question": "Have you sought help for these issues before? If so, what did you take away from that experience?", "type": "text"},
-            {"question": "If you look back a year from now on this treatment, what would you like to have changed?", "type": "text"},
-            {"question": "What support or changes would you need to achieve these goals?", "type": "text"},
-            {"question": "Is there anything else you think I should know or understand to help you best?", "type": "text"},
-            {"question": "What is your age?", "type": "number"},
-            {"question": "What is your gender?", "type": "select", "options": ["Male", "Female", "Other"]},
-            {"question": "What is your nationality?", "type": "select", "options": [country.name for country in pycountry.countries]},
-            {"question": "What is your current country of residence?", "type": "select", "options": [country.name for country in pycountry.countries]},
-            {"question": "What cultural or ethnic background do you identify with? How does this influence your daily life?", "type": "text"},
-            {"question": "What is your marital status?", "type": "select", "options": ["Single", "Married", "Divorced", "Other"]},
-            {"question": "What is your education level?", "type": "select", "options": ["High School", "Bachelor's", "Master's", "Other"]},
-            {"question": "What is your employment status?", "type": "select", "options": ["Employed", "Unemployed", "Retired", "Other"]},
-            {"question": "What is your living situation?", "type": "select", "options": ["Alone", "With Family", "With Friends", "Other"]}
-        ]
-
-        user_responses = {}
-        for q in questions:
-            response = input(f"{q['question']}: ")
-            user_responses[q['question']] = response
+    def analyze_user_data(self, user_responses):
+        """Analyzes user responses and generates insights."""
+        analysis = {}
         
-        return user_responses
-
-    def analyze_and_report(self, user_responses):
-        """Analyzes user responses with collected data and generates a report."""
-        # Search online for mental health information based on user responses
-        search_queries = [response for response in user_responses.values() if response]
-        search_results = [self.search_online(query) for query in search_queries]
-        
-        # Combine results into a comprehensive report
-        report = "### Phase 1 Report\n\n"
-        report += "#### User Responses:\n"
+        # Analyze scores and comments
         for question, response in user_responses.items():
-            report += f"**{question}**: {response}\n"
+            if isinstance(response, dict):
+                score = response.get('score')
+                comment = response.get('comments')
+                analysis[question] = {
+                    "score": score,
+                    "comment": comment,
+                    "interpretation": self.interpret_score(score)
+                }
+            else:
+                analysis[question] = response
         
-        report += "\n#### Online Search Results:\n"
-        for result in search_results:
-            report += f"{result}\n"
-        
+        return analysis
+
+    def interpret_score(self, score):
+        """Interprets the score based on predefined thresholds."""
+        score = int(score)
+        if score >= 80:
+            return "Very Positive"
+        elif score >= 60:
+            return "Positive"
+        elif score >= 40:
+            return "Neutral"
+        elif score >= 20:
+            return "Negative"
+        else:
+            return "Very Negative"
+
+    def generate_report(self, analysis):
+        """Generates a report based on the analysis."""
+        report = "### Analysis Report\n\n"
+        for question, details in analysis.items():
+            if isinstance(details, dict):
+                report += f"**{question}**:\n"
+                report += f"  - Score: {details['score']}\n"
+                report += f"  - Comment: {details['comment']}\n"
+                report += f"  - Interpretation: {details['interpretation']}\n\n"
+            else:
+                report += f"**{question}**: {details}\n\n"
+
         return report
 
     def run(self):
         user_responses = self.collect_user_data()
-        report = self.analyze_and_report(user_responses)
+        analysis = self.analyze_user_data(user_responses)
+        
+        # Perform online searches based on user responses
+        search_results = []
+        for question in user_responses.keys():
+            if isinstance(user_responses[question], dict):
+                search_results.append(self.search_online(user_responses[question]['comments']))
+        
+        report = self.generate_report(analysis)
+        
+        # Append search results to the report
+        report += "\n### Online Search Results:\n"
+        for result in search_results:
+            report += f"{result}\n"
+
         print(report)
 
 # Example usage

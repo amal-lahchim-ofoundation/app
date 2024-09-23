@@ -537,7 +537,7 @@ from bs4 import BeautifulSoup
 #     prompt = hub.pull("hwchase17/structured-chat-agent")
     
 #     # Initialize a ChatOpenAI model
-#     llm = ChatOpenAI(model="gpt-4o")
+#     llm = ChatOpenAI(model="gpt-4o")§
     
 #     # Create a structured Chat Agent with Conversation Buffer Memory
 #     memory = ConversationBufferMemory(
