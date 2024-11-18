@@ -1,253 +1,299 @@
 import pycountry
 
 personal_info_questions_phase_1 = [
-    # PHASE 1
-{"question":"What is your age?", "type":"number", "placeholder":""},
-    {"question":"What is your gender?", "type":"select", "options":["Male", "Female", "Other"],"placeholder":""},
-    {"question": "What is your nationality?", "type": "select", "options": [country.name for country in pycountry.countries], "placeholder": "Select your nationality"},
-    {"question": "What is your current country of residence?", "type": "select", "options": [country.name for country in pycountry.countries], "placeholder": "Select your current country of residence"},
-    {"question":"What is your marital status?", "type":"select","options":["Single","Married","Divorced","Other"],"placeholder":""},
-    {"question":"What is your education level?", "type":"select", "options":["High School","Bachelor's, Master's","Other"], "placeholder":""},
-    {"question":"What is your employment status?", "type":"select", "options":["Employed","Unemployed","Retired","Other"],"placeholder":""},
-    {"question":"what is your living situation?","type":"select","options":["Alone","With Family","With Friends","Other"],"placeholder":""},
-    
-    {"question":"What cultural or ethnic background do you identify with? How does this influence your daily life?", "type":"text","placeholder":"If this is an important topic related to your mental issue, please write more (optional)."},
-    
     {
-        "question": "To what extent do you believe your early childhood experiences influence your current mental health?",
-        "type": "group",
-        "inputs": [
+        "topic": "Background",
+        "questions": [
             {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "childhood_influence_score"
+                "question":"What is your age?",
+                "info_type": "age",
+                "type":"number",
+                "placeholder":""
             },
             {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "childhood_influence_comments"
-            }
+                "question":"What is your gender?",
+                "info_type": "gender",
+                "type":"select",
+                "options":["Male", "Female", "Other"],
+                "placeholder":""
+            },
+            {
+                "question": "What is your nationality?",
+                "info_type": "nationality",
+                "type": "select",
+                "options": [country.name for country in pycountry.countries],
+                "placeholder": "Select your nationality"
+            },
+            {
+                "question": "What is your current country of residence?",
+                "info_type": "country of residence",
+                "type": "select",
+                "options": [country.name for country in pycountry.countries],
+                "placeholder": "Select your current country of residence"
+            },
+            {
+                "question":"What is your marital/relationship status?",
+                "info_type": "marital status",
+                "type":"select",
+                "options":["Single","Married","Divorced","Other"],
+                "placeholder":""
+            },
+			{
+				"question":"What is your education level?",
+				"info_type": "education level",
+				"type":"select",
+				"options":["High School","Bachelor's, Master's","Other"],
+				"placeholder":""
+			},
+		    {
+		        "question":"What is your employment status?",
+		        "info_type": "employment status",
+		        "type":"select",
+		        "options":["Employed","Unemployed","Retired","Other"],
+		        "placeholder":""
+	        },
         ]
     },
     {
-        "question": "How often do you reflect on your childhood when thinking about your current mental health challenges?",
-        "type": "group",
-        "inputs": [
+        "topic": "Developmental History",
+        "questions": [
             {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "reflection_frequency_score"
+                "question": "To what extent do you believe your early childhood experiences influence your current mental health?",
+                "info_type": "extent of belief in the influence of early childhood experiences on current mental health",
+                "type": "group",
             },
             {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "reflection_frequency_comments"
-            }
+                "question": "How often do you reflect on your childhood when thinking about your current mental health challenges?",
+                "info_type": "frequency of reflecting childhood when thinking about current mental health challenges",
+                "type": "group",
+            },
+            {
+                "question": "To what degree do you feel your developmental milestones were met in a typical or healthy way?",
+                "info_type": "extent of belief that developmental milestones were met in a typical or healthy way",
+                "type": "group",
+            },
+            {
+                "question": "To what extent do you believe unresolved issues from your childhood affect your relationships today?",
+                "info_type": "extent of belief that unresolved issues from childhood affect relationships today",
+                "type": "group",
+            },
+            {
+                "question": "How often do memories of your childhood evoke strong emotions in you today?",
+                "info_type": "frequency of memories of childhood evoking strong emotions today",
+                "type": "group",
+            },
         ]
     },
     {
-        "question": "To what extent do you feel your developmental milestones were met in a typical or healthy way?",
-        "type": "group",
-        "inputs": [
+        "topic": "Motivation and Readiness for Change",
+        "questions": [
             {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "milestones_score"
+                "question": "How motivated are you to make changes in your life to improve your mental health?",
+                "info_type": "extent of feeling motivated to make changes in life to improve mental health",
+                "type": "group",
             },
             {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "milestones_comments"
-            }
+                "question": "To what extent do you believe you have the ability to make the changes necessary for your well-being?",
+                "info_type": "extent of belief in having the ability to make the changes necessary for well-being",
+                "type": "group",
+            },
+            {
+                "question": "How ready do you feel to engage fully in therapy and the work it requires?",
+                "info_type": "extent of readiness to engage fully in therapy and the work it requires",
+                "type": "group",
+            },
+            {
+                "question": "How much do you believe that change is possible for you at this time?",
+                "info_type": "extent of belief that change is possible at this time",
+                "type": "group",
+            },
+            {
+                "question": "To what degree do you feel supported by others in your efforts to make changes?",
+                "info_type": "extent of feeling supported by others in efforts to make changes",
+                "type": "group",
+            },
         ]
     },
     {
-        "question": "To what extent do you believe unresolved issues from your childhood affect your relationships today?",
-        "type": "group",
-        "inputs": [
+        "topic": "Substance Use (Drugs and Alcohol)",
+        "questions": [
             {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "unresolved_issues_score"
+                "question": "How frequently do you use substances (e.g., drugs, alcohol) to cope with stress or emotions?",
+                "info_type": "frequency of using substances (e.g., drugs, alcohol) to cope with stress or emotions",
+                "type": "group",
             },
             {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "unresolved_issues_comments"
-            }
+                "question": "To what extent do you feel your substance use affects your mental health?",
+                "info_type": "extent of belief in affection of substance use on mental health",
+                "type": "group",
+            },
+            {
+                "question": "How much control do you feel you have over your substance use?",
+                "info_type": "extent of control over substance use",
+                "type": "group",
+            },
+            {
+                "question": "How often do you worry about the impact of your substance use on your overall health?",
+                "info_type": "frequency of worrying about the impact of substance use on overall health",
+                "type": "group",
+            },
+            {
+                "question": "To what degree do you believe you could reduce or stop your substance use if you wanted to?",
+                "info_type": "extent of belief in ability to reduce or stop substance use if wanted to ",
+                "type": "group",
+            },
         ]
     },
     {
-        "question": "To what extent do memories of your childhood evoke strong emotions in you today?",
-        "type": "group",
-        "inputs": [
+        "topic": "Current Life Stressors",
+        "questions": [
             {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "memories_score"
+                "question": "How much are current financial difficulties impacting your mental health?",
+                "info_type": "extent of impact of current financial difficulties on mental health",
+                "type": "group",
             },
             {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "memories_comments"
-            }
+                "question": "To what extent do work pressures or responsibilities contribute to your stress levels?",
+                "info_type": "extent of contribution of work pressures or responsibilities to stress levels",
+                "type": "group",
+            },
+            {
+                "question": "How much do family responsibilities (e.g., caregiving, parenting) contribute to your current stress?",
+                "info_type": "extent of contribution of family responsibilities to  current stress",
+                "type": "group",
+            },
+            {
+                "question": "To what extent are major life changes (e.g., moving, divorce, job loss) affecting your mental well-being?",
+                "info_type": "extent of affection of major life changes (e.g., moving, divorce, job loss) on mental well-being",
+                "type": "group",
+            },
+            {
+                "question": "How often do you feel overwhelmed by the stressors in your life?",
+                "info_type": "frequency of feeling overwhelmed by the stressors in life",
+                "type": "group",
+            },
         ]
     },
     {
-        "question": "To what extent are you motivated to make changes in your life to improve your mental health?",
-        "type": "group",
-        "inputs": [
+        "topic": "Trauma and Past Experiences",
+        "questions": [
             {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "motivation_score"
+                "question": "How much do past traumatic experiences influence your current mental health?",
+                "info_type": "extent of influence of past traumatic experiences on current mental health",
+                "type": "group",
             },
             {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "motivation_comments"
-            }
+                "question": "To what extent do you feel you have processed and healed from past traumas?",
+                "info_type": "extent of feeling that being healed from past traumas",
+                "type": "group",
+            },
+            {
+                "question": "How often do memories of past traumatic events disrupt your daily life?",
+                "info_type": "frequency that memories of past traumatic events disrupt daily life",
+                "type": "group",
+            },
+            {
+                "question": "To what degree do you avoid situations or people that remind you of past traumas?",
+                "info_type": "degree of avoiding situations or people that remind past traumas",
+                "type": "group",
+            },
+            {
+                "question": "How much support have you received in addressing your past experiences?",
+                "info_type": "degree of support received in addressing past experiences",
+                "type": "group",
+            },
         ]
     },
     {
-        "question": "To what extent do you believe in your ability to make the changes necessary for your well-being?",
-        "type": "group",
-        "inputs": [
+        "topic": "Cognitive and Emotional Patterns",
+        "questions": [
             {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "ability_score"
+                "question": "How frequently do you experience negative or self-critical thoughts?",
+                "info_type": "frequency of experiencing negative or self-critical thoughts",
+                "type": "group",
             },
             {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "ability_comments"
-            }
+                "question": "To what extent do you struggle with perfectionism in your daily life?",
+                "info_type": "extent of struggling with perfectionism in daily life",
+                "type": "group",
+            },
+            {
+                "question": "How often do you find yourself ruminating on past events or worries?",
+                "info_type": "frequency of ruminating on past events or worries",
+                "type": "group",
+            },
+            {
+                "question": "How well do you feel you manage intense emotions when they arise?",
+                "info_type": "degree of ability to manage intense emotions when they arise",
+                "type": "group",
+            },
+            {
+	            "question": "To what extent do your emotions feel stable and manageable throughout the day?",
+	            "info_type": "degree of feeling stable and manageable throughout the day",
+	            "type": "group",
+	        },
         ]
     },
     {
-        "question": "To what extent do you feel ready to engage fully in therapy and the work it requires?",
-        "type": "group",
-        "inputs": [
+        "topic": "Cultural Background and Influences",
+        "questions": [
             {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "therapy_readiness_score"
+                "question": "How much does your cultural background influence your view on mental health?",
+                "info_type": "degree of influence of cultural background on view on mental health",
+                "type": "group",
             },
             {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "therapy_readiness_comments"
-            }
+                "question": "To what extent do you feel your cultural background impacts your willingness to seek help for mental health issues?",
+                "info_type": "degree of impact of cultural background on willingness to seek help for mental health issues",
+                "type": "group",
+            },
+            {
+                "question": "How aligned do you feel your cultural values are with the mental health treatment you are receiving or considering?",
+                "info_type": "degree of alignment of cultural values with the mental health treatment receiving or considering",
+                "type": "group",
+            },
+            {
+                "question": "To what degree do you feel understood and respected by mental health professionals regarding your cultural background?",
+                "info_type": "degree of feeling understood and respected by mental health professionals regarding cultural background",
+                "type": "group",
+            },
+			{
+                "question": "How much do you feel your cultural background has equipped you with effective coping strategies for dealing with stress?",
+                "info_type": "degree of effective coping strategies for dealing with stress being equipped by cultural background",
+                "type": "group",
+            },
         ]
     },
     {
-        "question": "To what extent do you believe that change is possible for you at this time?",
-        "type": "group",
-        "inputs": [
-            {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "change_possibility_score"
+        "topic": "Sleep and Rest Patterns",
+        "questions": [
+			{
+                "question": "How satisfied are you with the quality of your sleep on a regular basis?",
+                "info_type": "degree of satisfaction with the quality of sleep on a regular basis",
+                "type": "group",
             },
-            {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "change_possibility_comments"
-            }
-        ]
-    },
-    {
-        "question": "To what degree do you feel supported by others in your efforts to make changes?",
-        "type": "group",
-        "inputs": [
-            {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "support_degree_score"
+			{
+                "question": "To what extent do you struggle with falling asleep or staying asleep?",
+                "info_type": "degree of struggling with with falling asleep or staying asleep",
+                "type": "group",
             },
-            {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "support_degree_comments"
-            }
-        ]
-    },
-    {
-        "question": "How frequently do you use substances (e.g., drugs, alcohol) to cope with stress or emotions?",
-        "type": "group",
-        "inputs": [
-            {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "substance_use_frequency_score"
+			{
+                "question": "How often do you wake up feeling rested and refreshed?",
+                "info_type": "frequency of waking up feeling rested and refreshed",
+                "type": "group",
             },
-            {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "substance_use_frequency_comments"
-            }
-        ]
-    },
-    {
-        "question": "To what extent do you feel your substance use affects your mental health?",
-        "type": "group",
-        "inputs": [
-            {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "substance_effect_score"
+			{
+                "question": "How much do sleep disturbances affect your mood and ability to function during the day?",
+                "info_type": "degree of affection of sleep disturbances on mood and ability to function during the day",
+                "type": "group",
             },
-            {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "substance_effect_comments"
-            }
-        ]
-    },
-    {
-        "question": "How much control do you feel you have over your substance use?",
-        "type": "group",
-        "inputs": [
-            {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "substance_control_score"
+			{
+                "question": "To what degree do you use sleep aids or other methods to help you sleep?",
+                "info_type": "degree of using sleep aids or other methods to help sleep",
+                "type": "group",
             },
-            {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "substance_control_comments"
-            }
         ]
     }
-
 ]
 
 
