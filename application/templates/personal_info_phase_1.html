@@ -13,13 +13,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Petit+Formal+Script&family=Satisfy&display=swap" rel="stylesheet">
 </head>
 
-<body>
-  <header id="header" class="fixed-top d-flex align-items-center">
+<body class="ph1-body ph1-font">
+  <header id="header" class="fixed-top top-0 d-flex align-items-center py-2 shadow">
     {% if session['user_logged_in'] %}
-      <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+      <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
+        <div class="d-flex">
+          <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
           <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
-          <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
+        </div>
+        <div class="d-flex">
           <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatment</a>
+          <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
+        </div>
       </div>
     {% else %}
       <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
@@ -29,20 +34,27 @@
     {% endif %}
   </header>
 
-  <main id="main">
-    <section class="inner-page">
-      <div class="container position-relative text-center text-lg-start">
-        <h1>Begin with <span>Personal Information</span></h1>
-        <h3>Please fill out the following details to continue.</h3>
-        <h3>PHASE 1</h3>
+  <main id="main" class="mt-5">
+    <section class="container-fluid p-0 pt-5">
+      <div class="row pt-5">
+        <div class="col-1"></div>
+        <div class="col-6 text-xs">
+          <h1 class="text-sm">Begin with Personal Information</h1>
+          <h5 class="ph1-h5">Please fill out the following details to continue.</h5>
+        </div>
+        <div class="col-5">
+          <div class="image-container">
+            <div class="text-overlay">PHASE 1</div>
+            <img src="{{ url_for('static', filename='../static/assets/img/Vector 1.png') }}" alt="banner" class="right-image"/>
+          </div>
+        </div>
       </div>
     </section>
-    <section class="inner-page">
-      <div class="container">
+    <section class="container">
         <form action="/personal_info_phase_1" method="post">
             {% for topic in questions %}
                 {% for item in topic.questions %}
-                    <div class="mb-4 rounded-section p-3 mb-2 question">
+                    <div class="mb-4 rounded-section p-3 mb-2 question border">
                         <!--<span class="question-number">{{ loop.index }}</span>-->
                         <label class="form-label p-2">{{ item.question }}</label>
                         {% if item.type == 'select' %}
@@ -68,20 +80,16 @@
                 {% endfor %}
             {% endfor %}
             <button type="submit" class="btn btn-primary" id="submit-btn">
-                Submit <span id="spinner" class="spinner-border spinner-border-sm" style="display:none;"></span>
+                Next <span id="spinner" class="spinner-border spinner-border-sm" style="display:none;"></span>
             </button>
         </form>
-        
-        
-        
-        
+
         <script>
         function updateOutput(value, index) {
-            document.getElementById('slider-output' + index).value = value;
+            document.getElementById('slider-output' + index).textContent = value;
         }
         </script>
         
-      </div>
     </section>
   </main>
 
