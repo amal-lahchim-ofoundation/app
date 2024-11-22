@@ -356,103 +356,37 @@ personal_info_questions_phase_1 = [
 # ]
 
 personal_info_questions_phase_3 = [
-    {
+  {
+    "topic": "Life Satisfaction and Quality of Life",
+    "questions": [
+      {
         "question": "How satisfied are you with your overall quality of life right now?",
 				"info_type": "satisfaction with overall quality of life",
         "type": "group",
-        "inputs": [
-            {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "quality_of_life_score"
-            },
-            {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "quality_of_life_comments"
-            }
-        ]
-    },
-    {
+    	},
+    	{
         "question": "To what extent do you feel your life is meaningful and fulfilling?",
         "info_type": "extent of feeling life is meaningful and fulfilling",
         "type": "group",
-        "inputs": [
-            {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "life_meaning_score"
-            },
-            {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "life_meaning_comments"
-            }
-        ]
-    },
-    {
+    	},
+    	{
         "question": "How satisfied are you with your current level of physical health and well-being?",
         "info_type": "satisfaction with current level of physical health and well-being",
         "type": "group",
-        "inputs": [
-            {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "physical_health_score"
-            },
-            {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "physical_health_comments"
-            }
-        ]
-    },
-    {
+    	},
+    	{
         "question": "To what extent do you feel your mental health impacts your overall life satisfaction?",
         "info_type": "extent of feeling mental health impacts overall life satisfaction",
         "type": "group",
-        "inputs": [
-            {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "mental_health_impact_score"
-            },
-            {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "mental_health_impact_comments"
-            }
-        ]
-    },
-    {
-        "question": "How much enjoyment do you get from the activities and hobbies you engage in?",
-        "info_type": "enjoyment from activities and hobbies",
-        "type": "group",
-        "inputs": [
-            {
-                "type": "range",
-                "min": 1,
-                "max": 100,
-                "step": 1,
-                "name": "activities_enjoyment_score"
-            },
-            {
-                "type": "text",
-                "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-                "name": "activities_enjoyment_comments"
-            }
-        ]
-    }
+    	},
+    	{
+      	"question": "How much enjoyment do you get from the activities and hobbies you engage in?",
+      	"info_type": "enjoyment from activities and hobbies",
+      	"type": "group",
+    	},
+		],
+	},
 ]
-
 
 personal_info_questions_phase_2 = [
 	{
@@ -482,20 +416,6 @@ personal_info_questions_phase_2 = [
     		"question": "To what degree do your relationships provide you with a sense of belonging and connection?",
         "info_type": "degree of relationships providing you with a sense of belonging and connection",
     	  "type": "group",
-        "inputs": [
-          {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "belonging_score"
-          },
-          {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "belonging_comments"
-          }
-       ]
       },
     ]
   },
@@ -506,96 +426,27 @@ personal_info_questions_phase_2 = [
       	"question": "How much are legal or financial issues causing you stress right now?",
       	"info_type": "extent of legal or financial issues causing stress",
       	"type": "group",
-        "inputs": [
-        	{
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "legal_financial_stress_score"
-        	},
-        	{
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "legal_financial_stress_comments"
-        	},
-    		],
 			},
       {
         "question": "To what extent do financial concerns affect your ability to focus on other areas of your life?",
         "info_type": "extent of financial concerns affecting ability to focus on other areas of life",
     		"type": "group",
-    		"inputs": [
-        	{
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "financial_concerns_score"
-        	},
-        	{
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "financial_concerns_comments"
-        	}
-    		]
 			},
       {
     		"question": "How well do you feel you are managing your current legal or financial issues?",
 				"info_type": "extent of feeling managing current legal or financial issues",
     		"type": "group",
-    		"inputs": [
-        	{
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "management_score"
-        	},
-        	{
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "management_comments"
-        	}
-    		]
+
 			},
       {
     		"question": "To what degree do you feel supported by others in dealing with your legal or financial problems?",
 				"info_type": "degree of feeling supported by others in dealing with legal or financial problems",
     		"type": "group",
-    		"inputs": [
-        	{
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "support_score"
-        	},
-        	{
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "support_comments"
-        	}
-    		]
 			},
       {
     		"question": "How often do you worry about your financial or legal future?",
 				"info_type": "frequency of worrying about financial or legal future",
     		"type": "group",
-    		"inputs": [
-        	{
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "worry_frequency_score"
-        	},
-        	{
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "worry_frequency_comments"
-        	}
-    		]
 			},
     ],      
 	},
@@ -606,96 +457,26 @@ personal_info_questions_phase_2 = [
 				"question": "How satisfied are you with your current eating habits?",
 				"info_type": "satisfaction with current eating habits",
 				"type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "eating_habits_score"
-					},
-					{
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "eating_habits_comments"
-					}
-				]
 			},
       {
         "question": "To what extent do you believe your diet affects your mental health?",
         "info_type": "extent of belief that diet affects mental health",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-            "name": "diet_effect_score"
-					},
-					{
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "diet_effect_comments"
-					}
-				]
 			},
       {
         "question": "How often do you engage in disordered eating behaviors (e.g., overeating, restricting food)?",
         "info_type": "frequency of disordered eating behaviors",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "eating_behaviors_score"
-					},
-					{
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "eating_behaviors_comments"
-					}
-				]
 			},
       {
         "question": "To what degree do you feel knowledgeable about nutrition and its impact on your health?",
         "info_type": "degree of knowledge about nutrition and its impact on health",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-            "step": 1,
-            "name": "nutrition_knowledge_score"
-					},
-					{
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "nutrition_knowledge_comments"
-					}
-				],
 			},
       {
         "question": "How much control do you feel you have over your eating habits?",
         "info_type": "extent of control over eating habits",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "eating_control_score"
-					},
-          {
-            "type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "eating_control_comments"
-					}
-				],
 			},
 		],
 	},
@@ -706,129 +487,36 @@ personal_info_questions_phase_2 = [
 				"question": "How satisfied are you with your overall physical health at the moment?",
 				"info_type": "satisfaction with overall physical health",
 				"type": "group",
-				"inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "physical_health_score"
-					},
-					{
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "physical_health_comments"
-					}
-				]
 			},
       {
         "question": "How much do physical health issues (e.g., chronic illness, pain) impact your daily mental well-being?",
         "info_type": "impact of physical health issues on daily mental well-being",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-            "name": "physical_health_impact_score"
-					},
-				],
 			},
       {
         "question": "To what extent do sleep disturbances (e.g., insomnia, poor sleep quality) affect your mood and energy levels?",
         "info_type": "extent of sleep disturbances affecting mood and energy levels",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "sleep_disturbances_score"
-					},
-          {
-            "type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "sleep_disturbances_comments"
-					}
-				],
 			},
       {
         "question": "How well do you feel you manage the side effects of any medications you are currently taking?",
         "info_type": "ability to manage side effects of medications",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "medication_side_effects_score"
-					},
-					{
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "medication_side_effects_comments"
-					}
-				],
 			},
       {
         "question": "How well do you feel you manage the side effects of any medications you are currently taking?",
         "info_type": "ability to manage side effects of medications",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "medication_side_effects_score"
-					},
-					{
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "medication_side_effects_comments"
-					},
-				],
 			},
       {
         "question": "To what extent do you believe your physical health and mental health are interconnected?",
         "info_type": "belief in the interconnectedness of physical and mental health",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "health_interconnectedness_score"
-					},
-          {
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "health_interconnectedness_comments"
-					},
-				],
 			},
       {
         "question": "How often do you engage in activities that promote your physical health (e.g., exercise, healthy eating)?",
         "info_type": "frequency of engaging in activities promoting physical health",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "physical_health_activities_score"
-					},
-					{
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "physical_health_activities_comments"
-					},
-				],
 			},
 		],     
 	},
@@ -839,516 +527,27 @@ personal_info_questions_phase_2 = [
         "question": "How well do you feel you are performing in your academic or occupational role?",
         "info_type": "performance in academic or occupational role",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "performance_score"
-					},
-					{
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "performance_comments"
-					}
-				],
 			},
       {
         "question": "To what extent do stress or mental health issues interfere with your academic or occupational functioning?",
         "info_type": "interference of stress or mental health issues with academic or occupational functioning",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "functioning_interference_score"
-					},
-					{
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "functioning_interference_comments"
-					}
-				],
 			},
 			{
 				"question": "How satisfied are you with your current academic or occupational achievements?",
 				"info_type": "satisfaction with academic or occupational achievements",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "achievements_satisfaction_score"
-					},
-					{
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "achievements_satisfaction_comments"
-					}
-				],
 			},
       {
         "question": "How much support do you feel you have in your academic or occupational environment?",
         "info_type": "support in academic or occupational environment",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "environment_support_score"
-					},
-					{
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "environment_support_comments"
-					},
-				],
 			},
       {
         "question": "To what degree do you feel your mental health affects your ability to progress in your academic or occupational goals?",
         "info_type": "impact of mental health on academic or occupational goals",
         "type": "group",
-        "inputs": [
-					{
-						"type": "range",
-						"min": 1,
-						"max": 100,
-						"step": 1,
-						"name": "progress_impact_score"
-					},
-					{
-						"type": "text",
-						"placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-						"name": "progress_impact_comments"
-					},
-				],
 			},
 		],
-    # "inputs": [
-    #     {
-    #         "type": "range",
-    #         "min": 1,
-    #         "max": 100,
-    #         "step": 1,
-    #         "name": "relationship_quality_score"
-    #     },
-    #     {
-    #         "type": "text",
-    #         "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-    #         "name": "relationship_quality_comments"
-    #     }
-    # ]
-},
-{
-    "question": "To what extent do you feel supported by those close to you?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "support_level_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "support_level_comments"
-        }
-    ]
-},
-{
-    "question": "How much conflict or tension do you experience in your close relationships?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "relationship_conflict_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "relationship_conflict_comments"
-        }
-    ]
-},
-{
-    "question": "How well do you feel you can communicate your needs and feelings to those around you?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "communication_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "communication_comments"
-        }
-    ]
-},
-{
-    "question": "To what degree do your relationships provide you with a sense of belonging and connection?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "belonging_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "belonging_comments"
-        }
-    ]
-},
-{
-    "question": "How much are legal or financial issues causing you stress right now?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "legal_financial_stress_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "legal_financial_stress_comments"
-        }
-    ]
-},
-{
-    "question": "To what extent do financial concerns affect your ability to focus on other areas of your life?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "financial_concerns_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "financial_concerns_comments"
-        }
-    ]
-},
-
-
-{
-    "question": "How often do you worry about your financial or legal future?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "worry_frequency_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "worry_frequency_comments"
-        }
-    ]
-},
-{
-    "question": "How satisfied are you with your current eating habits?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "eating_habits_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "eating_habits_comments"
-        }
-    ]
-},
-{
-    "question": "To what extent do you believe your diet affects your mental health?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "diet_effect_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "diet_effect_comments"
-        }
-    ]
-},
-{
-    "question": "How often do you engage in disordered eating behaviors (e.g., overeating, restricting food)?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "disordered_eating_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "disordered_eating_comments"
-        }
-    ]
-},
-{
-    "question": "To what degree do you feel knowledgeable about nutrition and its impact on your health?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "nutrition_knowledge_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "nutrition_knowledge_comments"
-        }
-    ]
-},
-{
-    "question": "How much control do you feel you have over your eating habits?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "eating_control_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "eating_control_comments"
-        }
-    ]
-},
-{
-    "question": "How much do physical health issues (e.g., chronic illness, pain) impact your daily mental well-being?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "physical_health_impact_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "physical_health_impact_comments"
-        }
-    ]
-},
-{
-    "question": "To what extent do sleep disturbances (e.g., insomnia, poor sleep quality) affect your mood and energy levels?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "sleep_impact_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "sleep_impact_comments"
-        }
-    ]
-},
-{
-    "question": "How well do you feel you manage the side effects of any medications you are currently taking?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "medication_management_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "medication_management_comments"
-        }
-    ]
-},
-{
-    "question": "To what extent do you believe your physical health and mental health are interconnected?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "health_interconnection_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "health_interconnection_comments"
-        }
-    ]
-},
-{
-    "question": "How often do you engage in activities that promote your physical health (e.g., exercise, healthy eating)?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "physical_health_activity_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "physical_health_activity_comments"
-        }
-    ]
-},
-{
-    "question": "How well do you feel you are performing in your academic or occupational role?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "performance_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "performance_comments"
-        }
-    ]
-},
-{
-  "question": "To what extent do stress or mental health issues interfere with your academic or occupational functioning?",
-  "type": "group",
-  "inputs": [
-    {
-      "type": "range",
-      "min": 1,
-      "max": 100,
-      "step": 1,
-      "name": "interference_score"
-    },
-    {
-      "type": "text",
-      "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-      "name": "interference_comments"
-    }
-  ]
-},
-{
-    "question": "How satisfied are you with your current academic or occupational achievements?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "achievement_satisfaction_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "achievement_satisfaction_comments"
-        }
-    ]
-},
-{
-    "question": "How much support do you feel you have in your academic or occupational environment?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "support_environment_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "support_environment_comments"
-        }
-    ]
-},
-{
-    "question": "To what degree do you feel your mental health affects your ability to progress in your academic or occupational goals?",
-    "type": "group",
-    "inputs": [
-        {
-            "type": "range",
-            "min": 1,
-            "max": 100,
-            "step": 1,
-            "name": "progress_impact_score"
-        },
-        {
-            "type": "text",
-            "placeholder": "If this is an important topic related to your mental issue, please write more (optional).",
-            "name": "progress_impact_comments"
-        }
-    ]
-}
-
-
-
-
-
-
-
+	},
 ]

@@ -44,8 +44,6 @@ def home():
 
 ################################################### Firebase ####################################################################
 
-
-
 # Initialize Firebase
 cred = credentials.Certificate(os.getenv('FIREBASE_DATABASE_CERTIFICATE'))
 firebase_admin.initialize_app(cred, {
@@ -317,28 +315,32 @@ def personal_info_phase_2():
         personal_info_responses = {}
 
         for index, question in enumerate(personal_info_questions_phase_2, start=1):
-            question_text = sanitize_key(question.get('question', f"Question {index}"))
+            topic = sanitize_key(question.get('topic', f"Topic {index}"))
+            personal_info_responses[topic] = {}
+        
+            questions = question.get('questions')
+            for index, question in enumerate(questions, start=1):
+                question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
 
             if question['type'] == 'group':
                 # Capture range and text input for the grouped question
-                score = request.form.get(f'phase_2_score_{index}')
-                comments = request.form.get(f'phase_2_comments_{index}')
+                score = request.form.get(f'{topic}_phase_2_score_{index}')
+                comments = request.form.get(f'{topic}_phase_2_comments_{index}')
 
                 # Log to console for debugging
                 print(f"Received score: {score}, comments: {comments} for question {index}")
 
-                personal_info_responses[question_text] = {
-                    'score': score if score else None,  # Default to None if score is empty
+                personal_info_responses[topic][question_info_type] = {
+                    'score': (str(score) if score else "0") + "/100",  # Default to None if score is empty
                     'comments': comments if comments else None  # Default to None if comments are empty
                 }
             else:
                 # Capture other question types normally
-                answer = request.form.get(f'question_{index}')
-
+                answer = request.form.get(f'{topic}_question_{index}')
                 # Log to console for debugging
                 print(f"Received answer: {answer} for question {index}")
 
-                personal_info_responses[question_text] = answer if answer else None  # Default to None if answer is empty
+                personal_info_responses[topic][question_info_type] = answer if answer else None  # Default to None if answer is empty
 
         # Update user data
         user_data['personal_info_phase_2_completed'] = True
@@ -369,28 +371,32 @@ def personal_info_phase_3():
         personal_info_responses = {}
 
         for index, question in enumerate(personal_info_questions_phase_3, start=1):
-            question_text = sanitize_key(question.get('question', f"Question {index}"))
+            topic = sanitize_key(question.get('topic', f"Topic {index}"))
+            personal_info_responses[topic] = {}
+
+            questions = question.get('questions')
+            for index, question in enumerate(questions, start=1):
+                question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
 
             if question['type'] == 'group':
                 # Capture range and text input for the grouped question
-                score = request.form.get(f'phase_3_score_{index}')
-                comments = request.form.get(f'phase_3_comments_{index}')
+                score = request.form.get(f'{topic}_phase_3_score_{index}')
+                comments = request.form.get(f'{topic}_phase_3_comments_{index}')
 
                 # Log to console for debugging
                 print(f"Received score: {score}, comments: {comments} for question {index}")
 
-                personal_info_responses[question_text] = {
-                    'score': score if score else None,  # Default to None if score is empty
+                personal_info_responses[topic][question_info_type] = {
+                    'score': (str(score) if score else "0") + "/100",  # Default to None if score is empty
                     'comments': comments if comments else None  # Default to None if comments are empty
                 }
             else:
                 # Capture other question types normally
-                answer = request.form.get(f'question_{index}')
-
+                answer = request.form.get(f'{topic}_question_{index}')
                 # Log to console for debugging
                 print(f"Received answer: {answer} for question {index}")
 
-                personal_info_responses[question_text] = answer if answer else None  # Default to None if answer is empty
+                personal_info_responses[topic][question_info_type] = answer if answer else None  # Default to None if answer is empty
 
         # Update user data
         user_data['personal_info_phase_3_completed'] = True
