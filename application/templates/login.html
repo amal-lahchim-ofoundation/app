@@ -34,26 +34,14 @@
    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<style>
-    .modal-backdrop {
-    z-index: -1;
-}
-.modal-dialog {
-  margin-top: 20%;  /* Adjust this value as needed */
-}
-
-</style>
-
 </head>
-<body>
+<body class="login-body" >
 
-    <!-- Header -->
-    <header id="header" class="fixed-top d-flex align-items-center">
+    <!-- Navbar -->
+    <nav  class="login-nav fixed-top top-0 d-flex align-items-center py-2">
       {% if session['user_logged_in'] %}
       <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
           <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
-
-       
           <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
           <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatment</a>        
       </div>
@@ -69,44 +57,50 @@
         {% endif %}
         {% endwith %}
     </div>
-      <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+    <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
+      <div class="d-flex">
+        <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
         <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
-       
-        <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Login</a>       
-
+      </div>
+      <div class="d-flex">
+        <a href="{{ url_for('home') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Home</a>
+        <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Our Services</a> 
+      </div>
     </div>
     {% endif %}
-  </header>
-  <div>
-  </div>
+  </nav>
 
   <main id="main" class="main-page">
-    <main id="main">
-      <section class="breadcrumbs">
+      <!-- <section class="breadcrumbs">
         
-      </section>
+      </section> -->
   
-      <section class="inner-page">
+      <!-- <section class="inner-page">
         <div class="container">
           <div class="section-header">
             <h2>Log In</h2>        
           </div>
         </div>
-      </section>
+      </section> -->
 
     <!-- ======= Speaker Details Sectionn ======= -->
-    <section id="speakers-details">
-      <div class="container">
-        <div class="login-page">
-            <div class="form">
-              <form action="/login" class="login-form"  method="post">
-                <input type="text" placeholder="Random Key" name="random_key"/>
-                <input type="password" placeholder="Password" name="password"/>
-                <button class="submit-btn" data-bs-toggle="modal" data-bs-target="#buy-ticket-modal" data-ticket-type="premium-access" value="login">login</button>
-                <p class="message">Not registered?  <a href="{{ url_for('register') }}">Create an account</a></p>
-              </form>
-            </div>
+    <section id="speakers-details m-0">
+      <div class="container mt-5">
+        <form action="/login" method="post" class="login-form shadow-sm bg-white">
+          <h2 class="mb-4 text-center">Log in</h2>
+          <div class="mb-3">
+            <label for="random_key" class="form-label">Random Key</label>
+            <input type="text" class="form-control" id="random_key" placeholder="Enter Your Random Key" name="random_key" required>
           </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" placeholder="Enter Your Password" name="password" required>
+          </div>
+          <div class="d-grid">
+            <button type="submit" data-bs-toggle="modal" data-bs-target="#buy-ticket-modal" data-ticket-type="premium-access" value="login">LOGIN</button>
+          </div>
+            <p class="message mt-3 text-center">Not registered? <a href="{{ url_for('register') }}">Create an account</a></p>
+        </form>
       </div>
     </section>
 <!-- Flash Message Modal -->

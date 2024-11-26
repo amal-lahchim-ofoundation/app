@@ -4,13 +4,13 @@ instance/*
 .webassets-cache
 .env
 databaseKey.json
-
+/ven/
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
+venv/
 # C extensions
 *.so
 

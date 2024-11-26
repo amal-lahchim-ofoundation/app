@@ -8,9 +8,10 @@
 /*--------------------------------------------------------------
 # General
 --------------------------------------------------------------*/
+
+
 body {
-  font-family: "Open Sans", sans-serif;
-  background: #131212;
+  font-family: "Roboto Slab", serif;
   color: #0F3E77;
 }
 
@@ -30,7 +31,8 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Playfair Display", serif;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 200;
 }
 
 /*--------------------------------------------------------------
@@ -217,10 +219,11 @@ h6 {
 --------------------------------------------------------------*/
 .book-a-table-btn {
   margin: 0 0 0 15px;
-  border: 2px solid #e38748;
+  /* border: 2px solid #e38748; */
   color: #fff;
-  border-radius: 50px;
+  /* border-radius: 50px; */
   padding: 8px 25px;
+  font-family: Verdana, sans-serif; /* I add this line */
   text-transform: uppercase;
   font-size: 13px;
   font-weight: 500;
@@ -229,8 +232,9 @@ h6 {
 }
 
 .book-a-table-btn:hover {
-  background: #efb947;
-  color: #fff;
+  /* background: #efb947; */
+  /* color: #fff; */
+  color: rgba(144, 178, 229, 0.9);
 }
 
 @media (max-width: 992px) {
@@ -706,7 +710,8 @@ section {
   margin: 0;
   font-size: 36px;
   font-weight: 700; 
-  font-family: "Playfair Display", serif;
+  font-family: "Montserrat", sans-serif;
+  /* font-family: "Playfair Display", serif; */
   color: #0b0b0b;
 }
 
@@ -1689,6 +1694,7 @@ input[type="submit"] {
   color: #fff;
   cursor: pointer;
   transition: background-color 0.3s;
+
 }
 
 input[type="submit"]:hover {
@@ -1700,4 +1706,344 @@ a {
   display: block;
   margin-top: 20px;
   text-align: center;
+}
+
+/* Personal info phase 1 */
+#submit-btn {
+  position: relative;
+  background-color: rgb(14, 62, 119);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 15px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Roboto', sans-serif;
+  float: right;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.9);
+}
+
+#submit-btn:hover {
+  background-color: rgb(30, 80, 150);
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+#spinner {
+  margin-right: 0.25rem; /* This margin creates space when spinner is visible */
+  display: none; /* Spinner should be hidden by default */
+  position: absolute;
+  right: 1rem; /* Adjust this value if the spinner needs to move closer to or further from the text */
+}
+
+#submit-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+#submit-btn.spinner-visible {
+  padding-right: 2.5rem; /* Extra padding is added only when spinner is visible */
+}
+.form-control {
+  background-color: white; /* Default background color */
+  border: 1px solid #ced4da; /* Border color */
+  transition: background-color 0.3s; /* Smooth transition for background color */
+}
+
+.form-control:focus {
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;
+}
+      .form-control, .form-select {
+          background-color: #FFFFFF; /* Default white background */
+          transition: background-color 0.3s ease-in-out; /* Smooth transition for color change */
+          font-family: 'Roboto', sans-serif;
+          border-radius: 10px;
+    
+      }
+      .form-select:required:invalid, .form-control:required:invalid {
+          background-color: #FFFFFF; /* Ensure the default state is white */
+          
+      }
+      .form-label {
+        font-size: 25px;
+        font-family: "Roboto", sans-serif;
+      }
+      .question-number {
+        display: inline-block;
+        width: 35px;
+        height: 35px;
+        line-height: 35px;
+        text-align: center;
+        font-size: 14px;
+        border-radius: 50%; /* Rounded background */
+        background-color: #E28647; /* Blue background */
+        color: #ffffff; /* White text */
+        font-weight: bold;
+        margin-right: 10px; /* Space between number and question */
+        flex-shrink: 0; /* Prevent the number from shrinking */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        border: 1px solid #ffffff;
+      }
+      
+      .slider-fill {
+        height: 5px;
+        background: #E28647; /* Change the color as needed */
+        transition: width 0.2s;
+      }
+      
+      .rounded-section {
+    background: rgba(255, 255, 255, 0.9); /* Light white background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px; /* Subtle shadow */
+    padding: 26px; /* Add some padding for better spacing */
+    transition: box-shadow 0.3s ease; /* Smooth transition for shadow on hover */
+}
+
+.rounded-section:hover {
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 4px 8px; /* Slightly stronger shadow on hover */
+    transition: box-shadow 0.3s ease;
+}
+
+.slider-container {
+  width: 100%;
+ 
+}
+
+.slider {
+  -webkit-appearance: none; /* Remove default styling in WebKit browsers */
+  width: 95%; /* Full width */
+  height: 2px; /* Height of the slider track */
+  background: #E28647; /* Make the default track transparent */
+  margin-right: 10px;
+  margin-bottom: 20px;
+ 
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Remove default styling */
+    appearance: none; /* Remove default styling */
+    width: 16px; /* Width of the thumb */
+    height: 16px; /* Height of the thumb */
+    border-radius: 50%; /* Make the thumb circular */
+    background: white; /* Color of the thumb */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Shadow for the thumb */
+    cursor: pointer; /* Change cursor on hover */
+    border: 1px solid #E28647; 
+}
+
+.slider::-moz-range-thumb {
+  -webkit-appearance: none; /* Remove default styling */
+  appearance: none; /* Remove default styling */
+  width: 16px; /* Width of the thumb */
+  height: 16px; /* Height of the thumb */
+  border-radius: 50%; /* Make the thumb circular */
+  background: white; /* Color of the thumb */
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Shadow for the thumb */
+  cursor: pointer; /* Change cursor on hover */
+  border: 1px solid #E28647; 
+}
+
+output {
+  border: 1px solid #E28647; 
+  border-radius: 50%; /* Fully rounded corners */
+  padding: 10px; /* Padding for spacing */
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px; /* Shadow effect */
+  transition: background-color 0.3s, transform 0.3s; /* Transition for background and transform */
+  transform: translateX(-5px); /* Move it a bit to the left */
+  margin-top: -30px; /* Adjust position relative to the slider */
+  font-weight: bold; /* Bold text for better visibility */
+  display: inline-flex; /* Center content within */
+  align-items: center; /* Vertically center the text */
+  justify-content: center; /* Horizontally center the text */
+  width: 40px; /* Fixed width for circular shape */
+  height: 40px; /* Fixed height for circular shape */
+  color: #E28647;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+
+}
+
+
+
+@keyframes slideUp {
+  0% {
+      transform: translateY(30px); /* Start lower */
+      opacity: 0; /* Start invisible */
+  }
+  100% {
+      transform: translateY(0); /* End at original position */
+      opacity: 1; /* End fully visible */
+  }
+}
+
+.question {
+  opacity: 0; /* Initially invisible */
+  animation: slideUp 1.2s ease forwards; /* Apply the animation, slower duration and smoother easing */
+}
+
+.question:nth-child(1) { animation-delay: 0.2s; }
+.question:nth-child(2) { animation-delay: 0.4s; }
+.question:nth-child(3) { animation-delay: 0.6s; }
+.question:nth-child(4) { animation-delay: 0.8s; }
+.question:nth-child(5) { animation-delay: 1s; }
+
+.question:hover {
+  background-color: #ffffff; /* Smooth background color transition */
+  border-color: rgba(226, 134, 71, 0.5); /* Subtle border color */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow effect on hover */
+  transform: translateY(-5px); /* Slight upward movement */
+  transition: background-color 0.3s ease, border-color 0.5s ease, box-shadow 0.3s ease, transform 0.3s ease; /* Smooth transitions */
+  
+}
+
+.slider-interpretation {
+  font-family: "Petit Formal Script", cursive;
+  font-weight: 400;
+  font-style: normal;
+  transition: all 0.3s ease 0.2s;
+ 
+}
+
+
+.question {
+  background:
+   linear-gradient(
+      to right,
+      rgba(240, 240, 240, 1), /* Light Gray (almost white) */
+      rgba(220, 220, 220, 1)  /* Light Gray */
+    ),
+    linear-gradient(
+      to right,
+      rgba(220, 220, 220, 1), /* Light Gray */
+      rgba(173, 216, 230, 1)  /* Light Blue */
+    );
+  background-size: 100% 3px, 0 3px;
+  background-position: 100% 100%, 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 400ms;
+}
+.question:hover{
+  background-size: 0 3px, 100% 3px;
+}
+
+/* -------------------------- SAHAR WORKS --------------------------- */
+
+.ph1-h5 {
+  color: #343537;
+  letter-spacing: 0.16em;
+}
+
+.ph1-logo {
+  width: 80px;
+  height: 80px;
+  margin: -10px auto;
+  display: block;
+}
+
+.image-container {
+  position: relative;
+  text-align: right;
+}
+
+.right-image {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  z-index: -1;
+}
+
+.text-overlay {
+  position: absolute;
+  top: 10px;
+  right: 0px;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  color: white;
+  padding: 5px;
+  font-size: 12px;
+}
+
+.login-body {
+  background: url('../img/login-bg.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.login-nav {
+  font-size: 15px;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  font-weight: 300;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-family: "Verdana", sans-serif;
+}
+
+.login-nav h1 {
+  color: #fff;
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.login-nav .logo a {
+  color: #fff;
+}
+
+.login-form {
+  background-color: #fff;
+  border: 1px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  height: auto;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px auto
+}
+
+.login-form h2 {
+  font-size: 23px;
+  font-weight: bold;
+  color: #E28647;
+  margin-bottom: 20px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.login-form label {
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.login-form button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background-color: #E28647;
+  color: #fff;
+  font-size: 15px;
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-form p {
+  color: #76777a;
+  font-size: 14px;
+}
+
+.login-form a {
+  color: #0E3E77;
+  margin-top: 0;
 }
