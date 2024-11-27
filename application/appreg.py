@@ -44,8 +44,6 @@ def home():
 
 ################################################### Firebase ####################################################################
 
-
-
 # Initialize Firebase
 cred = credentials.Certificate(os.getenv('FIREBASE_DATABASE_CERTIFICATE'))
 firebase_admin.initialize_app(cred, {
