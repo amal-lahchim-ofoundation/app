@@ -317,7 +317,7 @@ def personal_info_phase_2():
         for index, question in enumerate(personal_info_questions_phase_2, start=1):
             topic = sanitize_key(question.get('topic', f"Topic {index}"))
             personal_info_responses[topic] = {}
-        
+
             questions = question.get('questions')
             for index, question in enumerate(questions, start=1):
                 question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
@@ -727,7 +727,6 @@ insight_file_path=""
 #         # call_crewai_agent(user_data['personal_insights_responses'], api_key, insight_file_path)
 #         return redirect(url_for('treatment'))
 #     return render_template('personal_insights.html', questions=personal_insights_questions)
-
 
 ###########################################Diagnose Page ########################################
 
