@@ -315,28 +315,32 @@ def personal_info_phase_2():
         personal_info_responses = {}
 
         for index, question in enumerate(personal_info_questions_phase_2, start=1):
-            question_text = sanitize_key(question.get('question', f"Question {index}"))
+            topic = sanitize_key(question.get('topic', f"Topic {index}"))
+            personal_info_responses[topic] = {}
+        
+            questions = question.get('questions')
+            for index, question in enumerate(questions, start=1):
+                question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
 
-            if question['type'] == 'group':
-                # Capture range and text input for the grouped question
-                score = request.form.get(f'phase_2_score_{index}')
-                comments = request.form.get(f'phase_2_comments_{index}')
+                if question['type'] == 'group':
+                    # Capture range and text input for the grouped question
+                    score = request.form.get(f'{topic}_phase_2_score_{index}')
+                    comments = request.form.get(f'{topic}_phase_2_comments_{index}')
 
-                # Log to console for debugging
-                print(f"Received score: {score}, comments: {comments} for question {index}")
+                    # Log to console for debugging
+                    print(f"Received score: {score}, comments: {comments} for question {index}")
 
-                personal_info_responses[question_text] = {
-                    'score': score if score else None,  # Default to None if score is empty
-                    'comments': comments if comments else None  # Default to None if comments are empty
-                }
-            else:
-                # Capture other question types normally
-                answer = request.form.get(f'question_{index}')
+                    personal_info_responses[topic][question_info_type] = {
+                        'score': (str(score) if score else "0") + "/100",  # Default to None if score is empty
+                        'comments': comments if comments else None  # Default to None if comments are empty
+                    }
+                else:
+                    # Capture other question types normally
+                    answer = request.form.get(f'{topic}_question_{index}')
+                    # Log to console for debugging
+                    print(f"Received answer: {answer} for question {index}")
 
-                # Log to console for debugging
-                print(f"Received answer: {answer} for question {index}")
-
-                personal_info_responses[question_text] = answer if answer else None  # Default to None if answer is empty
+                    personal_info_responses[topic][question_info_type] = answer if answer else None  # Default to None if answer is empty
 
         # Update user data
         user_data['personal_info_phase_2_completed'] = True
@@ -367,28 +371,32 @@ def personal_info_phase_3():
         personal_info_responses = {}
 
         for index, question in enumerate(personal_info_questions_phase_3, start=1):
-            question_text = sanitize_key(question.get('question', f"Question {index}"))
+            topic = sanitize_key(question.get('topic', f"Topic {index}"))
+            personal_info_responses[topic] = {}
 
-            if question['type'] == 'group':
-                # Capture range and text input for the grouped question
-                score = request.form.get(f'phase_3_score_{index}')
-                comments = request.form.get(f'phase_3_comments_{index}')
+            questions = question.get('questions')
+            for index, question in enumerate(questions, start=1):
+                question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
 
-                # Log to console for debugging
-                print(f"Received score: {score}, comments: {comments} for question {index}")
+                if question['type'] == 'group':
+                    # Capture range and text input for the grouped question
+                    score = request.form.get(f'{topic}_phase_3_score_{index}')
+                    comments = request.form.get(f'{topic}_phase_3_comments_{index}')
 
-                personal_info_responses[question_text] = {
-                    'score': score if score else None,  # Default to None if score is empty
-                    'comments': comments if comments else None  # Default to None if comments are empty
-                }
-            else:
-                # Capture other question types normally
-                answer = request.form.get(f'question_{index}')
+                    # Log to console for debugging
+                    print(f"Received score: {score}, comments: {comments} for question {index}")
 
-                # Log to console for debugging
-                print(f"Received answer: {answer} for question {index}")
+                    personal_info_responses[topic][question_info_type] = {
+                        'score': (str(score) if score else "0") + "/100",  # Default to None if score is empty
+                        'comments': comments if comments else None  # Default to None if comments are empty
+                    }
+                else:
+                    # Capture other question types normally
+                    answer = request.form.get(f'{topic}_question_{index}')
+                    # Log to console for debugging
+                    print(f"Received answer: {answer} for question {index}")
 
-                personal_info_responses[question_text] = answer if answer else None  # Default to None if answer is empty
+                    personal_info_responses[topic][question_info_type] = answer if answer else None  # Default to None if answer is empty
 
         # Update user data
         user_data['personal_info_phase_3_completed'] = True
@@ -405,6 +413,49 @@ def personal_info_phase_3():
     return render_template('personal_info_phase_3.html', questions=personal_info_questions_phase_3)
 
 
+
+###################################################### Sahar's Work on Personal Insight Page #####################################################
+
+
+@app.route('/personal_insights', methods=['GET', 'POST'])
+@login_required
+def personal_insights():
+    user_data = get_user()
+
+    # Redirect to phase 1 if already completed
+    if user_data.get('personal_insight_completed', False):
+        return redirect(url_for('questions'))
+
+    if request.method == 'POST':
+        personal_insight_responses = {}
+
+        for index, question in enumerate(personal_insights_questions, start=1):
+            topic = sanitize_key(question.get('topic', f"Topic {index}"))
+            personal_insight_responses[topic] = {}
+
+            questions = question.get('questions')
+            for index, question in enumerate(questions, start=1):
+                question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
+
+                # Capture text input for the question
+                answer = request.form.get(f'{topic}_question_{index}')
+                # Log to console for debugging
+                print(f"Received answer: {answer} for question {index}")
+
+                personal_insight_responses[topic][question_info_type] = answer if answer else None  # Default to None if answer is empty
+
+        # Update user data
+        user_data['personal_insight_completed'] = True
+        user_data['personal_insight_responses'] = personal_insight_responses
+
+        # Save updated user data to the database
+        USERS_REF.child(session['random_key']).set(user_data)
+
+        return redirect(url_for('questions'))
+
+    return render_template('personal_insights.html', questions=personal_insights_questions)
+
+########################################## End of personal insight Page ########################################
 
 
 # ManagerAgent class for handling interactions between user and CrewAI
@@ -655,21 +706,27 @@ def call_phase1_agent(data):
     # Print the report
     print("Personal Info Agent Analysis:\nReport >>", report)
 ###########################################Personal insights Page ########################################
+########################################### Sahar comment it out because of crewai error and not storing in Firebase ########################################
 insight_file_path=""
-@app.route('/personal_insights', methods=['GET', 'POST'])
-@login_required
-def personal_insights():
-    user_data = get_user()
-    if user_data.get('personal_insights_completed', False):
-        return redirect(url_for('treatment'), questions=personal_insights_questions)
-    if request.method == 'POST':
-        personal_insights_responses = {index: request.form.get(str(index)) for index, item in enumerate(personal_insights_questions)}
-        user_data['personal_insights_completed'] = True
-        user_data['personal_insights_responses'] = personal_insights_responses
-        USERS_REF.child(session['random_key']).set(user_data)
-        call_crewai_agent(user_data['personal_insights_responses'], api_key, insight_file_path)
-        return redirect(url_for('treatment'))
-    return render_template('personal_insights.html', questions=personal_insights_questions)
+# @app.route('/personal_insights', methods=['GET', 'POST'])
+# @login_required
+# def personal_insights():
+#     user_data = get_user()
+#     if user_data.get('personal_insights_completed', False):
+#         return redirect(url_for('treatment'), questions=personal_insights_questions)
+#     if request.method == 'POST':
+#       personal_insights_responses = {}
+
+#       for index, question in enumerate(personal_insights_questions, start=1):
+#         topic = sanitize_key(question.get('topic', f"Topic {index}"))
+#         personal_insights_responses[topic] = {}
+#         # personal_insights_responses = {index: request.form.get(str(index)) for index, item in enumerate(personal_insights_questions)}
+#         user_data['personal_insights_completed'] = True
+#         user_data['personal_insights_responses'] = personal_insights_responses
+#         USERS_REF.child(session['random_key']).set(user_data)
+#         # call_crewai_agent(user_data['personal_insights_responses'], api_key, insight_file_path)
+#         return redirect(url_for('treatment'))
+#     return render_template('personal_insights.html', questions=personal_insights_questions)
 
 
 ###########################################Diagnose Page ########################################
@@ -768,6 +825,7 @@ def questions():
                 if saved_diagnosis:
                     diagnosis_found = True  # Update the diagnosis_found variable here
             return render_template('diagnose.html', saved_diagnosis=saved_diagnosis, diagnosis_found=diagnosis_found)
+
 
 
 
