@@ -24,6 +24,7 @@ import pycountry
 from datetime import datetime
 import random
 from personal_info import personal_info_questions_phase_1, personal_info_questions_phase_2, personal_info_questions_phase_3
+from diagnose_questions import diagnose_questions
 # from phase1_agent import Phase1Agent
 from personal_insight import personal_insights_questions
 app = Flask(__name__, static_folder='static')  #creates a Flask web application object named app. It's a fundamental step in setting up a Flask web application
@@ -43,6 +44,8 @@ def home():
     return render_template('index.html')
 
 ################################################### Firebase ####################################################################
+# Set the environment variable for the certificate path
+os.environ['FIREBASE_DATABASE_CERTIFICATE'] = "C:\\Users\\seyar\\Desktop\\ChatPsychologistAI\\application\\databaseKey.json"
 
 # Initialize Firebase
 cred = credentials.Certificate(os.getenv('FIREBASE_DATABASE_CERTIFICATE'))
@@ -785,45 +788,83 @@ def questions():
     diagnosis_found = False
     saved_diagnosis = None
 
+    user_data = get_user()
+
 
     # Check if it's the user's first login based on the session variable
     first_login = session.get('first_login', True)
 
     if request.method == 'POST':
         if first_login:
-            diagnose_responses = [request.form.get(f'q{i+1}') for i in range(len(diagnosequestions))]  # get all the answers
-            personal_info_responses = {question['question']: request.form.get(str(index)) for index, question in enumerate(personal_info_questions)}
-            personal_insights_responses = {question['question']: request.form.get(str(index)) for index, question in enumerate(personal_insights_questions)}
-            prompt = request.form.get('prompt')  # get the prompt
-            diagnosis_result = process_data(diagnose_responses, personal_info_responses,personal_insights_responses, prompt)  # process these datas
-            result = diagnosis_result['message']  # add these processed data into message
-            diagnosis_found = diagnosis_result['diagnosis_found']
-            session['given_diagnose'] = diagnosis_result['given_diagnose']
+###################################################### Sahar's Work for diagnose page ########################################################
+            diagnose_responses = {}
 
-            if diagnosis_found:
-                user_data = get_user()
-                if user_data:
-                    user_data['diagnosis'] = result
-                    user_data['diagnosis_name'] = session['given_diagnose']
-                    USERS_REF.child(session['random_key']).set(user_data)
+        for index, question in enumerate(diagnose_questions, start=1):
+            topic = sanitize_key(question.get('topic', f"Topic {index}"))
+            diagnose_responses[topic] = {}
 
-            session['first_login'] = False
+            questions = question.get('questions')
+            for index, question in enumerate(questions, start=1):
+                question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
 
-            return render_template('diagnose.html', result=result, questions=diagnosequestions, diagnosis_found=diagnosis_found)
+                # Capture range and text input for the  question
+                score = request.form.get(f'{topic}_diagnose_score_{index}')
+                comments = request.form.get(f'{topic}_diagnose_comments_{index}')
 
-        return render_template('diagnose.html', questions=diagnosequestions)
+                # Log to console for debugging
+                print(f"Received score: {score}, comments: {comments} for question {index}")
 
-    else:
-        if first_login:
-            return render_template('diagnose.html', questions=diagnosequestions)
-        else:
-            # If it's not the user's first login, retrieve the saved diagnosis
-            user_data = get_user()
-            if user_data:
-                saved_diagnosis = user_data.get('diagnosis')
-                if saved_diagnosis:
-                    diagnosis_found = True  # Update the diagnosis_found variable here
-            return render_template('diagnose.html', saved_diagnosis=saved_diagnosis, diagnosis_found=diagnosis_found)
+                diagnose_responses[topic][question_info_type] = {
+                    'score': (str(score) if score else "0") + "/5",  # Default to None if score is empty
+                    'comments': comments if comments else None  # Default to None if comments are empty
+                }
+
+        # Update user data
+        user_data['diagnose_responses'] = diagnose_responses
+
+        # Save updated user data to the database
+        USERS_REF.child(session['random_key']).set(user_data)
+
+        # Call the agent to process the diagnose responses
+
+
+        return redirect(url_for('treatment'))
+
+    return render_template('diagnose.html', questions=diagnose_questions)
+#################################################### End of Sahar's Work for diagnose page ########################################################
+    #         diagnose_responses = [request.form.get(f'q{i+1}') for i in range(len(diagnosequestions))]  # get all the answers
+    #         personal_info_responses = {question['question']: request.form.get(str(index)) for index, question in enumerate(personal_info_questions)}
+    #         personal_insights_responses = {question['question']: request.form.get(str(index)) for index, question in enumerate(personal_insights_questions)}
+    #         prompt = request.form.get('prompt')  # get the prompt
+    #         diagnosis_result = process_data(diagnose_responses, personal_info_responses,personal_insights_responses, prompt)  # process these datas
+    #         result = diagnosis_result['message']  # add these processed data into message
+    #         diagnosis_found = diagnosis_result['diagnosis_found']
+    #         session['given_diagnose'] = diagnosis_result['given_diagnose']
+
+    #         if diagnosis_found:
+    #             user_data = get_user()
+    #             if user_data:
+    #                 user_data['diagnosis'] = result
+    #                 user_data['diagnosis_name'] = session['given_diagnose']
+    #                 USERS_REF.child(session['random_key']).set(user_data)
+
+    #         session['first_login'] = False
+
+    #         return render_template('diagnose.html', result=result, questions=diagnosequestions, diagnosis_found=diagnosis_found)
+
+    #     return render_template('diagnose.html', questions=diagnosequestions)
+
+    # else:
+    #     if first_login:
+    #         return render_template('diagnose.html', questions=diagnosequestions)
+    #     else:
+    #         # If it's not the user's first login, retrieve the saved diagnosis
+    #         user_data = get_user()
+    #         if user_data:
+    #             saved_diagnosis = user_data.get('diagnosis')
+    #             if saved_diagnosis:
+    #                 diagnosis_found = True  # Update the diagnosis_found variable here
+    #         return render_template('diagnose.html', saved_diagnosis=saved_diagnosis, diagnosis_found=diagnosis_found)
 
 
 
