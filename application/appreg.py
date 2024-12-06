@@ -1,4 +1,5 @@
 from flask import Flask, session, request, render_template, redirect, url_for, flash, jsonify, make_response
+from logging import DEBUG
 from flask_session import Session
 import firebase_admin
 from firebase_admin import credentials, db, firestore
@@ -229,7 +230,7 @@ def treatment():
     if not personal_insights_complete:
         return redirect(url_for('personal_insights'))
 
-    return render_template('treatment.html', diagnosis_complete=diagnosis_complete)
+    return render_template('treatment.html')
 
 
 
@@ -796,7 +797,6 @@ def questions():
 
     if request.method == 'POST':
         if first_login:
-###################################################### Sahar's Work for diagnose page ########################################################
             diagnose_responses = {}
 
         for index, question in enumerate(diagnose_questions, start=1):
@@ -1328,7 +1328,7 @@ def disconnect():
 if __name__ == '__main__':
     # Configure the logging system
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=DEBUG,
         format='%(asctime)s [%(levelname)s] - %(message)s',
         handlers=[
             logging.FileHandler('example.log'),  # Output to a log file
