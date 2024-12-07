@@ -70,7 +70,7 @@
               {% elif item.type == 'group' %}
                 <div class="slider-container">
                   <input type="range" min="0" max="100" value="0" class="slider" id="slider{{ loop.index }}"
-                    name="phase_2_score_{{ loop.index }}" oninput="updateOutput(this.value, {{ loop.index }})">
+                    name="{{topic.topic}}_phase_2_score_{{ loop.index }}" oninput="updateOutput(this.value, {{ loop.index }})">
                   <output id="slider-output{{ loop.index }}">0</output>
                 </div>
                 <div id="slider-interpretation{{ loop.index }}" class="slider-interpretation">Never</div>

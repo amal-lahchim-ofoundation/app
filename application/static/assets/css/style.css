@@ -1951,15 +1951,13 @@ output {
   position: absolute;
   right: 0;
   top: 0;
-  width: auto;
-  height: auto;
   max-width: 100%;
   z-index: -1;
 }
 
 .text-overlay {
   position: absolute;
-  top: 10px;
+  top: 11px;
   right: 0px;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   color: white;
@@ -2046,4 +2044,8 @@ output {
 .login-form a {
   color: #0E3E77;
   margin-top: 0;
+}
+
+.treatment-body {
+  color: #0E3E77;
 }
