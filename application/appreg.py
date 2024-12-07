@@ -26,16 +26,14 @@ from datetime import datetime
 import random
 from personal_info import personal_info_questions_phase_1, personal_info_questions_phase_2, personal_info_questions_phase_3
 from diagnose_questions import diagnose_questions
-# from phase1_agent import Phase1Agent
 from personal_insight import personal_insights_questions
-app = Flask(__name__, static_folder='static')  #creates a Flask web application object named app. It's a fundamental step in setting up a Flask web application
+app = Flask(__name__, static_folder='static')
 app.secret_key = 'your_secret_key_here'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = False
 Session(app)
 load_dotenv()
 openAI = openai.OpenAI()
-
 
 DATABASE_URL = os.getenv('FIREBASE_DATABASE_URL')
 
@@ -44,15 +42,14 @@ def home():
     logging.debug("redirecting index.html")
     return render_template('index.html')
 
-################################################### Firebase ####################################################################
-
+### Firebase ###
 # Initialize Firebase
 cred = credentials.Certificate(os.getenv('FIREBASE_DATABASE_CERTIFICATE'))
 firebase_admin.initialize_app(cred, {
     'databaseURL': DATABASE_URL
 })
 
-################################################### Firestore ####################################################################
+#### Firestore #####
 firestore_db = firestore.client()
 try:
     USERS_REF = db.reference('users')
@@ -67,17 +64,17 @@ try:
 except Exception as e:
     print(f"Error creating Firestore collection reference: {e}")
 
-#A function that doesn't allow to access login page if you are already logged in/regiterd
+
 def redirect_if_logged_in(route_function):
     @wraps(route_function)
     def wrapper(*args, **kwargs):
         if 'user_logged_in' in session:
             logging.debug("redirecting to home page since already loggd in")
-            return redirect(url_for('home'))  # Redirect to the home page if already logged in
+            return redirect(url_for('home'))
         return route_function(*args, **kwargs)
     return wrapper
 
-###################################################### Register Firebase ########################################################
+##### Register Firebase #####
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -91,8 +88,6 @@ def register():
     if password1 != password2:
         flash('Passwords do not match.')
         return redirect(url_for('register_page'))
-
-    # Generate a random key
     random_key = str(uuid.uuid4())
 
     # Store the random key and hashed password in Firebase Realtime Database
@@ -113,7 +108,7 @@ def register():
 def register_page():
     return render_template('register.html')
 
-########################################## LogIN Firebase #################################
+##### LogIN Firebase #####
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -123,8 +118,6 @@ def login():
     if not random_key or not password:
         flash('Please fill in all fields.')
         return redirect(url_for('login_page'))
-
-
 
     # Retrieve the user data from Firebase Realtime Database
     user_data = USERS_REF.child(random_key).get()
@@ -137,9 +130,7 @@ def login():
     if not stored_password_hash or not check_password_hash(stored_password_hash, password):
         flash('Invalid password.')
         return redirect(url_for('login_page'))
-
     # Set a session variable to indicate the user is logged in
-
     session['user_logged_in'] = True
     session['random_key'] = random_key  # Store the random_key in the session
     session['has_interacted'] = user_data.get('has_interacted', False)  # Get interaction status
@@ -156,7 +147,7 @@ def login():
 def login_page():
     return render_template('login.html')
 
-######################################### LogOut Firebase ###############################
+##### LogOut Firebase #####
 @app.route('/logout')
 def logout():
     logging.debug("user logged out")
@@ -169,10 +160,7 @@ def logout():
    # flash('Successfully logged out!')
     return redirect(url_for('home'))
 
-
-
-###################A function that doesn't alow to acces that page if you are not loged in ############
-
+#####A function that doesn't alow to acces that page if you are not loged in ####
 
 def login_required(route_function):
     @wraps(route_function)
@@ -184,7 +172,7 @@ def login_required(route_function):
     return wrapper
 
 
-############################################Treatment Page #######################################
+#####Treatment Page ######
 
 # @app.route('/treatment')
 # @login_required
@@ -281,23 +269,14 @@ def personal_info_phase_1():
                     print(f"Received answer: {answer} for question {index}")
 
                     personal_info_responses[topic][question_info_type] = answer if answer else None  # Default to None if answer is empty
-
         # Update user data
         user_data['personal_info_phase_1_completed'] = True
         user_data['personal_info_responses_phase_1'] = personal_info_responses
 
         # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
-
-        # Call the agent to process the personal info responses
-        #call_phase1_agent(user_data['personal_info_responses_phase_1'])
-
         return redirect(url_for('personal_info_phase_2'))
-
     return render_template('personal_info_phase_1.html', questions=personal_info_questions_phase_1)
-
-
-
 
 def sanitize_key(key):
     # Replace invalid characters with an underscore or remove them

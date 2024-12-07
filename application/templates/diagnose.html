@@ -79,7 +79,7 @@
                   <input
                     type="range"
                     min="0"
-                    max="5"
+                    max="100"
                     value="0"
                     class="slider m-0"
                     id="slider{{ loop.index }}"
@@ -93,7 +93,7 @@
                 <input
                   type="text"
                   name="{{topic.topic}}_diagnose_comments_{{ loop.index }}"
-                  placeholder="If this is an important topic related to your mental issue, please write more (optional)." 
+                  placeholder="If this is an important topic related to your mental issue, please write more (optional)."
                   class="form-control mt-2"
                 >
               </div>
@@ -136,11 +136,11 @@
     function updateOutput(value, index) {
       const outputElement = document.getElementById('slider-output' + index);
       outputElement.value = value;
-      
+
       const interpretationElement = document.getElementById(`slider-interpretation${index}`);
       let interpretation;
       value = parseInt(value); // Convert the value to an integer
-      
+
       if (value >= 4) {
         interpretation = "Extremely";
       } else if (value >= 3) {
@@ -152,7 +152,7 @@
       } else {
         interpretation = "Not at all";
       }
-      
+
       interpretationElement.textContent = interpretation;
     }
 
@@ -161,10 +161,10 @@
       var form = document.querySelector('form');
       var submitButton = document.getElementById('submit-btn');
       var spinner = document.getElementById('spinner');
-    
+
       form.onsubmit = function() {
         spinner.style.display = 'inline-block';
-        submitButton.classList.add('spinner-visible'); 
+        submitButton.classList.add('spinner-visible');
         submitButton.disabled = true;
       };
       var sliders = document.querySelectorAll('input[type="range"]');

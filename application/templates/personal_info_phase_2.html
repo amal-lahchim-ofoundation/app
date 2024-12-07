@@ -85,16 +85,16 @@
                 Submit <span id="spinner" class="spinner-border spinner-border-sm" style="display:none;"></span>
             </button>
         </form>
-        
-        
-        
-        
+
+
+
+
         <script>
         function updateOutput(value, index) {
             document.getElementById('slider-output' + index).value = value;
         }
         </script>
-        
+
       </div>
     </section>
   </main>
@@ -105,7 +105,7 @@
       const interpretationElement = document.getElementById(`slider-interpretation${index}`);
       let interpretation;
       value = parseInt(value); // Convert the value to an integer
-  
+
       if (value >= 80) {
         interpretation = "Very Frequently";
     } else if (value >= 60) {
@@ -115,10 +115,10 @@
     } else if (value >= 20) {
         interpretation = "Rarely";
     } else {
-        interpretation = "Never"; 
+        interpretation = "Never";
     }
-    
-  
+
+
       // Update the interpretation text
       interpretationElement.textContent = interpretation;
     }

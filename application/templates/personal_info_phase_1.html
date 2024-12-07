@@ -51,6 +51,8 @@
       </div>
     </section>
     <section class="container">
+      <!-- <pre>{{ questions | safe }}</pre> -->
+
       <form action="/personal_info_phase_1" method="post">
         {% for topic in questions %}
         {% for item in topic.questions %}
@@ -74,6 +76,7 @@
                    name="{{topic.topic}}_phase_1_score_{{ loop.index }}"
                    oninput="updateOutput(this.value, {{ loop.index }})">
             <output id="slider-output{{ loop.index }}">0</output>
+
           </div>
           <div id="slider-interpretation{{ loop.index }}" class="slider-interpretation">Never</div>
           <input type="text" name="{{topic.topic}}_phase_1_comments_{{ loop.index }}"
