@@ -45,8 +45,6 @@ def home():
     return render_template('index.html')
 
 ################################################### Firebase ####################################################################
-# Set the environment variable for the certificate path
-os.environ['FIREBASE_DATABASE_CERTIFICATE'] = "C:\\Users\\seyar\\Desktop\\ChatPsychologistAI\\application\\databaseKey.json"
 
 # Initialize Firebase
 cred = credentials.Certificate(os.getenv('FIREBASE_DATABASE_CERTIFICATE'))
@@ -107,7 +105,7 @@ def register():
     flash(f'Your registration key is: {random_key}. Please save it for future logins.', 'success')
     session['random_key'] = random_key
     logging.info("user registered with random key ["+random_key+"]")
-    return redirect(url_for('register_page'))
+    return redirect(url_for('login_page'))
 
 
 @app.route('/register', methods=['GET'])
