@@ -1,0 +1,73 @@
+2024-12-07 16:38:54,906 [WARNING] -  * Debugger is active!
+2024-12-07 16:38:54,914 [INFO] -  * Debugger PIN: 133-116-353
+2024-12-07 16:38:54,932 [DEBUG] - remaining time::::2415017
+2024-12-07 16:38:54,936 [DEBUG] - Making request: POST https://oauth2.googleapis.com/token
+2024-12-07 16:38:54,937 [DEBUG] - Starting new HTTPS connection (1): oauth2.googleapis.com:443
+2024-12-07 16:38:55,135 [DEBUG] - https://oauth2.googleapis.com:443 "POST /token HTTP/11" 200 None
+2024-12-07 16:38:55,138 [DEBUG] - Starting new HTTPS connection (1): chat-psychologist-ai-default-rtdb.europe-west1.firebasedatabase.app:443
+2024-12-07 16:38:55,351 [DEBUG] - https://chat-psychologist-ai-default-rtdb.europe-west1.firebasedatabase.app:443 "GET /users/b5a440b3-c479-40fe-82bf-a3d1f5afea17.json HTTP/11" 200 5983
+2024-12-07 16:38:55,352 [DEBUG] - session has expired :: start time===1733582335.3523252
+2024-12-07 16:38:55,355 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:38:55] "[35m[1mGET /session_status?data=2415017 HTTP/1.1[0m" 500 -
+2024-12-07 16:38:55,975 [INFO] -  * Detected change in '/Users/dandev947366/Desktop/test-chatai/ChatPsychologistAI/application/appreg.py', reloading
+2024-12-07 16:38:59,146 [INFO] - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.20.10.3:5000
+2024-12-07 16:38:59,147 [INFO] - [33mPress CTRL+C to quit[0m
+2024-12-07 16:38:59,147 [INFO] -  * Restarting with stat
+2024-12-07 16:39:00,462 [WARNING] -  * Debugger is active!
+2024-12-07 16:39:00,469 [INFO] -  * Debugger PIN: 133-116-353
+2024-12-07 16:39:00,488 [DEBUG] - remaining time::::2410016
+2024-12-07 16:39:00,491 [DEBUG] - Making request: POST https://oauth2.googleapis.com/token
+2024-12-07 16:39:00,493 [DEBUG] - Starting new HTTPS connection (1): oauth2.googleapis.com:443
+2024-12-07 16:39:00,676 [DEBUG] - https://oauth2.googleapis.com:443 "POST /token HTTP/11" 200 None
+2024-12-07 16:39:00,678 [DEBUG] - Starting new HTTPS connection (1): chat-psychologist-ai-default-rtdb.europe-west1.firebasedatabase.app:443
+2024-12-07 16:39:00,904 [DEBUG] - https://chat-psychologist-ai-default-rtdb.europe-west1.firebasedatabase.app:443 "GET /users/b5a440b3-c479-40fe-82bf-a3d1f5afea17.json HTTP/11" 200 5983
+2024-12-07 16:39:00,905 [DEBUG] - session has expired :: start time===1733582340.905473
+2024-12-07 16:39:00,909 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:00] "[35m[1mGET /session_status?data=2410016 HTTP/1.1[0m" 500 -
+2024-12-07 16:39:02,344 [DEBUG] - https://chat-psychologist-ai-default-rtdb.europe-west1.firebasedatabase.app:443 "GET /users/b5a440b3-c479-40fe-82bf-a3d1f5afea17.json HTTP/11" 200 5983
+2024-12-07 16:39:02,359 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "GET /questions HTTP/1.1" 200 -
+2024-12-07 16:39:02,402 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/css/style.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,437 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/vendor/bootstrap/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,438 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/vendor/animate.css/animate.min.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,438 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/vendor/aos/aos.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,439 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/vendor/boxicons/css/boxicons.min.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,439 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/vendor/glightbox/css/glightbox.min.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,439 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/vendor/bootstrap-icons/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,480 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/vendor/swiper/swiper-bundle.min.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,495 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/img/logo.png HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,548 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/vendor/aos/aos.js HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,565 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/vendor/swiper/swiper-bundle.min.js HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,565 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/vendor/glightbox/js/glightbox.min.js HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,566 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/vendor/php-email-form/validate.js HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,566 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/js/main.js HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,566 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/vendor/isotope-layout/isotope.pkgd.min.js HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,567 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/img/Vector%201.png HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,855 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/img/favicon.png HTTP/1.1[0m" 304 -
+2024-12-07 16:39:02,928 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:02] "[36mGET /static/assets/img/favicon.png HTTP/1.1[0m" 304 -
+2024-12-07 16:39:08,936 [DEBUG] - https://chat-psychologist-ai-default-rtdb.europe-west1.firebasedatabase.app:443 "GET /users/b5a440b3-c479-40fe-82bf-a3d1f5afea17.json HTTP/11" 200 5983
+2024-12-07 16:39:09,061 [DEBUG] - https://chat-psychologist-ai-default-rtdb.europe-west1.firebasedatabase.app:443 "PUT /users/b5a440b3-c479-40fe-82bf-a3d1f5afea17.json?print=silent HTTP/11" 204 0
+2024-12-07 16:39:09,065 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[32mPOST /questions HTTP/1.1[0m" 302 -
+2024-12-07 16:39:09,182 [DEBUG] - https://chat-psychologist-ai-default-rtdb.europe-west1.firebasedatabase.app:443 "GET /users/b5a440b3-c479-40fe-82bf-a3d1f5afea17.json HTTP/11" 200 5983
+2024-12-07 16:39:09,189 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[32mGET /treatment HTTP/1.1[0m" 302 -
+2024-12-07 16:39:09,338 [DEBUG] - https://chat-psychologist-ai-default-rtdb.europe-west1.firebasedatabase.app:443 "GET /users/b5a440b3-c479-40fe-82bf-a3d1f5afea17.json HTTP/11" 200 5983
+2024-12-07 16:39:09,344 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[32mGET /personal_insights HTTP/1.1[0m" 302 -
+2024-12-07 16:39:09,494 [DEBUG] - https://chat-psychologist-ai-default-rtdb.europe-west1.firebasedatabase.app:443 "GET /users/b5a440b3-c479-40fe-82bf-a3d1f5afea17.json HTTP/11" 200 5983
+2024-12-07 16:39:09,501 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "GET /questions HTTP/1.1" 200 -
+2024-12-07 16:39:09,552 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/vendor/animate.css/animate.min.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,554 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/css/style.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,574 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/vendor/bootstrap-icons/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,575 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/vendor/bootstrap/css/bootstrap.min.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,575 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/vendor/aos/aos.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,576 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/vendor/boxicons/css/boxicons.min.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,576 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/vendor/glightbox/css/glightbox.min.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,577 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/vendor/swiper/swiper-bundle.min.css HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,582 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/img/logo.png HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,676 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/vendor/aos/aos.js HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,693 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/vendor/glightbox/js/glightbox.min.js HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,693 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/vendor/php-email-form/validate.js HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,694 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/vendor/isotope-layout/isotope.pkgd.min.js HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,695 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/vendor/swiper/swiper-bundle.min.js HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,695 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/js/main.js HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,696 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/img/Vector%201.png HTTP/1.1[0m" 304 -
+2024-12-07 16:39:09,807 [INFO] - 127.0.0.1 - - [07/Dec/2024 16:39:09] "[36mGET /static/assets/img/favicon.png HTTP/1.1[0m" 304 -
