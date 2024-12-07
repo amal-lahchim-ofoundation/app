@@ -9,28 +9,28 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Petit+Formal+Script&family=Satisfy&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Petit+Formal+Script&family=Satisfy&display=swap" rel="stylesheet">
 </head>
 
 <body class="ph1-body ph1-font">
   <header id="header" class="fixed-top top-0 d-flex align-items-center py-2 shadow">
     {% if session['user_logged_in'] %}
-      <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
-        <div class="d-flex">
-          <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
-          <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
-        </div>
-        <div class="d-flex">
-          <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatment</a>
-          <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
-        </div>
-      </div>
-    {% else %}
-      <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+      <div class="d-flex">
+        <img src="{{ url_for('static', filename='assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
         <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
-        <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Login</a>
       </div>
+      <div class="d-flex">
+        <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatment</a>
+        <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
+      </div>
+    </div>
+    {% else %}
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+      <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
+      <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Login</a>
+    </div>
     {% endif %}
   </header>
 
@@ -38,101 +38,92 @@
     <section class="container-fluid p-0 pt-5">
       <div class="row pt-5">
         <div class="col-1"></div>
-        <div class="col-6 text-xs">
-          <h1 class="text-sm">Begin with Personal Information</h1>
-          <h5 class="ph1-h5">Please fill out the following details to continue.</h5>
+        <div class="col-6">
+          <h1>Begin with Personal Information</h1>
+          <h5>Please fill out the following details to continue.</h5>
         </div>
         <div class="col-5">
           <div class="image-container">
             <div class="text-overlay">PHASE 1</div>
-            <img src="{{ url_for('static', filename='../static/assets/img/Vector 1.png') }}" alt="banner" class="right-image"/>
+            <img src="{{ url_for('static', filename='assets/img/Vector 1.png') }}" alt="banner" class="right-image" />
           </div>
         </div>
       </div>
     </section>
-    <section class="container">
-      <!-- <pre>{{ questions | safe }}</pre> -->
 
+    <section class="container">
       <form action="/personal_info_phase_1" method="post">
-        {% for topic in questions %}
-        {% for item in topic.questions %}
-        <div class="mb-4 rounded-section p-3 mb-2 question border">
-          <!--<span class="question-number">{{ loop.index }}</span>-->
+        {% for item in questions %}
+        <div class="mb-4 rounded-section p-3 question border">
+          <span class="question-number">{{ loop.index }}</span>
           <label class="form-label p-2">{{ item.question }}</label>
+
           {% if item.type == 'select' %}
-          <select name="{{topic.topic}}_question_{{ loop.index }}" class="form-select" required>
+          <select name="{{ item.topic }}_question_{{ loop.index }}" class="form-select" required>
             <option value="" disabled selected>{{ item.placeholder | default('Choose an option') }}</option>
             {% for option in item.options %}
             <option value="{{ option }}">{{ option }}</option>
             {% endfor %}
           </select>
+
           {% elif item.type == 'textarea' %}
-          <textarea name="{{topic.topic}}_question_{{ loop.index }}" class="form-control" rows="4"
-                    placeholder="{{ item.placeholder | default('If this is an important topic related to your mental issue, please write more (optional).') }}"
-                    required></textarea>
+          <textarea name="{{ item.topic }}_question_{{ loop.index }}" class="form-control" rows="4"
+            placeholder="{{ item.placeholder | default('If this is an important topic, please write more (optional).') }}"
+            required></textarea>
+
           {% elif item.type == 'group' %}
           <div class="slider-container">
             <input type="range" min="0" max="100" value="0" class="slider" id="slider{{ loop.index }}"
-                   name="{{topic.topic}}_phase_1_score_{{ loop.index }}"
-                   oninput="updateOutput(this.value, {{ loop.index }})">
+              name="{{ item.topic }}_phase_3_score_{{ loop.index }}"
+              oninput="updateOutput(this.value, {{ loop.index }})">
             <output id="slider-output{{ loop.index }}">0</output>
-
           </div>
           <div id="slider-interpretation{{ loop.index }}" class="slider-interpretation">Never</div>
-          <input type="text" name="{{topic.topic}}_phase_1_comments_{{ loop.index }}"
-                 placeholder="If this is an important topic related to your mental issue, please write more (optional)."
-                 class="form-control mt-2">
+          <input type="text" name="{{ item.topic }}_phase_3_comments_{{ loop.index }}"
+            placeholder="If this is an important topic, please write more (optional)." class="form-control mt-2">
+
           {% else %}
-          <input type="{{ item.type }}" name="{{topic.topic}}_question_{{ loop.index }}" class="form-control"
-                 placeholder="{{ item.placeholder | default('If this is an important topic related to your mental issue, please write more (optional).') }}"
-                 required>
+          <input type="{{ item.type }}" name="{{ item.topic }}_question_{{ loop.index }}" class="form-control"
+            placeholder="{{ item.placeholder | default('If this is an important topic, please write more (optional).') }}"
+            required>
           {% endif %}
         </div>
         {% endfor %}
-        {% endfor %}
-        <button type="submit" id="submit-btn">
-          Next <span id="spinner" class="spinner-border spinner-border-sm" style="display:none;"></span>
+
+        <button type="submit" class="btn btn-primary" id="submit-btn">
+          Submit <span id="spinner" class="spinner-border spinner-border-sm" style="display:none;"></span>
         </button>
       </form>
-
-        <script>
-        function updateOutput(value, index) {
-            document.getElementById('slider-output' + index).textContent = value;
-        }
-        </script>
-
     </section>
   </main>
 
   <script>
     function updateOutput(value, index) {
-      document.getElementById('slider-output' + index).value = value;
+      const outputElement = document.getElementById('slider-output' + index);
       const interpretationElement = document.getElementById(`slider-interpretation${index}`);
-      let interpretation;
-      value = parseInt(value); // Convert the value to an integer
 
+      outputElement.textContent = value;
+
+      let interpretation;
+      value = parseInt(value);
       if (value >= 80) {
         interpretation = "Very Frequently";
-    } else if (value >= 60) {
+      } else if (value >= 60) {
         interpretation = "Frequently";
-    } else if (value >= 40) {
+      } else if (value >= 40) {
         interpretation = "Occasionally";
-    } else if (value >= 20) {
+      } else if (value >= 20) {
         interpretation = "Rarely";
-    } else {
+      } else {
         interpretation = "Never";
-    }
-
-
-      // Update the interpretation text
+      }
       interpretationElement.textContent = interpretation;
-
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-      var form = document.querySelector('form');
-      var submitButton = document.getElementById('submit-btn');
-      var spinner = document.getElementById('spinner');
+      const form = document.querySelector('form');
+      const submitButton = document.getElementById('submit-btn');
+      const spinner = document.getElementById('spinner');
 
       form.onsubmit = function () {
         spinner.style.display = 'inline-block';
@@ -143,4 +134,5 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
