@@ -174,21 +174,7 @@ def treatment():
 
     if not personal_insights_complete:
         return redirect(url_for('personal_insights'))
-
     return render_template('treatment.html')
-
-
-
-###########################################personal info Page ########################################
-
-#FIXME - Adding more data for each phases
-#FIXME - Add more agents for reading pdf, look for flow of data
-#FIXME - Check latency
-file_path = '/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/data/Mental_Health_Statistics_2024.docx'
-txt_path = "/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/data/personal_info_statistic.txt"
-import docx
-SERPER_API_KEY = os.getenv('SERPER_API_KEY')
-api_key = os.getenv('OPENAI_API_KEY_2')
 
 @app.route('/personal_info_phase_1', methods=['GET', 'POST'])
 @login_required
@@ -205,11 +191,9 @@ def personal_info_phase_1():
         return redirect(url_for('personal_info_phase_2'))
     return render_template('personal_info_phase_1.html', questions=personal_info_questions_phase_1)
 
-
 def sanitize_key(key):
     # Replace invalid characters with an underscore or remove them
     return key.replace('$', '_').replace('#', '_').replace('[', '_').replace(']', '_').replace('/', '_').replace('.', '_')
-
 
 @app.route('/personal_info_phase_2', methods=['GET', 'POST'])
 @login_required
@@ -226,36 +210,26 @@ def personal_info_phase_2():
         return redirect(url_for('personal_info_phase_3'))
     return render_template('personal_info_phase_2.html', questions=personal_info_questions_phase_2)
 
-
-
 @app.route('/personal_info_phase_3', methods=['GET', 'POST'])
 @login_required
 def personal_info_phase_3():
     user_data = get_user()
-
     # Redirect to phase 3 if phase 2 is already completed
     if user_data.get('personal_info_phase_3_completed', False):
         return redirect(url_for('treatment'))
-
     if request.method == 'POST':
         personal_info_responses = {}
-
         for index, question in enumerate(personal_info_questions_phase_3, start=1):
             topic = sanitize_key(question.get('topic', f"Topic {index}"))
             personal_info_responses[topic] = {}
-
             questions = question.get('questions')
             for index, question in enumerate(questions, start=1):
                 question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
-
                 if question['type'] == 'group':
                     # Capture range and text input for the grouped question
                     score = request.form.get(f'{topic}_phase_3_score_{index}')
                     comments = request.form.get(f'{topic}_phase_3_comments_{index}')
-
-                    # Log to console for debugging
                     print(f"Received score: {score}, comments: {comments} for question {index}")
-
                     personal_info_responses[topic][question_info_type] = {
                         'score': (str(score) if score else "0") + "/100",  # Default to None if score is empty
                         'comments': comments if comments else None  # Default to None if comments are empty
@@ -265,7 +239,6 @@ def personal_info_phase_3():
                     answer = request.form.get(f'{topic}_question_{index}')
                     # Log to console for debugging
                     print(f"Received answer: {answer} for question {index}")
-
                     personal_info_responses[topic][question_info_type] = answer if answer else None  # Default to None if answer is empty
 
         # Update user data
@@ -274,10 +247,6 @@ def personal_info_phase_3():
 
         # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
-
-        # Call the agent to process the personal info responses
-        #call_phase3_agent(user_data['personal_info_responses_phase_3'], api_key, file_path)
-
         return redirect(url_for('treatment'))
 
     return render_template('personal_info_phase_3.html', questions=personal_info_questions_phase_3)
@@ -337,34 +306,10 @@ def extract_disorder(text, disorders): #extracts the disorder from text if it ex
 
         return max(matches, key=len)
 
-
 def check_similarity(disorder_list1, disorder_list2):
     if disorder_list1 == disorder_list2:
         return 1
     return len(set(disorder_list1).intersection(disorder_list2)) / len(set(disorder_list1).union(disorder_list2))
-
-
-diagnosequestions = [
-        "Do you feel extremely anxious or uncomfortable when meeting new people?",
-        "Do you often worry about being judged or criticized by others in social situations?",
-        "Do you frequently avoid social events or activities due to fear of embarrassment or humiliation?",
-        "Do you experience intense anxiety when speaking or presenting in front of a group?",
-        "Do you find it difficult to initiate or maintain conversations with others?",
-        "Are you often overwhelmed by your worries?",
-        "Do many situations cause you to worry?",
-        "Do you tend to worry a lot when you are under pressure?",
-        "Once you start worrying, do you find it hard to stop?",
-        "Do you worry all the time? ",
-        "Over the past two weeks, have you experienced a noticeable change in your mood, such as feeling sad, empty, hopeless, or appearing tearful to others?",
-        "During the same period, have you found it difficult to enjoy activities that you previously found pleasurable or interesting?",
-        "Have you noticed changes in your appetite or weight (either gain or loss) without attempting to diet?",
-        "Can you tell me about your sleeping patterns lately? Have you experienced insomnia or excessive sleeping?",
-        "Have you felt unusually tired or low on energy most days, making even small tasks seem exhausting?",
-        "Do you ever feel despair about your complaints or how you feel?",
-        "Have you ever had thoughts of death?",
-        "Have you ever considered harming yourself or ending your life?",
-        "Have you had these complaints before in your life?"
-    ]
 
 @app.route("/questions", methods=['GET', 'POST'])
 @login_required  # Ensure user is logged in to access this route
