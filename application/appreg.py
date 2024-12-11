@@ -401,7 +401,7 @@ def questions():
         USERS_REF.child(session['random_key']).set(user_data)
         # Call the agent to process the diagnose responses
         return redirect(url_for('treatment'))
-    return render_template('diagnose.html', questions=diagnose_questions)
+    return render_template('treatment.html', questions=diagnose_questions)
 ######## End of Sahar's Work for diagnose page ######
 
 
