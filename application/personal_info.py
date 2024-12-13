@@ -1,59 +1,59 @@
 import pycountry
 
 personal_info_questions_phase_1 = [
-  {
-    "topic": "Background",
-    "questions": [
-      {
-        "question":"What is your age?",
-        "info_type": "age",
-        "type":"number",
-        "placeholder":""
-      },
-      {
-        "question":"What is your gender?",
-        "info_type": "gender",
-        "type":"select",
-        "options":["Male", "Female", "Other"],
-        "placeholder":""
-      },
-      {
-        "question": "What is your nationality?",
-        "info_type": "nationality",
-        "type": "select",
-        "options": [country.name for country in pycountry.countries],
-        "placeholder": "Select your nationality"
-      },
-      {
-        "question": "What is your current country of residence?",
-        "info_type": "country of residence",
-        "type": "select",
-        "options": [country.name for country in pycountry.countries],
-        "placeholder": "Select your current country of residence"
-      },
-      {
-        "question":"What is your marital/relationship status?",
-        "info_type": "marital status",
-        "type":"select",
-        "options":["Single","Married","Divorced","Other"],
-        "placeholder":""
-      },
-			{
-				"question":"What is your education level?",
-				"info_type": "education level",
-				"type":"select",
-				"options":["High School","Bachelor's, Master's","Other"],
-				"placeholder":""
-			},
-		  {
-		    "question":"What is your employment status?",
-		    "info_type": "employment status",
-		    "type":"select",
-		    "options":["Employed","Unemployed","Retired","Other"],
-		    "placeholder":""
-	    },
-    ]
-  },
+    {
+      "topic": "Background",
+      "questions": [
+        {
+          "question":"What is your age?",
+          "info_type": "age",
+          "type":"number",
+          "placeholder":""
+        },
+        {
+          "question":"What is your gender?",
+          "info_type": "gender",
+          "type":"select",
+          "options":["Male", "Female", "Other"],
+          "placeholder":""
+        },
+        {
+          "question": "What is your nationality?",
+          "info_type": "nationality",
+          "type": "select",
+          "options": [country.name for country in pycountry.countries],
+          "placeholder": "Select your nationality"
+        },
+        {
+          "question": "What is your current country of residence?",
+          "info_type": "country of residence",
+          "type": "select",
+          "options": [country.name for country in pycountry.countries],
+          "placeholder": "Select your current country of residence"
+        },
+        {
+          "question":"What is your marital/relationship status?",
+          "info_type": "marital status",
+          "type":"select",
+          "options":["Single","Married","Divorced","Other"],
+          "placeholder":""
+        },
+			  {
+          "question":"What is your education level?",
+          "info_type": "education level",
+          "type":"select",
+          "options":["High School","Bachelor's, Master's","Other"],
+          "placeholder":""
+			  },
+		    {
+		      "question":"What is your employment status?",
+		      "info_type": "employment status",
+		      "type":"select",
+		      "options":["Employed","Unemployed","Retired","Other"],
+		      "placeholder":""
+	      },
+      ]
+    },
     {
       "topic": "Developmental History",
       "questions": [
@@ -228,9 +228,9 @@ personal_info_questions_phase_1 = [
           "type": "group",
         },
         {
-	        "question": "To what extent do your emotions feel stable and manageable throughout the day?",
-	        "info_type": "degree of feeling stable and manageable throughout the day",
-	        "type": "group",
+          "question": "To what extent do your emotions feel stable and manageable throughout the day?",
+          "info_type": "degree of feeling stable and manageable throughout the day",
+          "type": "group",
 	      },
       ]
     },
@@ -285,7 +285,7 @@ personal_info_questions_phase_1 = [
 			{
         "question": "How much do sleep disturbances affect your mood and ability to function during the day?",
         "info_type": "degree of affection of sleep disturbances on mood and ability to function during the day",
-        "type": "group",
+         "type": "group",
       },
 			{
         "question": "To what degree do you use sleep aids or other methods to help you sleep?",
@@ -296,74 +296,15 @@ personal_info_questions_phase_1 = [
   }
 ]
 
-
-# personal_info_questions_phase_2 = [
-#     # PHASE 2
-#     {"question": "How would you describe your overall physical health at the moment?", "type": "text", "placeholder": ""},
-# {"question": "Have you experienced any recent changes in your physical health, such as weight loss, changes in appetite, sleep patterns, or energy levels?", "type": "text", "placeholder": ""},
-# {"question": "Do you have any chronic conditions or ongoing medical issues that you think might be affecting your mood or mental state?", "type": "text", "placeholder": ""},
-# {"question": "How does your body feel on a typical day? Do you experience any pain, discomfort, or physical tension?", "type": "text", "placeholder": ""},
-# {"question": "How often do you engage in physical activity or exercise, and how do you feel it affects your mood and mental clarity?", "type": "text", "placeholder": ""},
-# {"question": "Have you noticed any connection between your physical health and your emotional well-being? For instance, do your mood and energy levels fluctuate with changes in your physical condition?", "type": "text", "placeholder": ""},
-# {"question": "Are there any medications or treatments you are currently undergoing that you believe might be affecting your mental state?", "type": "text", "placeholder": ""},
-# {"question": "How is your sleep? Do you wake up feeling rested, or do you experience fatigue throughout the day?", "type": "text", "placeholder": ""},
-# {"question": "Have you ever experienced psychosomatic symptoms, where physical symptoms might be related to stress or emotional distress?", "type": "text", "placeholder": ""},
-# {"question": "How do you take care of your physical health, and do you feel that you have the resources or support you need to maintain it?", "type": "text", "placeholder": ""},
-# {"question": "Are you currently taking any prescribed medications? If so, can you tell me a bit about them and how you feel they are affecting you?", "type": "text", "placeholder": ""},
-# {"question": "Do you use any over-the-counter medications, supplements, or herbal remedies? How do you think these affect your mood or energy levels?", "type": "text", "placeholder": ""},
-# {"question": "Have you been prescribed any medications in the past for mental health or other conditions? If so, how did you respond to them?", "type": "text", "placeholder": ""},
-# {"question": "Do you use any substances, such as alcohol, tobacco, recreational drugs, or other substances? How often, and how do you feel they affect your mental and physical well-being?", "type": "text", "placeholder": ""},
-# {"question": "Have you noticed any changes in your mood, anxiety, or energy levels after using certain substances or medications?", "type": "text", "placeholder": ""},
-# {"question": "Are there any substances you use to help manage stress, anxiety, or other emotions? If so, how effective do you find them?", "type": "text", "placeholder": ""},
-# {"question": "Have you ever experienced any negative side effects or withdrawal symptoms from medications or substances? How did you manage them?", "type": "text", "placeholder": ""},
-# {"question": "Do you feel that your use of any medications or substances is helping or hindering your overall health and well-being?", "type": "text", "placeholder": ""},
-# {"question": "Are you currently receiving guidance from a healthcare provider regarding your use of these substances or medications?", "type": "text", "placeholder": ""},
-# {"question": "Is there anything about your use of medications or substances that you’re concerned about or that you think might be important for us to discuss?", "type": "text", "placeholder": ""},
-    
-#     {"question":"Do you have a stable support system?","type":"text","placeholder":"Yes/No; If yes, please specify"},
-#     {"question":"Who are the most significant people in your life, and what kind of relationships do you have with them?", "type":"text","placeholder":""},
-#     {"question":"Are you actively involved in any community or social groups? How does this impact your social interactions?","type":"text","placeholder":""},
-#     {"question":"Do you have any chronic physical illnesses?","type":"text","placeholder":"Yes/No; If yes, please specify"},
-#     {"question":"Are you currently taking any medications?", "type":"text", "placeholder":"Yes/No; If yes, please specify"},
-#     {"question":"Do you use substances like tobacco, alcohol, or recreational drugs?","type":"select", "options":["Yes","No"],"placeholder":""},
-#     {"question":"How often do you exercise?", "type":"select", "options":["Daily","Weekly","Rarely","Never"],"placeholder":""},
-#     {"question":"Can you describe your typical daily diet? Do you follow any specific dietary restrictions?", "type":"text","placeholder":""},
-#     {"question":"How would you describe your typical sleep patterns and quality?", "type":"text","placeholder":""},
-#     {"question":"Have you been diagnosed with any mental health disorders?", "type":"text","placeholder":"Yes/No; If yes, please specify"},
-#     {"question":"Have you experienced significant life changes or stressors recently?","type":"text","placeholder":"Yes/No; If yes, please specify"},
-#     {"question":"Rate your overall stress level on a scale from 1 to 10:","type":"select", "options":["1","2","3","4","5","6","7","8","9","10"], "placeholder":""},
-#     {"question":"What are your primary ways of coping with stress or emotional distress?","type":"text","placeholder":""},
-#     {"question":"Can you share an instance where you successfully managed a challenging life event?","type":"text","placeholder":""},
-#     {"question":"Do you feel content with your personal life?", "type":"text","placeholder":"Yes/No; If no, what areas would you like to improve?"},
-#     {"question":"How often do you engage in activities that you enjoy?","type":"select", "options":["Daily","Weekly","Rarely","Never"],"placeholder":""},
-#     {"question":"Do you feel you have adequate social interactions?","type":"text","placeholder":"Yes/No; If no, what barriers do you face?"},
-#     {"question":"How would you rate your overall happiness on a scale from 1 to 10?", "type":"select", "options":["1","2","3","4","5","6","7","8","9","10"], "placeholder":""},
-#     {"question":"What aspects of your life are you most satisfied or dissatisfied with? Why?","type":"text","placeholder":""},
-#     {"question":"What are your hopes and aspirations for the future? How do you plan to achieve them?","type":"text","placeholder":""},
-#     {"question":"How would you describe your overall level of physical activity?","type":"select","options":["Very active","Moderately active","Lightly active","Sedentary"],"placeholder":""},
-#     {"question":"What do you typically do in your leisure time? How do you balance relaxation with activity?","type":"text","placeholder":""},
-# ]
-
-# personal_info_questions_phase_3 = [
-#     #Phase 3
-#     {"question":"Would you describe yourself more as an introvert or an extrovert?","type":"text","placeholder":""},
-#     {"question":"How comfortable do you feel in social gatherings and public speaking scenarios?","type":"select","options":["Very comfortable","Somewhat comfortable","Neutral","Somewhat uncomfortable","Very uncomfortable"],"placeholder":""},
-#     {"question":"How do you typically react to meeting new people or being in unfamiliar social situations?","type":"text","placeholder":"Examples:Seek interaction,Observe first then join,Remain mostly on the sidelines,Avoid if possible"},
-#     {"question":"What skills or talents do you believe you possess?","type":"text","placeholder":""},
-#     {"question":"How have you developed these skills over time?","type":"text","placeholder":"Examples:Formal education,Self-taught,Mentorship,On-the-job experience"},
-#     {"question":"Can you provide examples of how you apply these skills in your personal or professional life?", "type":"text","placeholder":""},
-#     {"question":"What skills do you find most useful in social interactions?","type":"text","placeholder":"Examples: Active listening, Empathy, Clear communication, Persuasiveness, Conflict resolution"},
-# ]
-
 personal_info_questions_phase_3 = [
   {
     "topic": "Life Satisfaction and Quality of Life",
     "questions": [
       {
         "question": "How satisfied are you with your overall quality of life right now?",
-		    "info_type": "satisfaction with overall quality of life",
+				"info_type": "satisfaction with overall quality of life",
         "type": "group",
-      },
+    	},
     	{
         "question": "To what extent do you feel your life is meaningful and fulfilling?",
         "info_type": "extent of feeling life is meaningful and fulfilling",
@@ -518,7 +459,7 @@ personal_info_questions_phase_2 = [
         "info_type": "frequency of engaging in activities promoting physical health",
         "type": "group",
 			},
-		],     
+		],
 	},
   {
     "topic": "Academic or Occupational Functioning",

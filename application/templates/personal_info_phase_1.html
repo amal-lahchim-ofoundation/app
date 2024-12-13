@@ -55,7 +55,7 @@
         {% for topic in questions %}
         {% for item in topic.questions %}
         <div class="mb-4 rounded-section p-3 mb-2 question border">
-          <!--<span class="question-number">{{ loop.index }}</span>-->
+          <!-- <span class="question-number">{{ loop.index }}</span> -->
           <label class="form-label p-2">{{ item.question }}</label>
           {% if item.type == 'select' %}
           <select name="{{topic.topic}}_question_{{ loop.index }}" class="form-select" required>
@@ -66,16 +66,16 @@
           </select>
           {% elif item.type == 'textarea' %}
           <textarea name="{{topic.topic}}_question_{{ loop.index }}" class="form-control" rows="4"
-                    placeholder="{{ item.placeholder | default('If this is an important topic related to your mental issue, please write more (optional).') }}"
-                    required></textarea>
+            placeholder="{{ item.placeholder | default('If this is an important topic related to your mental issue, please write more (optional).') }}"
+            required></textarea>
           {% elif item.type == 'group' %}
           <div class="slider-container">
-            <input type="range" min="0" max="100" value="0" class="slider" id="slider{{ loop.index }}"
+            <input type="range" min="0" max="100" value="0" class="slider" id="slider-{{ topic.topic }}-{{ loop.index }}"
                    name="{{topic.topic}}_phase_1_score_{{ loop.index }}"
-                   oninput="updateOutput(this.value, {{ loop.index }})">
-            <output id="slider-output{{ loop.index }}">0</output>
+                   oninput="updateOutput(this.value, '{{ topic.topic }}-{{ loop.index }}')">
+            <output id="slider-output-{{ topic.topic }}-{{ loop.index }}">0</output>
           </div>
-          <div id="slider-interpretation{{ loop.index }}" class="slider-interpretation">Never</div>
+          <div id="slider-interpretation-{{ topic.topic }}-{{ loop.index }}" class="slider-interpretation">Never</div>
           <input type="text" name="{{topic.topic}}_phase_1_comments_{{ loop.index }}"
                  placeholder="If this is an important topic related to your mental issue, please write more (optional)."
                  class="form-control mt-2">
@@ -102,29 +102,29 @@
   </main>
 
   <script>
-    function updateOutput(value, index) {
-      document.getElementById('slider-output' + index).value = value;
-      const interpretationElement = document.getElementById(`slider-interpretation${index}`);
-      let interpretation;
-      value = parseInt(value); // Convert the value to an integer
+function updateOutput(value, index) {
+  const outputElement = document.getElementById('slider-output-' + index);
+  const interpretationElement = document.getElementById('slider-interpretation-' + index);
 
-      if (value >= 80) {
-        interpretation = "Very Frequently";
-    } else if (value >= 60) {
-        interpretation = "Frequently";
-    } else if (value >= 40) {
-        interpretation = "Occasionally";
-    } else if (value >= 20) {
-        interpretation = "Rarely";
-    } else {
-        interpretation = "Never";
-    }
+  outputElement.value = value;
 
+  let interpretation;
+  value = parseInt(value); // Convert the value to an integer
 
-      // Update the interpretation text
-      interpretationElement.textContent = interpretation;
+  if (value >= 80) {
+    interpretation = "Very Frequently";
+  } else if (value >= 60) {
+    interpretation = "Frequently";
+  } else if (value >= 40) {
+    interpretation = "Occasionally";
+  } else if (value >= 20) {
+    interpretation = "Rarely";
+  } else {
+    interpretation = "Never";
+  }
+    interpretationElement.textContent = interpretation;
+}
 
-    }
 
     document.addEventListener('DOMContentLoaded', function () {
       var form = document.querySelector('form');

@@ -248,7 +248,7 @@ h6 {
 # Navigation Menu
 --------------------------------------------------------------*/
 /**
-* Desktop Navigation 
+* Desktop Navigation
 */
 .navbar {
   padding: 0;
@@ -354,7 +354,7 @@ h6 {
 }
 
 /**
-* Mobile Navigation 
+* Mobile Navigation
 */
 .mobile-nav-toggle {
   color: #fff;
@@ -709,7 +709,7 @@ section {
   margin: 0;
   margin: 0;
   font-size: 36px;
-  font-weight: 700; 
+  font-weight: 700;
   font-family: "Montserrat", sans-serif;
   /* font-family: "Playfair Display", serif; */
   color: #0b0b0b;
@@ -875,7 +875,8 @@ section {
   padding: 50px 30px;
   box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
   transition: all ease-in-out 0.3s;
-  background: #6D8EC7;
+  background:  #0E3E77;
+  color: white;
 }
 
 .why-us .box span {
@@ -910,6 +911,10 @@ section {
 .why-us .box:hover h4,
 .why-us .box:hover p {
   color: #fff;
+}
+
+.why-us-headers {
+  padding: 20px;
 }
 
 /*--------------------------------------------------------------
@@ -1761,11 +1766,11 @@ a {
           transition: background-color 0.3s ease-in-out; /* Smooth transition for color change */
           font-family: 'Roboto', sans-serif;
           border-radius: 10px;
-    
+
       }
       .form-select:required:invalid, .form-control:required:invalid {
           background-color: #FFFFFF; /* Ensure the default state is white */
-          
+
       }
       .form-label {
         font-size: 25px;
@@ -1787,13 +1792,13 @@ a {
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
         border: 1px solid #ffffff;
       }
-      
+
       .slider-fill {
         height: 5px;
         background: #E28647; /* Change the color as needed */
         transition: width 0.2s;
       }
-      
+
       .rounded-section {
     background: rgba(255, 255, 255, 0.9); /* Light white background */
     border-radius: 8px; /* Rounded corners */
@@ -1809,7 +1814,7 @@ a {
 
 .slider-container {
   width: 100%;
- 
+
 }
 
 .slider {
@@ -1819,7 +1824,7 @@ a {
   background: #E28647; /* Make the default track transparent */
   margin-right: 10px;
   margin-bottom: 20px;
- 
+
 }
 
 .slider::-webkit-slider-thumb {
@@ -1831,7 +1836,7 @@ a {
     background: white; /* Color of the thumb */
     box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Shadow for the thumb */
     cursor: pointer; /* Change cursor on hover */
-    border: 1px solid #E28647; 
+    border: 1px solid #E28647;
 }
 
 .slider::-moz-range-thumb {
@@ -1843,11 +1848,11 @@ a {
   background: white; /* Color of the thumb */
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Shadow for the thumb */
   cursor: pointer; /* Change cursor on hover */
-  border: 1px solid #E28647; 
+  border: 1px solid #E28647;
 }
 
 output {
-  border: 1px solid #E28647; 
+  border: 1px solid #E28647;
   border-radius: 50%; /* Fully rounded corners */
   padding: 10px; /* Padding for spacing */
   box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px; /* Shadow effect */
@@ -1888,6 +1893,12 @@ output {
 .question:nth-child(3) { animation-delay: 0.6s; }
 .question:nth-child(4) { animation-delay: 0.8s; }
 .question:nth-child(5) { animation-delay: 1s; }
+.question:nth-child(6) { animation-delay: 1.2s; }
+.question:nth-child(7) { animation-delay: 1.4s; }
+.question:nth-child(8) { animation-delay: 1.6s; }
+.question:nth-child(9) { animation-delay: 1.8s; }
+.question:nth-child(10) { animation-delay: 2s; }
+
 
 .question:hover {
   background-color: #ffffff; /* Smooth background color transition */
@@ -1895,17 +1906,16 @@ output {
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow effect on hover */
   transform: translateY(-5px); /* Slight upward movement */
   transition: background-color 0.3s ease, border-color 0.5s ease, box-shadow 0.3s ease, transform 0.3s ease; /* Smooth transitions */
-  
+
 }
 
 .slider-interpretation {
-  font-family: "Petit Formal Script", cursive;
+  font-family: "Roboto", serif;
   font-weight: 400;
   font-style: normal;
   transition: all 0.3s ease 0.2s;
- 
-}
 
+}
 
 .question {
   background:
@@ -1938,8 +1948,8 @@ output {
 .ph1-logo {
   width: 80px;
   height: 80px;
-  margin: -10px auto;
-  display: block;
+  margin-top: -10px;
+  margin-bottom: -10px;
 }
 
 .image-container {

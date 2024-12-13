@@ -79,7 +79,7 @@
                   <input
                     type="range"
                     min="0"
-                    max="5"
+                    max="100"
                     value="0"
                     class="slider m-0"
                     id="slider{{ loop.index }}"
@@ -89,11 +89,11 @@
                   <output id="slider-output{{ loop.index }}" class="mt-1 d-flex align-items-center justify-content-center">0</output>
                 </div>
                 </div>
-                <div id="slider-interpretation{{ loop.index }}" class="slider-interpretation fw-light fst-italic">Not at all</div>
+                <div id="slider-interpretation{{ loop.index }}" class="slider-interpretation">Not at all</div>
                 <input
                   type="text"
                   name="{{topic.topic}}_diagnose_comments_{{ loop.index }}"
-                  placeholder="If this is an important topic related to your mental issue, please write more (optional)." 
+                  placeholder="If this is an important topic related to your mental issue, please write more (optional)."
                   class="form-control mt-2"
                 >
               </div>
@@ -152,7 +152,7 @@
       } else {
         interpretation = "Not at all";
       }
-      
+
       interpretationElement.textContent = interpretation;
     }
 
@@ -161,10 +161,10 @@
       var form = document.querySelector('form');
       var submitButton = document.getElementById('submit-btn');
       var spinner = document.getElementById('spinner');
-    
+
       form.onsubmit = function() {
         spinner.style.display = 'inline-block';
-        submitButton.classList.add('spinner-visible'); 
+        submitButton.classList.add('spinner-visible');
         submitButton.disabled = true;
       };
       var sliders = document.querySelectorAll('input[type="range"]');
