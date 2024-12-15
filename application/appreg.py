@@ -25,7 +25,7 @@ import pycountry
 from datetime import datetime
 import random
 from personal_info import personal_info_questions_phase_1, personal_info_questions_phase_2, personal_info_questions_phase_3
-from diagnose_questions import diagnose_questions
+from diagnose_questions import diagnose_questions  
 from personal_insight import personal_insights_questions
 app = Flask(__name__, static_folder='static')
 app.secret_key = 'your_secret_key_here'
@@ -40,8 +40,8 @@ def home():
     logging.debug("redirecting index.html")
     return render_template('index.html')
 
+
 ### Firebase ###
-# Initialize Firebase
 cred = credentials.Certificate(os.getenv('FIREBASE_DATABASE_CERTIFICATE'))
 firebase_admin.initialize_app(cred, {
     'databaseURL': DATABASE_URL
@@ -84,21 +84,28 @@ def register():
     if password1 != password2:
         flash('Passwords do not match.')
         return redirect(url_for('register_page'))
+
+    # Generate a random key
     random_key = str(uuid.uuid4())
+
+    # Store the random key and hashed password in Firebase Realtime Database
     ref = db.reference('users')
     ref.child(random_key).set({
         'random_key': random_key,
         'password': generate_password_hash(password1)
     })
+
     flash(f'Your registration key is: {random_key}. Please save it for future logins.', 'success')
     session['random_key'] = random_key
     logging.info("user registered with random key ["+random_key+"]")
-    return redirect(url_for('login_page'))
+    return redirect(url_for('register_page'))
+
 
 @app.route('/register', methods=['GET'])
 @redirect_if_logged_in  # Apply the redirect_if_logged_in decorator
 def register_page():
     return render_template('register.html')
+
 
 ##### LogIN Firebase #####
 
@@ -153,10 +160,12 @@ def login_required(route_function):
         return route_function(*args, **kwargs)
     return wrapper
 
+######### Treatment Page #############
 @app.route('/treatment')
 @login_required
 def treatment():
     user_data = get_user()
+    # Check completion flags
     personal_info_phase_1_complete = user_data.get('personal_info_phase_1_completed', False)
     personal_info_phase_2_complete = user_data.get('personal_info_phase_2_completed', False)
     personal_info_phase_3_complete = user_data.get('personal_info_phase_3_completed', False)
@@ -167,17 +176,13 @@ def treatment():
     ])
     personal_insights_complete = user_data.get('personal_insights_completed', False)
     diagnosis_complete = 'diagnosis_name' in user_data and bool(user_data['diagnosis_name'])
-
     # Redirect to the appropriate page if any step is incomplete
     if not personal_info_complete:
         return redirect(url_for('personal_info_phase_1'))
-
     if not personal_insights_complete:
         return redirect(url_for('personal_insights'))
 
     return render_template('treatment.html')
-
-
 
 ###########################################personal info Page ########################################
 
@@ -194,15 +199,52 @@ api_key = os.getenv('OPENAI_API_KEY_2')
 @login_required
 def personal_info_phase_1():
     user_data = get_user()
+
+    # Redirect to phase 2 if already completed
     if user_data.get('personal_info_phase_1_completed', False):
         return redirect(url_for('personal_info_phase_2'))
+
     if request.method == 'POST':
-        personal_info_responses = {key: value for key, value in request.form.items()}
-        print("Form Responses:", personal_info_responses)
+        personal_info_responses = {}
+
+        for index, question in enumerate(personal_info_questions_phase_1, start=1):
+            topic = sanitize_key(question.get('topic', f"Topic {index}"))
+            personal_info_responses[topic] = {}
+
+            questions = question.get('questions')
+            for index, question in enumerate(questions, start=1):
+                question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
+
+                if question['type'] == 'group':
+                     # Capture range and text input for the grouped question
+                    score = request.form.get(f'{topic}_phase_1_score_{index}')
+                    comments = request.form.get(f'{topic}_phase_1_comments_{index}')
+                    # Log to console for debugging
+                    personal_info_responses[topic][question_info_type] = {
+                        'score': (score if score else 0) + "/100",  # Default to 0 if score is empty
+                        'comments': comments if comments else None  # Default to None if comments are empty
+                    }
+
+                else:
+                    # Capture other question types normally
+                    answer = request.form.get(f'{topic}_question_{index}')
+                    # Log to console for debugging
+                    print(f"Received answer: {answer} for question {index}")
+
+                    personal_info_responses[topic][question_info_type] = answer if answer else None  # Default to None if answer is empty
+
+        # Update user data
         user_data['personal_info_phase_1_completed'] = True
         user_data['personal_info_responses_phase_1'] = personal_info_responses
+
+        # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
+
+         # Call the agent to process the personal info responses
+        #call_phase1_agent(user_data['personal_info_responses_phase_1'])
+
         return redirect(url_for('personal_info_phase_2'))
+
     return render_template('personal_info_phase_1.html', questions=personal_info_questions_phase_1)
 
 
@@ -215,13 +257,35 @@ def sanitize_key(key):
 @login_required
 def personal_info_phase_2():
     user_data = get_user()
+
+    # Redirect to phase 3 if phase 2 is already completed
     if user_data.get('personal_info_phase_2_completed', False):
         return redirect(url_for('personal_info_phase_3'))
+
     if request.method == 'POST':
-        personal_info_responses = {key: value for key, value in request.form.items()}
-        print("Form Responses:", personal_info_responses)
+        personal_info_responses = {}
+
+        for index, question in enumerate(personal_info_questions_phase_2, start=1):
+            topic = sanitize_key(question.get('topic', f"Topic {index}"))
+            personal_info_responses[topic] = {}
+
+            questions = question.get('questions')
+            for index, question in enumerate(questions, start=1):
+                question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
+
+                # Capture range and text input for the grouped question
+                score = request.form.get(f'{topic}_phase_2_score_{index}')
+                comments = request.form.get(f'{topic}_phase_2_comments_{index}')
+                personal_info_responses[topic][question_info_type] = {
+                    'score': (str(score) if score else "0") + "/100",  # Default to None if score is empty
+                    'comments': comments if comments else None  # Default to None if comments are empty
+                }
+
+        # Update user data
         user_data['personal_info_phase_2_completed'] = True
         user_data['personal_info_responses_phase_2'] = personal_info_responses
+
+        # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
         return redirect(url_for('personal_info_phase_3'))
     return render_template('personal_info_phase_2.html', questions=personal_info_questions_phase_2)
@@ -248,25 +312,13 @@ def personal_info_phase_3():
             for index, question in enumerate(questions, start=1):
                 question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
 
-                if question['type'] == 'group':
-                    # Capture range and text input for the grouped question
-                    score = request.form.get(f'{topic}_phase_3_score_{index}')
-                    comments = request.form.get(f'{topic}_phase_3_comments_{index}')
-
-                    # Log to console for debugging
-                    print(f"Received score: {score}, comments: {comments} for question {index}")
-
-                    personal_info_responses[topic][question_info_type] = {
-                        'score': (str(score) if score else "0") + "/100",  # Default to None if score is empty
-                        'comments': comments if comments else None  # Default to None if comments are empty
-                    }
-                else:
-                    # Capture other question types normally
-                    answer = request.form.get(f'{topic}_question_{index}')
-                    # Log to console for debugging
-                    print(f"Received answer: {answer} for question {index}")
-
-                    personal_info_responses[topic][question_info_type] = answer if answer else None  # Default to None if answer is empty
+                # Capture range and text input for the grouped question
+                score = request.form.get(f'{topic}_phase_3_score_{index}')
+                comments = request.form.get(f'{topic}_phase_3_comments_{index}')
+                personal_info_responses[topic][question_info_type] = {
+                    'score': (str(score) if score else "0") + "/100",  # Default to None if score is empty
+                    'comments': comments if comments else None  # Default to None if comments are empty
+                }
 
         # Update user data
         user_data['personal_info_phase_3_completed'] = True
@@ -274,12 +326,7 @@ def personal_info_phase_3():
 
         # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
-
-        # Call the agent to process the personal info responses
-        #call_phase3_agent(user_data['personal_info_responses_phase_3'], api_key, file_path)
-
-        return redirect(url_for('treatment'))
-
+        return redirect(url_for('personal_insights'))
     return render_template('personal_info_phase_3.html', questions=personal_info_questions_phase_3)
 
 ##### Sahar's Work on Personal Insight Page #####
@@ -288,40 +335,30 @@ def personal_info_phase_3():
 @login_required
 def personal_insights():
     user_data = get_user()
-
-    # Redirect to phase 1 if already completed
-    if user_data.get('personal_insight_completed', False):
-        return redirect(url_for('questions'))
-
+    
     if request.method == 'POST':
         personal_insight_responses = {}
-
+        
         for index, question in enumerate(personal_insights_questions, start=1):
             topic = sanitize_key(question.get('topic', f"Topic {index}"))
             personal_insight_responses[topic] = {}
-
+            
             questions = question.get('questions')
             for index, question in enumerate(questions, start=1):
                 question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
-
-                # Capture text input for the question
+                
                 answer = request.form.get(f'{topic}_question_{index}')
-                # Log to console for debugging
                 print(f"Received answer: {answer} for question {index}")
-
-                personal_insight_responses[topic][question_info_type] = answer if answer else None  # Default to None if answer is empty
-
-        # Update user data
-        user_data['personal_insight_completed'] = True
+                
+                personal_insight_responses[topic][question_info_type] = answer if answer else None
+                
+        user_data['personal_insights_completed'] = True
         user_data['personal_insight_responses'] = personal_insight_responses
-
-        # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
-
+        
         return redirect(url_for('questions'))
-
+    
     return render_template('personal_insights.html', questions=personal_insights_questions)
-
 ###### End of personal insight Page ####
 
 disorders_instance = Disorders()
@@ -373,37 +410,80 @@ def questions():
     result = None
     diagnosis_found = False
     saved_diagnosis = None
+
     user_data = get_user()
+
 
     # Check if it's the user's first login based on the session variable
     first_login = session.get('first_login', True)
     if request.method == 'POST':
         if first_login:
             diagnose_responses = {}
+
         for index, question in enumerate(diagnose_questions, start=1):
             topic = sanitize_key(question.get('topic', f"Topic {index}"))
             diagnose_responses[topic] = {}
+
             questions = question.get('questions')
             for index, question in enumerate(questions, start=1):
                 question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
+
                 # Capture range and text input for the  question
                 score = request.form.get(f'{topic}_diagnose_score_{index}')
                 comments = request.form.get(f'{topic}_diagnose_comments_{index}')
+
                 # Log to console for debugging
                 print(f"Received score: {score}, comments: {comments} for question {index}")
                 diagnose_responses[topic][question_info_type] = {
-                    'score': (str(score) if score else "0") + "/5",  # Default to None if score is empty
+                    'score': (str(score) if score else "0") + "/100",  # Default to None if score is empty
                     'comments': comments if comments else None  # Default to None if comments are empty
                 }
+
         # Update user data
+        user_data['diagnosis_complete'] = True
         user_data['diagnose_responses'] = diagnose_responses
         # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
-        # Call the agent to process the diagnose responses
+        print("Diagnosis complete flag set to True")
+        print("Redirecting to treatment")
         return redirect(url_for('treatment'))
     return render_template('diagnose.html', questions=diagnose_questions)
-######## End of Sahar's Work for diagnose page ######
+#################################################### End of Sahar's Work for diagnose page ########################################################
+    #         diagnose_responses = [request.form.get(f'q{i+1}') for i in range(len(diagnosequestions))]  # get all the answers
+    #         personal_info_responses = {question['question']: request.form.get(str(index)) for index, question in enumerate(personal_info_questions)}
+    #         personal_insights_responses = {question['question']: request.form.get(str(index)) for index, question in enumerate(personal_insights_questions)}
+    #         prompt = request.form.get('prompt')  # get the prompt
+    #         diagnosis_result = process_data(diagnose_responses, personal_info_responses,personal_insights_responses, prompt)  # process these datas
+    #         result = diagnosis_result['message']  # add these processed data into message
+    #         diagnosis_found = diagnosis_result['diagnosis_found']
+    #         session['given_diagnose'] = diagnosis_result['given_diagnose']
 
+    #         if diagnosis_found:
+    #             user_data = get_user()
+    #             if user_data:
+    #                 user_data['diagnosis'] = result
+    #                 user_data['diagnosis_name'] = session['given_diagnose']
+    #                 USERS_REF.child(session['random_key']).set(user_data)
+
+    #         session['first_login'] = False
+
+    #         return render_template('diagnose.html', result=result, questions=diagnosequestions, diagnosis_found=diagnosis_found)
+
+    #     return render_template('diagnose.html', questions=diagnosequestions)
+
+    # else:
+    #     if first_login:
+    #         return render_template('diagnose.html', questions=diagnosequestions)
+    #     else:
+    #         # If it's not the user's first login, retrieve the saved diagnosis
+    #         user_data = get_user()
+    #         if user_data:
+    #             saved_diagnosis = user_data.get('diagnosis')
+    #             if saved_diagnosis:
+    #                 diagnosis_found = True  # Update the diagnosis_found variable here
+    #         return render_template('diagnose.html', saved_diagnosis=saved_diagnosis, diagnosis_found=diagnosis_found)
+
+######## End of Sahar's Work for diagnose page ######
 
 def process_data(diagnose_responses, personal_info_responses, personal_insights_responses, prompt):
     # Initialize the various components
@@ -505,6 +585,13 @@ provided by the user: {personal_info} {personal_insights}. Based on this data, f
 def result():
     questions = session.get('questions', [])
     return render_template('diagnose.html', questions=questions)
+
+
+##### Sahar's Work Profile Page #####
+@app.route('/first_report', methods=['GET', 'POST'])
+@login_required
+def first_report():
+    return render_template('first_report.html')
 
 ####Chat Page#####
 

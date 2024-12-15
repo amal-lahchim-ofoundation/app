@@ -26,9 +26,8 @@
   <link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"> <!-- Tailwind cdn -->
 </head>
-<body class="ph1-body ph1-font bg-gray-200">
+<body class="ph1-body ph1-font treatment-body">
     <header id="header" class="fixed-top top-0 d-flex align-items-center py-2 shadow">
       {% if session['user_logged_in'] %}
         <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
@@ -48,20 +47,28 @@
         </div>
       {% endif %}
     </header>
-  <main id="main" class="flex justify-center item-center my-10">
-    <section class="bg-white w-5/6 rounded-lg shadow-2xl">
-      <section class="inner-page m-0 p-0">
-        <div class="px-10 position-relative bold " data-aos="zoom-in" data-aos-delay="100">
-          <h1 class="text-blue-800 text-3xl">Discover Your Personal Insights</h1>
-          <p class="text-yellow-600 tracking-widest">Please fill out the following details to continue.</p>
+    <main id="main" class="mt-5">
+      <section class="container-fluid p-0 pt-5">
+        <div class="row pt-5">
+          <div class="col-1"></div>
+          <div class="col-6 text-xs">
+            <h1 class="text-sm">Discover Your Personal Insights</h1>
+            <h5 class="ph1-h5">Please fill out the following details to continue.</h5>
+          </div>
+          <div class="col-5">
+            <div class="image-container">
+              <div class="text-overlay">INSIGHT</div>
+              <img src="{{ url_for('static', filename='../static/assets/img/Vector 1.png') }}" alt="banner" class="right-image"/>
+            </div>
+          </div>
         </div>
       </section>
-      <section class="inner-page w-5/6 mx-auto">
-        <div class="container">
+      <section class="inner-page container">
           <form action="/personal_insights" method="post">
             {% for topic in questions %}
             {% for item in topic.questions %}
-              <div class="mb-3">
+              <div class="mb-4 rounded-section p-3 mb-2 question border">
+                <span class="question-number">{{ loop.index }}</span>
                 <label class="form-label text-lg">{{ item.question }}</label>
                 <textarea
                   name="{{topic.topic}}_question_{{ loop.index }}"
@@ -77,7 +84,6 @@
               Submit <span id="spinner" class="spinner-border spinner-border-sm"></span>
             </button
           </form>
-        </div>
       </section>
     </section>
   </main><!-- End #main -->
