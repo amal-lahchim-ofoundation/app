@@ -2055,3 +2055,33 @@ output {
 .treatment-body {
   color: #0E3E77;
 }
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -250px;
+  width: 250px;
+  height: 100vh;
+  background-color: #0E3E77;
+  transition: right 0.5s ease;
+  z-index: 1000;
+  padding: 20px;
+  box-shadow: -5px 0 10px rgba(0,0,0,0.1);
+}
+.sidebar.show {
+  right: 0;
+}
+.sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+.sidebar ul li {
+  margin-bottom: 10px;
+}
+.sidebar ul li a {
+  text-decoration: none;
+  color: white;
+}
+.navbar-hidden {
+display: none !important;
+}

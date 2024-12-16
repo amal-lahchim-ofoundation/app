@@ -2,3 +2,4 @@
 .ssh.pub
 example.log
 venv/
+application/flask_session/
