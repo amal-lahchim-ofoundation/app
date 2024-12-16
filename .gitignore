@@ -3,3 +3,4 @@
 example.log
 venv/
 application/flask_session/
+flask_session/

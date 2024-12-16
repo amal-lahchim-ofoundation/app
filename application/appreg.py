@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 import json
 import logging
 import os
+import requests
 import time
 from langchain_openai import OpenAI
 from langchain.prompts import PromptTemplate
@@ -25,8 +26,11 @@ import pycountry
 from datetime import datetime
 import random
 from personal_info import personal_info_questions_phase_1, personal_info_questions_phase_2, personal_info_questions_phase_3
-from diagnose_questions import diagnose_questions  
+from diagnose_questions import diagnose_questions
 from personal_insight import personal_insights_questions
+from multiprocessing.dummy import Pool
+
+pool = Pool(5)
 app = Flask(__name__, static_folder='static')
 app.secret_key = 'your_secret_key_here'
 app.config['SESSION_TYPE'] = 'filesystem'
@@ -186,15 +190,6 @@ def treatment():
 
 ###########################################personal info Page ########################################
 
-#FIXME - Adding more data for each phases
-#FIXME - Add more agents for reading pdf, look for flow of data
-#FIXME - Check latency
-file_path = '/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/data/Mental_Health_Statistics_2024.docx'
-txt_path = "/Users/dandev947366/Desktop/test/ChatPsychologistAI/application/data/personal_info_statistic.txt"
-import docx
-SERPER_API_KEY = os.getenv('SERPER_API_KEY')
-api_key = os.getenv('OPENAI_API_KEY_2')
-
 @app.route('/personal_info_phase_1', methods=['GET', 'POST'])
 @login_required
 def personal_info_phase_1():
@@ -239,13 +234,49 @@ def personal_info_phase_1():
 
         # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
-
+        research_data('personal_info_responses_phase_1')
          # Call the agent to process the personal info responses
         #call_phase1_agent(user_data['personal_info_responses_phase_1'])
 
         return redirect(url_for('personal_info_phase_2'))
 
     return render_template('personal_info_phase_1.html', questions=personal_info_questions_phase_1)
+
+def research_data(data_ref, write_report = False):
+    data = {'user_key': session['random_key'], 'data_ref': data_ref, 'write_report': write_report}
+    headers = {'Content-Type': 'application/json'}
+
+    print("data", data)
+    '''res = requests.post(
+        'https://main-bvxea6i-hq3wucu75qstu.eu.platformsh.site/research-data',
+        data=json.dumps(data),
+        headers=headers
+    )'''
+    pool.apply_async(
+        requests.post,
+        args=[os.getenv('GPT_RESEACHER_BASE_URL') + '/research-data'],
+        kwds={'data': json.dumps(data), 'headers': headers}
+    )
+    print("end of research_data")
+
+def generate_final_report():
+    data = {'user_key': session['random_key']}
+    headers = {'Content-Type': 'application/json'}
+
+    print("data", data)
+    pool.apply_async(
+        requests.post,
+        args=[os.getenv('GPT_RESEACHER_BASE_URL') + '/write-final-report'],
+        kwds={'data': json.dumps(data), 'headers': headers}
+    )
+    print("end of generate_final_report")
+
+
+def get_recent_final_report():
+    bucket = storage.bucket()
+    blob = bucket.blob(f"research/{session['random_key']}/final_report.md")
+    contents = blob.download_as_bytes()
+    return contents.decode("utf-8")
 
 
 def sanitize_key(key):
@@ -287,6 +318,7 @@ def personal_info_phase_2():
 
         # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
+        research_data('personal_info_responses_phase_2')
         return redirect(url_for('personal_info_phase_3'))
     return render_template('personal_info_phase_2.html', questions=personal_info_questions_phase_2)
 
@@ -326,6 +358,7 @@ def personal_info_phase_3():
 
         # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
+        research_data('personal_info_responses_phase_3', write_report=True)
         return redirect(url_for('personal_insights'))
     return render_template('personal_info_phase_3.html', questions=personal_info_questions_phase_3)
 
@@ -335,29 +368,29 @@ def personal_info_phase_3():
 @login_required
 def personal_insights():
     user_data = get_user()
-    
+
     if request.method == 'POST':
         personal_insight_responses = {}
-        
+
         for index, question in enumerate(personal_insights_questions, start=1):
             topic = sanitize_key(question.get('topic', f"Topic {index}"))
             personal_insight_responses[topic] = {}
-            
+
             questions = question.get('questions')
             for index, question in enumerate(questions, start=1):
                 question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
-                
+
                 answer = request.form.get(f'{topic}_question_{index}')
                 print(f"Received answer: {answer} for question {index}")
-                
+
                 personal_insight_responses[topic][question_info_type] = answer if answer else None
-                
+
         user_data['personal_insights_completed'] = True
         user_data['personal_insight_responses'] = personal_insight_responses
         USERS_REF.child(session['random_key']).set(user_data)
-        
+
         return redirect(url_for('questions'))
-    
+
     return render_template('personal_insights.html', questions=personal_insights_questions)
 ###### End of personal insight Page ####
 
