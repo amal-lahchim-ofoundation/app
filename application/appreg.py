@@ -187,11 +187,8 @@ def treatment():
         return redirect(url_for('personal_insights'))
     return render_template('treatment.html')
 
-<<<<<<< HEAD
-=======
 ###########################################personal info Page ########################################
 
->>>>>>> 2ca8e2df2a3889c9b188f9f56059333e206d2c2e
 @app.route('/personal_info_phase_1', methods=['GET', 'POST'])
 @login_required
 def personal_info_phase_1():
@@ -244,8 +241,6 @@ def personal_info_phase_1():
 
     return render_template('personal_info_phase_1.html', questions=personal_info_questions_phase_1)
 
-<<<<<<< HEAD
-=======
 def research_data(data_ref, write_report = False):
     data = {'user_key': session['random_key'], 'data_ref': data_ref, 'write_report': write_report}
     headers = {'Content-Type': 'application/json'}
@@ -283,7 +278,6 @@ def get_recent_final_report():
     return contents.decode("utf-8")
 
 
->>>>>>> 2ca8e2df2a3889c9b188f9f56059333e206d2c2e
 def sanitize_key(key):
     # Replace invalid characters with an underscore or remove them
     return key.replace('$', '_').replace('#', '_').replace('[', '_').replace(']', '_').replace('/', '_').replace('.', '_')
@@ -341,23 +335,6 @@ def personal_info_phase_3():
             questions = question.get('questions')
             for index, question in enumerate(questions, start=1):
                 question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
-<<<<<<< HEAD
-                if question['type'] == 'group':
-                    # Capture range and text input for the grouped question
-                    score = request.form.get(f'{topic}_phase_3_score_{index}')
-                    comments = request.form.get(f'{topic}_phase_3_comments_{index}')
-                    print(f"Received score: {score}, comments: {comments} for question {index}")
-                    personal_info_responses[topic][question_info_type] = {
-                        'score': (str(score) if score else "0") + "/100",  # Default to None if score is empty
-                        'comments': comments if comments else None  # Default to None if comments are empty
-                    }
-                else:
-                    # Capture other question types normally
-                    answer = request.form.get(f'{topic}_question_{index}')
-                    # Log to console for debugging
-                    print(f"Received answer: {answer} for question {index}")
-                    personal_info_responses[topic][question_info_type] = answer if answer else None  # Default to None if answer is empty
-=======
 
                 # Capture range and text input for the grouped question
                 score = request.form.get(f'{topic}_phase_3_score_{index}')
@@ -366,7 +343,6 @@ def personal_info_phase_3():
                     'score': (str(score) if score else "0") + "/100",  # Default to None if score is empty
                     'comments': comments if comments else None  # Default to None if comments are empty
                 }
->>>>>>> 2ca8e2df2a3889c9b188f9f56059333e206d2c2e
 
         # Update user data
         user_data['personal_info_phase_3_completed'] = True
@@ -374,13 +350,8 @@ def personal_info_phase_3():
 
         # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
-<<<<<<< HEAD
-        return redirect(url_for('treatment'))
-
-=======
         research_data('personal_info_responses_phase_3', write_report=True)
         return redirect(url_for('personal_insights'))
->>>>>>> 2ca8e2df2a3889c9b188f9f56059333e206d2c2e
     return render_template('personal_info_phase_3.html', questions=personal_info_questions_phase_3)
 
 ##### Sahar's Work on Personal Insight Page #####
@@ -477,10 +448,6 @@ def questions():
         print("Diagnosis complete flag set to True")
         print("Redirecting to treatment")
         return redirect(url_for('treatment'))
-<<<<<<< HEAD
-    return render_template('treatment.html', questions=diagnose_questions)
-######## End of Sahar's Work for diagnose page ######
-=======
     return render_template('diagnose.html', questions=diagnose_questions)
 #################################################### End of Sahar's Work for diagnose page ########################################################
     #         diagnose_responses = [request.form.get(f'q{i+1}') for i in range(len(diagnosequestions))]  # get all the answers
@@ -491,7 +458,6 @@ def questions():
     #         result = diagnosis_result['message']  # add these processed data into message
     #         diagnosis_found = diagnosis_result['diagnosis_found']
     #         session['given_diagnose'] = diagnosis_result['given_diagnose']
->>>>>>> 2ca8e2df2a3889c9b188f9f56059333e206d2c2e
 
     #         if diagnosis_found:
     #             user_data = get_user()
