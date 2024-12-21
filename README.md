@@ -73,8 +73,8 @@ When you add new packages to the project, `requirements.in` and `requirements.tx
     pip-compile requirements.in
     ```
 
-Template URL: https://bootstrapmade.com/restaurantly-restaurant-template/
-Author: Tanja Grozdani
+    Template URL: https://bootstrapmade.com/restaurantly-restaurant-template/
+
 
 
 
