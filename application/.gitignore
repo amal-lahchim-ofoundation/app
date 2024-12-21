@@ -13,7 +13,7 @@ __pycache__/
 venv/
 # C extensions
 *.so
-
+flask_session/
 # Distribution / packaging
 .Python
 build/

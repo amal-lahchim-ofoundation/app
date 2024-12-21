@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <title>Chat Psychologist A.I.</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="{{ url_for('static', filename='assets/img/favicon.png') }}" rel="icon">
+
+    <!-- Vendor CSS Files and Template Main CSS File -->
+    <link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/animate.css/animate.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+
+
+</head>
+
+<body class="">
+
+    <!-- Header -->
+    <header id="header" class="fixed-top top-0 d-flex align-items-center py-2 shadow">
+      {% if session['user_logged_in'] %}
+        <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
+          <div class="d-flex">
+            <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
+            <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
+          </div>
+          <div class="d-flex">
+            <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Treatment</a>
+            <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Logout</a>
+          </div>
+        </div>
+      {% else %}
+        <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+          <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
+          <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Login</a>
+        </div>
+      {% endif %}
+    </header>
+
+  <!-- ======= Report Section ======= -->
+  <section class="d-flex align-items-center mt-5 pt-5">
+    <div class="container text-center text-lg-start mt-5 pt-5" data-aos="zoom-in" data-aos-delay="100">
+      <div id="" class="why-us">
+        <div class="container">
+          <div class="box">
+            <span>01</span>
+            <h4>Three Phases Report</h4>
+            <p>Comprehensive Psychological Analysis on Anhedonia and Mental Health
+
+             <h4 class="why-us-headers">Introduction</h4>
+              Anhedonia, the inability to experience pleasure from activities usually found enjoyable, 
+              is a critical symptom often associated with depressive disorders. This report aims to provide an in-depth analysis of anhedonia's impact on mental health, particularly focusing on its connection to depression, quality of life, and life satisfaction. The analysis is based on the provided reports and mental data, which indicate a life satisfaction
+              score of 0/100 regarding enjoyment from activities and hobbies.
+
+              <h4 class="why-us-headers">Definition and Symptoms</h4>
+              Anhedonia is characterized by a marked disinterest or lack of pleasure in hobbies, social interactions, and daily activities. 
+              It is a core symptom of major depressive disorder (MDD) and is also present in other mental health conditions such as schizophrenia 
+              and bipolar disorder. The symptoms of anhedonia can manifest in two primary forms: social anhedonia, which involves a lack of interest 
+              in social interactions, and physical anhedonia, which involves a lack of pleasure in physical sensations [Data: Sources (0); Entities (1, 5); Relationships (0)].
+              
+              <h4 class="why-us-headers">Causes of Anhedonia</h4>
+              The etiology of anhedonia is complex and multifaceted, involving biological, psychological, and environmental factors. 
+              Neurobiologically, it is associated with dysfunctions in the brain's reward system, particularly involving neurotransmitters 
+              like dopamine and serotonin. Psychological factors may include cognitive distortions and maladaptive thought patterns, 
+              while environmental factors might involve chronic stress or traumatic experiences [Data: Sources (0); Entities (1, 5); Relationships (0)].
+              
+              <h4 class="why-us-headers">The Link Between Anhedonia and Depression</h4>
+              Anhedonia is often considered a hallmark symptom of depressive disorders. It significantly contributes to the severity 
+              of depression by exacerbating feelings of sadness and hopelessness. The inability to derive pleasure from activities can 
+              create a vicious cycle, where decreased engagement in rewarding activities leads to further depressive symptoms [Data: Sources (0); 
+              Entities (1, 5); Relationships (0)].
+              
+              
+              <h4 class="why-us-headers">Impact on Quality of Life</h4>
+              The presence of anhedonia can severely impact an individual's quality of life. Studies indicate that individuals with anhedonia 
+              report lower life satisfaction scores, which can lead to further mental health complications. The mental data provided, indicating 
+              a life satisfaction score of 0/100, underscores the profound impact anhedonia can have on an individual's sense of well-being 
+              [Data: Sources (0); Entities (1, 5); Relationships (0)].
+
+              <h4 class="why-us-headers">Evaluating Life Satisfaction in Mental Health Assessments</h4>
+              Evaluating life satisfaction is crucial in mental health assessments to understand the full impact of anhedonia. 
+              Tools such as the Satisfaction with Life Scale (SWLS) and the Quality of Life Enjoyment and Satisfaction Questionnaire
+              (Q-LES-Q) can provide valuable insights into how anhedonia affects daily functioning and overall mental health. 
+              These evaluations help clinicians tailor treatment plans that address both the symptoms of depression and the associated 
+              loss of enjoyment [Data: Sources (0); Entities (1, 5); Relationships (0)].
+
+              <h4 class="why-us-headers">Treatment Options for Anhedonia</h4>
+              Addressing anhedonia requires a multifaceted approach:
+              <ol>
+                <li><b>Psychotherapy</b>: Cognitive-behavioral therapy (CBT) is effective in helping individuals re-engage with their 
+                  interests and develop coping strategies. It focuses on altering negative thought patterns and behaviors that contribute 
+                  to anhedonia.
+                </li>
+                
+                
+                <li><b>Medication</b>: Antidepressants, particularly selective serotonin reuptake inhibitors (SSRIs) and serotonin-norepinephrine
+                  reuptake inhibitors (SNRIs), may be prescribed to alleviate depressive symptoms and restore a sense of pleasure in activities.
+                </li>
+                
+                
+                <li><b>Lifestyle Changes</b>: Regular physical activity, social engagement, and mindfulness practices can significantly 
+                  improve overall mental health and combat anhedonia. These activities help stimulate the brain's reward system and improve mood 
+                  [Data: Sources (0); Entities (1, 5); Relationships (0)].
+                </li>
+              </ol>
+              <h4 class="why-us-headers">Conclusion</h4>
+              Anhedonia is a significant symptom of mental health disorders, particularly depression, with profound effects on 
+              quality of life and life satisfaction. Recognizing the signs and understanding the implications of anhedonia is crucial 
+              for effective treatment and support. By addressing both the psychological and emotional aspects of this condition, individuals 
+              can work towards reclaiming their enjoyment in life and improving their overall mental health.
+              <h4 class="why-us-headers">Mental Diagnosis</h4>
+              Based on the provided information, it is evident that anhedonia is a prominent symptom affecting the subject's mental health. 
+              However, a definitive diagnosis of a specific mental disorder, such as major depressive disorder, cannot be made solely based on 
+              this information. A comprehensive evaluation by a licensed mental health professional is necessary to accurately diagnose and develop 
+              an appropriate treatment plan.
+            </p>
+            <a href="{{url_for('questions')}}" class="btn btn-orange float-end" style="color:white;background-color:#e38748;">Download</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/firebase.js') }}"></script>
+  
+  </body>
+  
+  </html>
