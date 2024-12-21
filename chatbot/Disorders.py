@@ -22,7 +22,7 @@ import os
 from dotenv import load_dotenv
 
 
-load_dotenv() 
+load_dotenv()
 class Disorders:
     def __init__(self):
         self.ANXIETY = Anxiety("Anxiety", os.getenv('CONTENT_FOLDER')+"Anxiety")
@@ -51,7 +51,7 @@ class Disorders:
             self.ANXIETY, self.SOCIAL_ANXIETY, self.LOW_SELF_CONFIDENT,
             self.WORK_STUDY_PROBLEMS, self.DEPRESSION, self.DISSOCIATION,
             self.OCD, self.STRESS, self.FEAR_OF_ILLNESS_OR_DEATH,
-            self.UNRESOLVED_PAST_ISSUES, self.ASSERTIVENESS, self.PTSD, 
+            self.UNRESOLVED_PAST_ISSUES, self.ASSERTIVENESS, self.PTSD,
             self.COMPULSIVITY, self.PROCESSING_ISSUES, self.PROCESSING_ISSUES,
             self.SLEEP_PROBLEMS, self.GRIEF_PROBLEMS, self.FRIENDSHIPS_RELATIONSHIPS,
             self.ADAPTATION
@@ -68,4 +68,4 @@ class Disorders:
             if disorder.name.lower() == disorder_name.lower():
                 return disorder
         # If the disorder with the given name is not found, you can return None or raise an exception.
-        return None 
+        return None
