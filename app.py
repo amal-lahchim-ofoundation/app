@@ -44,7 +44,6 @@ def home():
     logging.debug("redirecting index.html")
     return render_template('index.html')
 
-
 ### Firebase ###
 cred = credentials.Certificate(os.getenv('FIREBASE_DATABASE_CERTIFICATE'))
 firebase_admin.initialize_app(cred, {
@@ -322,7 +321,9 @@ def personal_info_phase_2():
         return redirect(url_for('personal_info_phase_3'))
     return render_template('personal_info_phase_2.html', questions=personal_info_questions_phase_2)
 
-
+def get_user():
+    user_data = USERS_REF.child(session['random_key']).get()
+    return user_data
 
 @app.route('/personal_info_phase_3', methods=['GET', 'POST'])
 @login_required
@@ -363,7 +364,52 @@ def personal_info_phase_3():
     return render_template('personal_info_phase_3.html', questions=personal_info_questions_phase_3)
 
 ##### Sahar's Work on Personal Insight Page #####
+@app.route("/questions", methods=['GET', 'POST'])
+@login_required  # Ensure user is logged in to access this route
+def questions():
+   # Initialize variables
+    result = None
+    diagnosis_found = False
+    saved_diagnosis = None
 
+    user_data = get_user()
+
+
+    # Check if it's the user's first login based on the session variable
+    first_login = session.get('first_login', True)
+    if request.method == 'POST':
+        if first_login:
+            diagnose_responses = {}
+
+        for index, question in enumerate(diagnose_questions, start=1):
+            topic = sanitize_key(question.get('topic', f"Topic {index}"))
+            diagnose_responses[topic] = {}
+
+            questions = question.get('questions')
+            for index, question in enumerate(questions, start=1):
+                question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
+
+                # Capture range and text input for the  question
+                score = request.form.get(f'{topic}_diagnose_score_{index}')
+                comments = request.form.get(f'{topic}_diagnose_comments_{index}')
+
+                # Log to console for debugging
+                print(f"Received score: {score}, comments: {comments} for question {index}")
+                diagnose_responses[topic][question_info_type] = {
+                    'score': (str(score) if score else "0") + "/100",  # Default to None if score is empty
+                    'comments': comments if comments else None  # Default to None if comments are empty
+                }
+
+        # Update user data
+        user_data['diagnosis_complete'] = True
+        user_data['diagnose_responses'] = diagnose_responses
+        # Save updated user data to the database
+        USERS_REF.child(session['random_key']).set(user_data)
+        print("Diagnosis complete flag set to True")
+        print("Redirecting to treatment")
+        return redirect(url_for('treatment'))
+    return render_template('diagnose.html', questions=diagnose_questions)
+#################################################### End of Sahar's Work for diagnose page
 @app.route('/personal_insights', methods=['GET', 'POST'])
 @login_required
 def personal_insights():
