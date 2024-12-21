@@ -27,7 +27,7 @@
   <link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
-  
+
   <!-- =======================================================
   * Template Name: Restaurantly - v3.1.0
   * Template URL: https://bootstrapmade.com/restaurantly-restaurant-template/
@@ -224,8 +224,8 @@
       var session_summary = {{session_summary | default("", true) | tojson }};
       let startTime;
       if (session_summary == "") {
-      
-        
+
+
           if (sessionStorage.getItem('timer_start')) {
             // If there's a start time saved in sessionStorage, use it
             startTime = parseInt(sessionStorage.getItem('timer_start'));
@@ -301,7 +301,7 @@
                   }
               }
           }
-   
+
           let interval = setInterval(checkTime, 1000);  // check every second
 let isPopupShown = false;
 let waitingForSummaryAgreement = false;
@@ -329,7 +329,7 @@ function checkSessionStatus() {
 
                 setTimeout(() => {
                     let questionElem = document.createElement("li");
-                    questionElem.innerHTML = `Do you agree with the summary of the session? 
+                    questionElem.innerHTML = `Do you agree with the summary of the session?
                     <button class="summary-agree-btn" data-agree="yes">Yes</button>
                     <button class="summary-agree-btn" data-agree="no">No</button>`;
                     questionElem.className = 'chatbot';
@@ -356,9 +356,9 @@ function checkSessionStatus() {
             }
         });
 }
-}     
+}
 
-        
+
       // Check the session status every 5 seconds
       setInterval(checkSessionStatus, 5000);
 
@@ -452,11 +452,11 @@ function checkSessionStatus() {
                 .catch(error => {
                     console.error('There has been a problem with your fetch operation:', error);
                 });
-      } 
+      }
 
       function displayMessageWordByWord(message, element) {
         const words = message.split(' '); // Split the message into words
-        let index = 0; // Start with the first word 
+        let index = 0; // Start with the first word
 
         const intervalId = setInterval(() => {
             if (index < words.length) {

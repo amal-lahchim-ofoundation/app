@@ -14,12 +14,12 @@
 -   Create .env file (Drive: Chat Psychologist > 4. Training > Chat App > env_file_explanation.mov)
     ```bash
     # ask for keys in the project channel
-    cp application/.env.example application/.env
+    cp .env.example .env
     ```
 -   Create databaseKey.json file (Drive: Chat Psychologist > 4. Training > Chat App > databaseKey.json_file_explanation.mov)
     ```bash
     # ask for the content of the file in project channel
-    cp application/databaseKey.json.example application/databaseKey.json
+    cp databaseKey.json.example databaseKey.json
     ```
 -   Create a virtual environment
     ```bash
@@ -56,7 +56,7 @@
     ```
 -   Run the application
     ```bash
-    flask --app application/appreg run
+    flask run
     ```
 
 

@@ -1,6 +1,6 @@
 from flask import Flask, session, request, render_template, redirect, url_for, flash, jsonify, make_response
 from logging import DEBUG
-from flask_session import Sesssion
+from flask_session import Session
 import firebase_admin
 from firebase_admin import credentials, db, firestore
 import uuid
