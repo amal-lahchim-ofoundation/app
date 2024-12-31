@@ -6,6 +6,7 @@ instance/*
 databaseKey.json
 /ven/
 flask_session/
+.DS_Store
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files
 __pycache__/

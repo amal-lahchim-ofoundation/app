@@ -41,88 +41,27 @@
 
 
 <style>
-  .modal-backdrop {
-    z-index: -1;
-  }
 
-  .btn-close {
-  display: none; /* This will hide the close button */
-}
-  #randomKeyCopyButton {
-    display: inline-block; 
-    position: absolute;
-    width: 80px;
-    top: 5px;
-    right: 5px;
-    padding: 5px 10px;
-    font-size: 12px;
-    text-align: center;
-    text-decoration: none;
-    cursor: pointer;
-    background-color: #3498db;
-    color: #fff;
-    border: 1px solid #2980b9;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-  }
-
-  #randomKeyCopyButton::before {
-    content: "\1F4CB"; /* Unicode character for a clipboard icon */
-    margin-right: 5px;
-  }
-
-  #randomKeyCopyButton:hover {
-    background-color: #2980b9;
-  }
-
-/* Existing styles for #randomKeyCopyButton */
-
-/* Style for the button after copying */
-  #randomKeyCopyButton.copied {
-    background-color: #28a745; /* Change color to indicate success */
-    content: '✔ Copied'; /* Change text to show a checkmark and 'Copied' */
-  }
 
 </style>
 
 </head>
 <body class="login-body">
- 
-    <!-- Navbar -->
-    <nav class="login-nav fixed-top top-0 d-flex align-items-center py-2">
-      {% if session['user_logged_in'] %}
-      <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
-          <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
-
-          <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
-          <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatment</a>        
+  <!-- Navbar -->
+  <nav class="login-nav fixed-top top-0 d-flex align-items-center py-2">
+    <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
+      <div class="d-flex">
+        <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
+        <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
       </div>
-      {% else %}
-      <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
-        <div class="d-flex">
-          <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
-          <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
-        </div>
-        <div class="d-flex">
-          <a href="{{ url_for('home') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Home</a>
-          <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Login</a>
-        </div>
+      <div class="d-flex">
+        <a href="{{ url_for('home') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Home</a>
+        <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Login</a>
       </div>
-    {% endif %}
+    </div>
   </nav>
-  <div>
-  </div>
 
   <main id="main" class="main-page">
-  
-      <!-- <section class="inner-page">
-        <div class="container">
-          <div class="section-header">
-            <h2>Register</h2>        
-          </div>
-        </div>
-      </section> -->
-
     <!-- ======= Speaker Details Sectionn ======= -->
     <section id="speakers-details">
       <div class="container mt-5">
@@ -144,104 +83,85 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="flashModalLabel">Message</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="false">&times;</span>
-                </button>
+                <button class="btn-orange" id="randomKeyCopyButton" data-clipboard-target="#randomKeyCopyButton">Copy</button>
               </div>
               <div class="modal-body">
                 <!-- Flash message content will go here -->
               </div>
               <div class="modal-footer">
-                <a href="{{url_for('register')}}" class="btn btn-primary">Cancel</a>
-                <a href="{{url_for('login')}}" class="btn btn-primary" style="display: none;">Login</a>
-                       
+                <a href="{{url_for('register')}}" class="btn-orange">Cancel</a>
+                <a href="{{url_for('login')}}" class="btn-orange" style="display: none;">Login</a> 
                 <input type="text" class="form-control" id="randomKeyInput" value="{{ session['random_key'] }}" readonly style="display:none;"/>
-                <button class="btn btn-primary" id="randomKeyCopyButton" data-clipboard-target="#randomKeyCopyButton"  style="display: none;">Copy</button>
-
               </div>
             </div>
           </div>
         </div>
       </div>
-      <script type="text/javascript">
-        $('.message a').click(function(){
-    $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
- });
-    
-    </script>
+    </section>
+  </main><!-- End #main -->
     <script>
+      $('.message a').click(function(){
+        $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
+      });
       $(document).ready(function() {
         {% with messages = get_flashed_messages(category_filter=['success']) %}
-        {% if messages %}
-        $(".modal-body").text("{{ messages[0] }}");
-        $(".modal-footer a").show();  // Show the Login button
-        document.getElementById('randomKeyCopyButton').style="display: inline-block";
-        var myModal = new bootstrap.Modal(document.getElementById('flashModal'), {});
-        myModal.show();
-        {% else %}
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        $(".modal-body").text("{{ messages[0] }}");
-        $(".modal-footer a").hide();  // Hide the Login button
-        var myModal = new bootstrap.Modal(document.getElementById('flashModal'), {});
-        myModal.show();
-        {% endif %}
+          {% if messages %}
+            $(".modal-body").text("{{ messages[0] }}");
+            $(".modal-footer a").show();  // Show the Login button
+            document.getElementById('randomKeyCopyButton').style="display: inline-block";
+            var myModal = new bootstrap.Modal(document.getElementById('flashModal'), {});
+            myModal.show();
+          {% else %}
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                $(".modal-body").text("{{ messages[0] }}");
+                $(".modal-footer a").hide();  // Hide the Login button
+                var myModal = new bootstrap.Modal(document.getElementById('flashModal'), {});
+                myModal.show();
+              {% endif %}
+            {% endwith %}
+          {% endif %}
         {% endwith %}
-        {% endif %}
-        {% endwith %}
-    });
-    
-      
-      </script>
-    
-
-    </section>
-
-  </main><!-- End #main -->
-
-  
-
-  
-<!-- Scripts -->
-<script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/js/firebase.js') }}"></script>
-
-<script>
-  document.addEventListener('DOMContentLoaded', (event) => {
-    const copyButton = document.getElementById('randomKeyCopyButton');
-    const copyText = document.getElementById('randomKeyInput');
-
-    if (copyButton && copyText) {
-      copyButton.addEventListener('click', function() {
-        if (!navigator.clipboard) {
-          console.error('Clipboard API not available');
-          return;
-        }
-
-        navigator.clipboard.writeText(copyText.value).then(() => {
-          // Change button appearance to indicate success
-          copyButton.textContent = 'Copied!';
-          copyButton.style.backgroundColor = '#28a745';
-
-          // Revert button appearance after 2 seconds
-          setTimeout(() => {
-            copyButton.textContent = 'Copy';
-            copyButton.style.backgroundColor = '#3498db';
-          }, 2000);
-        }).catch(err => {
-          console.error('Error copying to clipboard: ', err);
-        });
       });
-    }
-  });
-</script>
+      
+      document.addEventListener('DOMContentLoaded', (event) => {
+        const copyButton = document.getElementById('randomKeyCopyButton');
+        const copyText = document.getElementById('randomKeyInput');
+    
+        if (copyButton && copyText) {
+          copyButton.addEventListener('click', function() {
+            if (!navigator.clipboard) {
+              console.error('Clipboard API not available');
+              return;
+            }
+    
+            navigator.clipboard.writeText(copyText.value).then(() => {
+              // Change button appearance to indicate success
+              copyButton.textContent = 'Copied!';
+              copyButton.style.backgroundColor = '#efb947';
+    
+              // Revert button appearance after 2 seconds
+              setTimeout(() => {
+                copyButton.textContent = 'Copy';
+                copyButton.style.backgroundColor = '#E28647';
+              }, 2000);
+            }).catch(err => {
+              console.error('Error copying to clipboard: ', err);
+            });
+          });
+        }
+      });
+    </script>
 
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/firebase.js') }}"></script>
 
 </body>
 
