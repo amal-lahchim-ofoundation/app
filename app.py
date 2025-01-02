@@ -2,7 +2,7 @@ from flask import Flask, session, request, render_template, redirect, url_for, f
 from logging import DEBUG
 from flask_session import Session
 import firebase_admin
-from firebase_admin import credentials, db, firestore
+from firebase_admin import credentials, db, firestore, storage
 import uuid
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
@@ -29,6 +29,7 @@ from questions.personal_info import personal_info_questions_phase_1, personal_in
 from questions.diagnose_questions import diagnose_questions
 from questions.personal_insight import personal_insights_questions
 from multiprocessing.dummy import Pool
+import re
 
 pool = Pool(5)
 app = Flask(__name__, static_folder='static')
@@ -278,7 +279,7 @@ def get_recent_final_report():
     contents = blob.download_as_bytes()
     return contents.decode("utf-8")
 
-##### Sahar added this to change Narkdown text to Hyper Text(HTML)
+##### Sahar added this to change Markdown text to Hyper Text(HTML)
 def convert_markdown_to_html(text):
     # Convert headers
     text = re.sub(r'### (.*)', r'<h4>\1</h4>', text)
