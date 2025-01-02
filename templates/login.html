@@ -25,38 +25,17 @@
     <link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 
      <!-- Template Main CSS File -->
   <link href="../static/assets/css/style.css" rel="stylesheet">
    <!-- Template Main CSS File -->
-   <link href="../static/assets/css/login.css" rel="stylesheet">
-
-   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+   <link href="../static/assets/css/login.css" rel="/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </head>
 <body class="login-body" >
-
-    <!-- Navbar -->
-    <nav  class="login-nav fixed-top top-0 d-flex align-items-center py-2">
-      {% if session['user_logged_in'] %}
-      <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
-          <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
-          <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Logout</a>
-          <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Treatment</a>        
-      </div>
-      {% else %}
-      <div class="flash-messages">
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-        {% endwith %}
-    </div>
+  <!-- Navbar -->
+  <nav  class="login-nav fixed-top top-0 d-flex align-items-center py-2">
     <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
       <div class="d-flex">
         <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
@@ -67,24 +46,10 @@
         <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Our Services</a> 
       </div>
     </div>
-    {% endif %}
   </nav>
 
-  <main id="main" class="main-page">
-      <!-- <section class="breadcrumbs">
-        
-      </section> -->
-  
-      <!-- <section class="inner-page">
-        <div class="container">
-          <div class="section-header">
-            <h2>Log In</h2>        
-          </div>
-        </div>
-      </section> -->
-
-    <!-- ======= Speaker Details Sectionn ======= -->
-    <section id="speakers-details m-0">
+  <main id="main">
+    <section>
       <div class="container mt-5">
         <form action="/login" method="post" class="login-form shadow-sm bg-white">
           <h2 class="mb-4 text-center">Log in</h2>
@@ -103,66 +68,65 @@
         </form>
       </div>
     </section>
-<!-- Flash Message Modal -->
-<div class="modal fade" id="flashModal" tabindex="-1" role="dialog" aria-labelledby="flashModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="flashModalLabel">Alert</h5>
-        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- Flash message content will go here -->
-      </div>
-      <div class="modal-footer">
-        <a href="#" class="btn btn-primary" style="display: none;">Login</a>
-        <!-- This button can be shown or hidden as needed by your script -->
+    <!-- Flash Message Modal -->
+    <div class="modal fade" id="flashModal" tabindex="-1" role="dialog" aria-labelledby="flashModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="flashModalLabel">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              Warning
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              {% for message in messages %}
+                <p>{{ message }}</p>
+              {% endfor %}
+            {% endif %}
+            {% endwith %}
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-<script>
-  $(document).ready(function() {
-    {% with messages = get_flashed_messages(category_filter=['success']) %}
-    {% if messages %}
-    $(".modal-body").text("{{ messages[0] }}");
-    $(".modal-footer a").show();  // Show the Login button
-    var myModal = new bootstrap.Modal(document.getElementById('flashModal'), {});
-    myModal.show();
-    {% else %}
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    $(".modal-body").text("{{ messages[0] }}");
-    $(".modal-footer a").hide();  // Hide the Login button
-    var myModal = new bootstrap.Modal(document.getElementById('flashModal'), {});
-    myModal.show();
-    {% endif %}
-    {% endwith %}
-    {% endif %}
-    {% endwith %}
-});
+  </main><!-- End #main -->
 
-  sessionStorage.clear();
-
-  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Function to show the modal
+      function showFlashModal() {
+        const modal = new bootstrap.Modal(document.getElementById('flashModal'));
+        modal.show();
+      }
+    
+      // Check if there are any flash messages
+      const flashMessages = document.querySelector('.modal-body');
+      if (flashMessages && flashMessages.children.length > 0) {
+        showFlashModal();
+      }
+    
+      // Close button functionality
+      document.querySelectorAll('.close').forEach(function(closeButton) {
+        closeButton.addEventListener('click', function() {
+          const modal = bootstrap.Modal.getInstance(this.closest('.modal'));
+          modal.hide();
+        });
+      });
+    });
+    
+      sessionStorage.clear();
   </script>
-</main><!-- End #main -->
-
-
-
-<!-- Scripts -->
-<script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
-
-<script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
-<script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
-
-
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
+ 
+  <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
 
 </body>
 

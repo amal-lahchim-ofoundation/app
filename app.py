@@ -2,7 +2,7 @@ from flask import Flask, session, request, render_template, redirect, url_for, f
 from logging import DEBUG
 from flask_session import Session
 import firebase_admin
-from firebase_admin import credentials, db, firestore
+from firebase_admin import credentials, db, firestore, storage
 import uuid
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
@@ -29,6 +29,7 @@ from questions.personal_info import personal_info_questions_phase_1, personal_in
 from questions.diagnose_questions import diagnose_questions
 from questions.personal_insight import personal_insights_questions
 from multiprocessing.dummy import Pool
+import re
 
 pool = Pool(5)
 app = Flask(__name__, static_folder='static')
@@ -47,7 +48,8 @@ def home():
 ### Firebase ###
 cred = credentials.Certificate(os.getenv('FIREBASE_DATABASE_CERTIFICATE'))
 firebase_admin.initialize_app(cred, {
-    'databaseURL': DATABASE_URL
+    'databaseURL': DATABASE_URL,
+    'storageBucket': 'chat-psychologist-ai.appspot.com'
 })
 
 #### Firestore #####
@@ -277,6 +279,37 @@ def get_recent_final_report():
     contents = blob.download_as_bytes()
     return contents.decode("utf-8")
 
+##### Sahar added this to change Narkdown text to Hyper Text(HTML)
+def convert_markdown_to_html(text):
+    # Convert headers
+    text = re.sub(r'### (.*)', r'<h4>\1</h4>', text)
+    text = re.sub(r'## (.*)', r'<h3>\1</h3>', text)
+    text = re.sub(r'# (.*)', r'<h2>\1</h2>', text)
+
+    # Convert numbered lists
+    text = re.sub(r'(\d+)\. ', r'<li>\1. ', text)
+    text = re.sub(r'(\d+)\. (.*)', r'<li>\2</li>', text)
+
+    # Wrap list items in <ul> tags
+    text = re.sub(r'(<li>.*</li>)', r'<ul>\1</ul>', text)
+
+    # Make text bold
+    text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
+
+    # Wrap plain text in <p> tags
+    lines = text.split('\n')
+    for i in range(len(lines)):
+        if not re.match(r'<h\d>|<ul>|<li>|<b>', lines[i]):
+            lines[i] = f'<p>{lines[i]}</p>'
+    text = '\n'.join(lines)
+
+    return text
+
+def get_recent_final_report():
+    bucket = storage.bucket()
+    blob = bucket.blob(f"research/{session['random_key']}/final_report.md")
+    contents = blob.download_as_bytes()
+    return convert_markdown_to_html(contents.decode("utf-8"))
 
 def sanitize_key(key):
     # Replace invalid characters with an underscore or remove them
@@ -324,6 +357,27 @@ def personal_info_phase_2():
 def get_user():
     user_data = USERS_REF.child(session['random_key']).get()
     return user_data
+
+##### Sahar's Work on Reports Page #####
+@app.route('/reports', methods=['GET', 'POST'])
+@login_required
+def reports():
+    # Fetch the reports (this is just a placeholder, replace with actual logic)
+    reports = [
+        {"id": "01", "title": "Diagnose Mental Disorder Report", "download": "", "url": "./first_report"},
+        {"id": "02", "title": "Report 2", "download": "Content for report 2.", "url": "#"},
+        {"id": "03", "title": "Report 3", "download": "Content for report 3.", "url": "#"},
+        {"id": "04", "title": "Report 4", "download": "Content for report 4.", "url": "#"}
+    ]
+    return render_template('reports.html', reports=reports)
+
+
+##### Sahar's Work Profile Page #####
+@app.route('/first_report', methods=['GET', 'POST'])
+@login_required
+def first_report():
+    report_content = get_recent_final_report()
+    return render_template('first_report.html', report_content=report_content)
 
 @app.route('/personal_info_phase_3', methods=['GET', 'POST'])
 @login_required
@@ -441,11 +495,6 @@ def personal_insights():
 ###### End of personal insight Page ####
 
 
-##### Sahar's Work Profile Page #####
-@app.route('/first_report', methods=['GET', 'POST'])
-@login_required
-def first_report():
-    return render_template('first_report.html')
 
 #### web3 routes ####
 @app.route('/nonce')
