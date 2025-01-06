@@ -34,65 +34,82 @@
 
 </head>
 
-<body class="ph1-body ph1-font">
-    <!-- Header -->
-    <header id="header" class="container-fluid fixed-top top-0 py-2 shadow w-full">
+<body class="main-body ph1-font">
+  <!-- Header -->
+  <nav  class="login-nav fixed-top top-0 d-flex align-items-center py-2">
+    <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
       {% if session['user_logged_in'] %}
-      <div class="row gap-0 p-0">
-          <div class="col-1"></div>
-          <div class="col-7 d-flex">
-            <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
-            <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
-          </div>
-          <div id="navbarItems" class="col-4 d-flex align-items-center float-end">
-            <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Logout</a>
-            <a href="{{ url_for('treatment') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Treatment</a>
-            <a herf="" id="userMenuBtn" class="book-a-table-btn ml-3 d-none d-lg-flex text-decoration-none pl-3">
-              <i class="fas fa-user fa-2xl "></i>
-            </a>
-          </div>
-      </div>
-      {% else %}
-      <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
         <div class="d-flex">
           <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
           <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
         </div>
-
-        <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Login</a>
-
+        <div id="navbarItems" class="col-4 d-flex align-items-center float-end">
+          <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Logout</a>
+          <a href="{{ url_for('treatment') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Treatment</a>
+          <a herf="" id="userMenuBtn" class="book-a-table-btn ml-3 d-none d-lg-flex text-decoration-none pl-3">
+            <i class="fas fa-user fa-2xl "></i>
+          </a>
+        </div>
+      {% else %}
+        <div class="d-flex">
+          <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
+          <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="">ChatPsychologistAI</a></h1>
+        </div>
+        <div id="navbarItems" class="col-4 d-flex align-items-center justify-content-end">
+          <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex ">Login</a>
+        </div>
+      {% endif %}
     </div>
-    {% endif %}
-  </header>
+  </nav>
   <main id="main">
-  <!-- ======= Hero Section ======= -->
-  <section id="hero" class="d-flex align-items-center">
-    <div class="container position-relative text-center text-lg-start" data-aos="zoom-in" data-aos-delay="100">
-      <div class="row">
-        <div class="col-lg-8">
-          <h1>Welcome to <span>ChatPsychologistAI</span></h1>
-          <h2>It is not primarily our physical selves that limit us but rather our mindset about our physical limits.</h2>
+    <!-- ======= Hero Section ======= -->
+    <section id="hero" class="container mt-5">
+      <div class="row mt-5 pt-5">
+        <div class="col-md-6" data-aos="zoom-in" data-aos-delay="100">
+          <h1 class="text-white">Chat Psychologist</h1>
+          <h1>Understanding Minds</h1>
+          <h5 class="text-white">Unlocking the Potential Within, One Step at a Time. Empowering Your Journey to Comprehensive Mental Wellness</h5>
           {% if session['user_logged_in'] %}
-          <div class="btns">
-            <a href="#why-us" class="btn-menu animated fadeInUp scrollto">Our Services</a>
-            <a href="{{ url_for('treatment') }}" class="btn-book animated fadeInUp scrollto">Start with treatment</a>
-          </div>
+            <div class="btns">
+              <a href="{{ url_for('treatment') }}">START TREATMENT WITH US</a>
+            </div>
           {% else %}
-          <div class="btns">
-            <a href="#why-us" class="btn-menu animated fadeInUp scrollto text-decoration-none shadow">Our Services</a>
-            <a href="{{ url_for('login') }}" class="btn-book animated fadeInUp scrollto text-decoration-none shadow">Login</a>
-            <button id="connect" class="btn-book animated fadeInUp scrollto shadow">Connect</button>
-          </div>
+            <div class="btns">
+              <a href="{{ url_for('login') }}">START TREATMENT WITH US</a>
+            </div>
           {% endif%}
-
         </div>
-        <div class="col-lg-4 d-flex align-items-center justify-content-center position-relative" data-aos="zoom-in" data-aos-delay="200">
-          <a href="#" class="play-btn"></a>
+        <div class="col-md-6 d-flex">
+          <img src="{{ url_for('static', filename='../static/assets/img/hero.png') }}" alt="Logo">
         </div>
-
       </div>
-    </div>
-  </section><!-- End Hero -->
+    </section>
+    <!-- ======= Mission and Vision Section ======= -->
+    <section class="container mt-5 mission">
+      <div class="row">
+        <div class="col-4">
+          <img src="{{ url_for('static', filename='../static/assets/img/mission.png') }}" alt="Mission" class="mission-img">
+        </div>
+        <div class="col-8 my-auto">
+          <h1>Mission</h1>
+          <p>To make therapy as affordable as possible by leveraging advanced AI and psychological research.
+             Our goal is to provide therapists and patients with innovative tools that enhance the efficiency, 
+             accessibility, and effectiveness of therapy sessions, ensuring better outcomes for all.
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-8 my-auto">
+          <h1>Vision</h1>
+          <p>We aim to make therapy more accessible and affordable by integrating AI tools. 
+            Our focus is on holistic mental health care, promoting personal growth and well-being.
+          </p>
+        </div>
+        <div class="col-4 justify-content-end">
+          <img src="{{ url_for('static', filename='../static/assets/img/vision.png') }}" alt="Vision" class="vision-img">
+        </div>
+      </div>
+    </section>
 
     <!-- User Menu Sidebar -->
   <section id="userMenuSidebar" class="sidebar">
@@ -274,6 +291,7 @@
         }
     });
 });
+
 
 </script>
 
