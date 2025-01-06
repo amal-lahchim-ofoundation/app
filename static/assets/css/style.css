@@ -2104,6 +2104,11 @@ display: none !important;
   color: #FFFFFF;
 }
 
+.btn-orange:disabled {
+  background-color: #A9A9A9; /* Change to desired disabled color */
+  cursor: not-allowed;
+}
+
 .dark-bg {
   background-color: #00112D;
 }

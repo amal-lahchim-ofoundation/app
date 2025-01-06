@@ -463,6 +463,7 @@ def questions():
         print("Redirecting to treatment")
         return redirect(url_for('treatment'))
     return render_template('diagnose.html', questions=diagnose_questions)
+
 #################################################### End of Sahar's Work for diagnose page
 @app.route('/personal_insights', methods=['GET', 'POST'])
 @login_required
