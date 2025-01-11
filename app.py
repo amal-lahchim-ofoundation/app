@@ -279,7 +279,7 @@ def get_recent_final_report():
     contents = blob.download_as_bytes()
     return contents.decode("utf-8")
 
-##### Sahar added this to change Narkdown text to Hyper Text(HTML)
+##### Sahar added this to change Markdown text to Hyper Text(HTML)
 def convert_markdown_to_html(text):
     # Convert headers
     text = re.sub(r'### (.*)', r'<h4>\1</h4>', text)
@@ -463,6 +463,7 @@ def questions():
         print("Redirecting to treatment")
         return redirect(url_for('treatment'))
     return render_template('diagnose.html', questions=diagnose_questions)
+
 #################################################### End of Sahar's Work for diagnose page
 @app.route('/personal_insights', methods=['GET', 'POST'])
 @login_required

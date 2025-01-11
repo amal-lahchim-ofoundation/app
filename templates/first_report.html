@@ -53,6 +53,16 @@
   <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
   <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
   <script src="{{ url_for('static', filename='assets/js/firebase.js') }}"></script>
+  <script>
+    window.addEventListener('scroll', function() {
+      var navbar = document.querySelector('.login-nav');
+      if (window.scrollY > 0) {
+        navbar.style.backgroundColor = '#00112D';
+      } else {
+        navbar.style.backgroundColor = 'transparent';
+      }
+    });
+  </script>
   
   </body>
   
