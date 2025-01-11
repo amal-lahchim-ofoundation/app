@@ -64,7 +64,7 @@
   <main id="main" class="main-page">
     <section>
       <div class="container mt-5">
-        <form action="/register" class="login-form shadow-sm bg-white"  method="post">
+        <form id="registerForm" action="{{ url_for('register') }}" class="login-form shadow-sm bg-white"  method="post">
           <h2 class="mb-4 text-center">Register</h2>
           <div class="mb-3">
             <label for="password" class="form-label">Password</label>
@@ -77,49 +77,25 @@
           <button class="submit-btn" data-bs-toggle="modal" data-bs-target="#buy-ticket-modal" data-ticket-type="premium-access" value="register">Register</button>
           <p class="message mt-3 text-center">Already registered? <a href="{{ url_for('login') }}">Sign In</a></p>
         </form>
-        <!-- Random key modal -->
-        <div class="modal fade" id="flashModal" tabindex="-1" role="dialog1" aria-labelledby="flashModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="flashModalLabel">Message</h5>
-                <button class="btn-orange" id="randomKeyCopyButton" data-clipboard-target="#randomKeyCopyButton">Copy</button>
-              </div>
-              <div class="modal-body">
-                <!-- Flash message content will go here -->
-              </div>
-              <div class="modal-footer">
-                <a href="{{url_for('register')}}" class="btn-orange">Cancel</a>
-                <a href="{{url_for('login')}}" class="btn-orange" style="display: none;">Login</a> 
-                <input type="text" class="form-control" id="randomKeyInput" value="{{ session['random_key'] }}" readonly style="display:none;"/>
-              </div>
-            </div>
-          </div>
-        </div>
+
       </div>
     </section>
+    <!-- Random key modal -->
     <section>
-      <!-- Information Modal -->
-      <div class="modal fade" id="autoModal" tabindex="-1" aria-labelledby="autoModalLabel" aria-hidden="true" data-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
+      <div class="modal fade" id="flashModal" tabindex="-1" role="dialog1" aria-labelledby="flashModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="autoModalLabel">Warning : Privacy by Design</h5>
+              <h5 class="modal-title" id="flashModalLabel">Message</h5>
+              <button class="btn-orange" id="randomKeyCopyButton" data-clipboard-target="#randomKeyCopyButton">Copy</button>
             </div>
             <div class="modal-body">
-              To safeguard your privacy, we do not collect any personally identifiable information. 
-              Instead, we generate a unique key as your identifier, which serves as your username. 
-              This key, along with your password, is your sole access to your account. Please store both securely, 
-              as they cannot be recovered if lost.
-              <div class="form-check mt-3">
-                <input class="form-check-input" type="checkbox" id="confirmCheckbox">
-                <label class="form-check-label" for="confirmCheckbox">
-                  I confirm that I have read and understood the above text
-                </label>
-              </div>
+              <!-- Flash message will display here -->
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn-orange" id="okButton" data-dismiss="modal" disabled>OK</button>
+              <a href="{{url_for('register')}}" class="btn-orange">Cancel</a>
+              <a href="{{url_for('login')}}" class="btn-orange" style="display: none;">Login</a> 
+              <input type="text" class="form-control" id="randomKeyInput" value="{{ session['random_key'] }}" readonly style="display:none;"/>
             </div>
           </div>
         </div>
@@ -150,7 +126,6 @@
           {% endif %}
         {% endwith %}
       });
-      
       document.addEventListener('DOMContentLoaded', (event) => {
         const copyButton = document.getElementById('randomKeyCopyButton');
         const copyText = document.getElementById('randomKeyInput');
@@ -177,24 +152,6 @@
             });
           });
         }
-      });
-
-      // For controlling autoModal
-      $(document).ready(function() {
-        $('#autoModal').modal({
-          backdrop: 'static',
-          keyboard: false
-        });
-
-        $('#autoModal').modal('show');
-
-        $('#confirmCheckbox').on('change', function() {
-          $('#okButton').prop('disabled', !this.checked);
-        });
-
-        $('#okButton').on('click', function() {
-          $('#autoModal').modal('hide');
-        });
       });
     </script>
 
