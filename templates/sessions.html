@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/animate.css/animate.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <style>
+
+    </style>
+</head>
+<body class="login-body">
+  <!-- Header -->
+  <nav  class="login-nav fixed-top top-0 d-flex align-items-center py-2">
+    <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
+      <div class="d-flex">
+        <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
+        <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
+      </div>
+      <div class="d-flex">
+        <a href="{{ url_for('home') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Home</a>
+        <a href="{{ url_for('reports') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Reports</a> 
+      </div>
+    </div>
+  </nav>
+  <main class="container mt-5 pt-5">
+    <h5 class="text-white">Session</h5>
+    <hr class="bg-white"/>
+    <section class="session">
+      <div class="container">
+        <h1 class="mb-5">Record Therapy Session</h1>
+        <div class="display"></div>
+        <div class="controllers mt-4"></div> 
+      </div>
+    </section>
+  </main>
+  <script>
+    // collect DOMs
+    const display = document.querySelector('.display')
+    const controllerWrapper = document.querySelector('.controllers')
+
+    const State = ['Initial', 'Record', 'Download']
+    let stateIndex = 0
+    let mediaRecorder, chunks = [], audioURL = ''
+
+    // mediaRecorder setup for audio
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+      console.log('mediaDevices supported..')
+
+      navigator.mediaDevices.getUserMedia({
+        audio: true
+      }).then(stream => {
+        mediaRecorder = new MediaRecorder(stream)
+        mediaRecorder.ondataavailable = (e) => {
+          chunks.push(e.data)
+        }
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, {'type': 'audio/ogg; codecs=opus'})
+          chunks = []
+          audioURL = window.URL.createObjectURL(blob)
+          document.querySelector('audio').src = audioURL
+
+        }
+      }).catch(error => {
+        console.log('Following error has occured : ',error)
+      })
+    }else{
+      stateIndex = ''
+      application(stateIndex)
+    }
+
+    const clearDisplay = () => {
+      display.textContent = ''
+    }
+
+    const clearControls = () => {
+      controllerWrapper.textContent = ''
+    }
+
+    const record = () => {
+      stateIndex = 1
+      mediaRecorder.start()
+      application(stateIndex)
+    }
+
+    const stopRecording = () => {
+      stateIndex = 2
+      mediaRecorder.stop()
+      application(stateIndex)
+    }
+
+    // const downloadAudio = () => {
+    //   //const downloadLink = document.createElement('a')
+    //   //downloadLink.href = audioURL
+    //   //downloadLink.setAttribute('download', 'audio')
+    //   //downloadLink.click()
+    // }
+
+    const addButton = (id, funString, text) => {
+      const btn = document.createElement('button')
+      btn.id = id
+      btn.setAttribute('onclick', funString)
+      btn.textContent = text
+      controllerWrapper.append(btn)
+    }
+
+    const addMessage = (text) => {
+      const msg = document.createElement('p')
+      msg.textContent = text
+      display.append(msg)
+    }
+
+    const addAudio = () => {
+      const audio = document.createElement('audio')
+      audio.controls = true
+      audio.src = audioURL
+      audio.download = false // This prevents the download option
+      audio.oncontextmenu = (e) => e.preventDefault() // This prevents right-click menu
+      audio.preload = 'none' // Prevent preloading
+  
+  // Remove the download attribute
+  audio.removeAttribute('download')
+  
+  // Prevent right-click menu
+  audio.oncontextmenu = (e) => e.preventDefault()
+  
+  // Prevent drag and drop
+  audio.ondragstart = (e) => e.preventDefault()
+
+   // Add event listener to prevent download
+   audio.addEventListener('canplay', () => {
+    audio.addEventListener('play', () => {
+      // Remove the download attribute again, in case it's added back
+      audio.removeAttribute('download')
+    })
+  })
+      display.append(audio)
+    }
+
+
+    let storedAudio = null;
+    let expirationDate = null;
+
+    function getStoredAudio() {
+      const storedData = localStorage.getItem('storedAudio');
+      if (storedData) {
+        const [audioUrl, timestamp] = JSON.parse(storedData);
+        const currentDate = new Date().getTime();
+        if (currentDate - timestamp < 3600000) { // 1 hours
+          return audioUrl;
+        } else {
+          localStorage.removeItem('storedAudio');
+          return null;
+        }
+      }
+      return null;
+    }
+
+    function setStoredAudio(audioUrl) {
+      const timestamp = new Date().getTime();
+      localStorage.setItem('storedAudio', JSON.stringify([audioUrl, timestamp]));
+    }
+
+    const sendToLocalStorage = () => {
+      if (audioURL) {
+        setStoredAudio(audioURL);
+        alert('Audio saved to local storage for 24 hours!');
+      }else {
+        alert('No audio recorded yet.');
+      }
+    };
+
+    // const playFromLocalStorage = () => {
+    //   storedAudio = getStoredAudio();
+    //   if (storedAudio) {
+    //     const audio = new Audio(storedAudio);
+    //     audio.play();
+    //     alert('Playing audio from local storage!');
+    //   }else {
+    //     alert('No audio found in local storage or expired!');
+    //   }
+    // };
+
+
+
+
+    const application = (index) => {
+      switch (State[index]) {
+        case 'Initial':
+          clearDisplay()
+          clearControls()
+
+          addButton('record', 'record()', 'Start Recording')
+          addButton('send', 'sendToLocalStorage()', 'Generate Summary')
+          // addButton('storagePlay', 'playFromLocalStorage()', 'Storage Play')
+        break;
+
+        case 'Record':
+          clearDisplay()
+          clearControls()
+
+          addMessage('Recording...')
+          addButton('stop', 'stopRecording()', 'Stop Recording')
+        break
+
+        case 'Download':
+          clearControls()
+          clearDisplay()
+
+          addAudio()
+          addButton('record', 'record()', 'Record Again')
+          addButton('send', 'sendToLocalStorage()', 'Generate Summary')
+          // addButton('storagePlay', 'playFromLocalStorage()', 'Storage Play')
+        break
+
+        default:
+          clearControls()
+          clearDisplay()
+
+          addMessage('Your browser does not support mediaDevices')
+        break;
+      }
+    }
+
+    application(stateIndex)
+
+    document.addEventListener("DOMContentLoaded", function() {
+    const audio = document.querySelector('audio');
+    audio.addEventListener('loadedmetadata', function() {
+        const controls = audio.shadowRoot.querySelectorAll('[title="Download"]');
+        controls.forEach(control => control.style.display = 'none');
+    });
+});
+
+  </script>
+</body>
+</html>
