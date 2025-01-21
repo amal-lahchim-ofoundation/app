@@ -2049,7 +2049,7 @@ output {
   align-items: center;
   justify-content: center;
   width: 60%;
-  margin: 0 auto;
+  margin: auto;
   gap: 1rem;
   background-color: #E28647;
   border-radius: 50px;
@@ -2069,11 +2069,20 @@ output {
 
 .timeline {
   flex: 1;
-  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .timeline input[type="range"] {
   width: 100%;
+}
+
+.timeline input[type="range"]::-webkit-slider-runnable-track {
+  height: 5px;
+}
+
+.timeline input[type="range"]::-webkit-slider-thumb {
+  margin-top: -6px;
 }
 
 .volume-control {
@@ -2086,6 +2095,14 @@ output {
 
 .volume-control input[type="range"] {
   width: 100%;
+}
+
+.volume-control input[type="range"]::-webkit-slider-runnable-track {
+  height: 5px;
+}
+
+.volume-control input[type="range"]::-webkit-slider-thumb {
+  margin-top: -6px;
 }
   
 .time-display {
