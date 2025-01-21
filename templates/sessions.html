@@ -7,14 +7,17 @@
   <link href="{{ url_for('static', filename='assets/vendor/animate.css/animate.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-    <style>
+  <style>
+    p {
+      margin-top: 40px;
+    }
+  </style>
 
-    </style>
 </head>
 <body class="login-body">
   <!-- Header -->
-  <nav  class="login-nav fixed-top top-0 d-flex align-items-center py-2">
-    <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
+  <nav class="login-nav fixed-top top-0 d-flex align-items-center py-2">
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
       <div class="d-flex">
         <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
         <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
@@ -25,131 +28,189 @@
       </div>
     </div>
   </nav>
+
   <main class="container mt-5 pt-5">
     <h5 class="text-white">Session</h5>
     <hr class="bg-white"/>
     <section class="session">
       <div class="container">
         <h1 class="mb-5">Record Therapy Session</h1>
+        <div class="audio-player">
+          <button class="play-pause-btn" id="play-pause">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 5.14001V19.14L19 12.14L8 5.14001Z" fill="black"/>
+            </svg>
+          </button>
+          <span class="time-display" id="time-display">0:00</span>
+          <div class="timeline">
+            <input type="range" id="timeline" value="0" max="100">
+          </div>
+          <div class="volume-control">
+            <svg width="45" height="45" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16.1426 5.625L10.5176 11.25H4.89258V18.75H10.5176L16.1426 24.375V5.625ZM19.1578 7.24617L18.8848 8.26494C21.9355 9.08232 24.0527 11.8415 24.0527 15C24.0527 18.1585 21.9355 20.9176 18.8848 21.7351L19.1578 22.7538C22.6646 21.8142 25.1074 18.6306 25.1074 15C25.1074 11.3694 22.6646 8.18584 19.1578 7.24617ZM18.4298 9.96287L18.1569 10.9816C19.9781 11.4696 21.2402 13.1146 21.2402 15C21.2402 16.8854 19.9781 18.5304 18.1569 19.0184L18.4298 20.0371C20.7071 19.4269 22.2949 17.3576 22.2949 15C22.2949 12.6424 20.7071 10.5731 18.4298 9.96287ZM17.7018 12.6795L17.4289 13.6982C18.0205 13.8568 18.4277 14.3875 18.4277 15C18.4277 15.6125 18.0205 16.1432 17.4289 16.3018L17.7018 17.3205C18.7497 17.0398 19.4825 16.0848 19.4825 15C19.4825 13.9152 18.7497 12.9602 17.7018 12.6795Z" fill="black"/>
+            </svg>
+            <input type="range" id="volume" value="100" max="100">
+          </div>
+        </div>
         <div class="display"></div>
         <div class="controllers mt-4"></div> 
       </div>
     </section>
   </main>
+
   <script>
-    // collect DOMs
-    const display = document.querySelector('.display')
-    const controllerWrapper = document.querySelector('.controllers')
-
-    const State = ['Initial', 'Record', 'Download']
-    let stateIndex = 0
-    let mediaRecorder, chunks = [], audioURL = ''
-
-    // mediaRecorder setup for audio
-    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
-      console.log('mediaDevices supported..')
-
-      navigator.mediaDevices.getUserMedia({
-        audio: true
-      }).then(stream => {
-        mediaRecorder = new MediaRecorder(stream)
-        mediaRecorder.ondataavailable = (e) => {
-          chunks.push(e.data)
-        }
-
-        mediaRecorder.onstop = () => {
-          const blob = new Blob(chunks, {'type': 'audio/ogg; codecs=opus'})
-          chunks = []
-          audioURL = window.URL.createObjectURL(blob)
-          document.querySelector('audio').src = audioURL
-
-        }
-      }).catch(error => {
-        console.log('Following error has occured : ',error)
-      })
-    }else{
-      stateIndex = ''
-      application(stateIndex)
-    }
+    const display = document.querySelector('.display');
+    const controllerWrapper = document.querySelector('.controllers');
+    const State = ['Initial', 'Record', 'Download'];
+    let stateIndex = 0;
+    let mediaRecorder, chunks = [], audioURL = '';
+    let audio = new Audio();
 
     const clearDisplay = () => {
-      display.textContent = ''
+      display.textContent = '';
     }
 
     const clearControls = () => {
-      controllerWrapper.textContent = ''
+      controllerWrapper.textContent = '';
     }
 
     const record = () => {
-      stateIndex = 1
-      mediaRecorder.start()
-      application(stateIndex)
+      stateIndex = 1;
+      mediaRecorder.start();
+      application(stateIndex);
     }
 
     const stopRecording = () => {
-      stateIndex = 2
-      mediaRecorder.stop()
-      application(stateIndex)
+      stateIndex = 2;
+      mediaRecorder.stop();
+      application(stateIndex);
     }
 
-    // const downloadAudio = () => {
-    //   //const downloadLink = document.createElement('a')
-    //   //downloadLink.href = audioURL
-    //   //downloadLink.setAttribute('download', 'audio')
-    //   //downloadLink.click()
-    // }
-
     const addButton = (id, funString, text) => {
-      const btn = document.createElement('button')
-      btn.id = id
-      btn.setAttribute('onclick', funString)
-      btn.textContent = text
-      controllerWrapper.append(btn)
+      const btn = document.createElement('button');
+      btn.id = id;
+      btn.setAttribute('onclick', funString);
+      btn.textContent = text;
+      controllerWrapper.append(btn);
     }
 
     const addMessage = (text) => {
-      const msg = document.createElement('p')
-      msg.textContent = text
-      display.append(msg)
+      const msg = document.createElement('p');
+      msg.textContent = text;
+      display.append(msg);
     }
 
-    const addAudio = () => {
-      const audio = document.createElement('audio')
-      audio.controls = true
-      audio.src = audioURL
-      audio.download = false // This prevents the download option
-      audio.oncontextmenu = (e) => e.preventDefault() // This prevents right-click menu
-      audio.preload = 'none' // Prevent preloading
-  
-  // Remove the download attribute
-  audio.removeAttribute('download')
-  
-  // Prevent right-click menu
-  audio.oncontextmenu = (e) => e.preventDefault()
-  
-  // Prevent drag and drop
-  audio.ondragstart = (e) => e.preventDefault()
+    const application = (index) => {
+      switch (State[index]) {
+        case 'Initial':
+          clearDisplay();
+          clearControls();
 
-   // Add event listener to prevent download
-   audio.addEventListener('canplay', () => {
-    audio.addEventListener('play', () => {
-      // Remove the download attribute again, in case it's added back
-      audio.removeAttribute('download')
-    })
-  })
-      display.append(audio)
+          addButton('record', 'record()', 'Start Recording');
+          addButton('send', 'sendToLocalStorage()', 'Generate Summary');
+          break;
+
+        case 'Record':
+          clearDisplay();
+          clearControls();
+
+          addMessage('Recording...');
+          addButton('stop', 'stopRecording()', 'Stop Recording');
+          break
+
+        case 'Download':
+          clearControls();
+          clearDisplay();
+
+          addMessage('Recording completed! You can play your audio.');
+          addButton('record', 'record()', 'Record Again');
+          addButton('send', 'sendToLocalStorage()', 'Generate Summary');
+          break
+
+        default:
+          clearControls();
+          clearDisplay();
+
+          addMessage('Your browser does not support mediaDevices');
+          break;
+      }
     }
 
+    // Custom Audio Player Logic
+    const playPauseBtn = document.getElementById('play-pause');
+    const timeline = document.getElementById('timeline');
+    const volumeControl = document.getElementById('volume');
+    const timeDisplay = document.getElementById('time-display');
 
-    let storedAudio = null;
-    let expirationDate = null;
+    playPauseBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        playPauseBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M6 4H10V20H6V4ZM14 4H18V20H14V4Z" fill="black"/> </svg>`;
+      } else {
+        audio.pause();
+        playPauseBtn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M8 5.14001V19.14L19 12.14L8 5.14001Z" fill="black"/> </svg>`;
+      }
+    });
+    audio.addEventListener('timeupdate', () => {
+      const progress = (audio.currentTime / audio.duration) * 100;
+      timeline.value = progress;
+      // Update the time display
+      const minutes = Math.floor(audio.currentTime / 60);
+      const seconds = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+      timeDisplay.textContent = `${minutes}:${seconds}`;
+    });
+
+    timeline.addEventListener('input', (e) => {
+      const newTime = (e.target.value / 100) * audio.duration;
+      audio.currentTime = newTime;
+    });
+
+    volumeControl.addEventListener('input', (e) => {
+      audio.volume = e.target.value / 100;
+    });
+
+    application(stateIndex);
+
+    // mediaRecorder setup for audio
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      console.log('mediaDevices supported..');
+      navigator.mediaDevices.getUserMedia({
+        audio: true
+      }).then(stream => {
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = (e) => {
+          chunks.push(e.data);
+        }
+
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });
+          chunks = [];
+          audioURL = window.URL.createObjectURL(blob);
+          audio.src = audioURL;
+        }
+      }).catch(error => {
+        console.log('Following error has occurred: ', error);
+      })
+    } else {
+      stateIndex = '';
+      application(stateIndex);
+    }
+
+    const sendToLocalStorage = () => {
+      if (audioURL) {
+        setStoredAudio(audioURL);
+        alert('We are going to generate the summary after some seconds!');
+      } else {
+        alert('No audio recorded yet.');
+      }
+    };
 
     function getStoredAudio() {
       const storedData = localStorage.getItem('storedAudio');
       if (storedData) {
         const [audioUrl, timestamp] = JSON.parse(storedData);
         const currentDate = new Date().getTime();
-        if (currentDate - timestamp < 3600000) { // 1 hours
+        if (currentDate - timestamp < 3600000) { // 1 hour
           return audioUrl;
         } else {
           localStorage.removeItem('storedAudio');
@@ -163,77 +224,6 @@
       const timestamp = new Date().getTime();
       localStorage.setItem('storedAudio', JSON.stringify([audioUrl, timestamp]));
     }
-
-    const sendToLocalStorage = () => {
-      if (audioURL) {
-        setStoredAudio(audioURL);
-        alert('Audio saved to local storage for 24 hours!');
-      }else {
-        alert('No audio recorded yet.');
-      }
-    };
-
-    // const playFromLocalStorage = () => {
-    //   storedAudio = getStoredAudio();
-    //   if (storedAudio) {
-    //     const audio = new Audio(storedAudio);
-    //     audio.play();
-    //     alert('Playing audio from local storage!');
-    //   }else {
-    //     alert('No audio found in local storage or expired!');
-    //   }
-    // };
-
-
-
-
-    const application = (index) => {
-      switch (State[index]) {
-        case 'Initial':
-          clearDisplay()
-          clearControls()
-
-          addButton('record', 'record()', 'Start Recording')
-          addButton('send', 'sendToLocalStorage()', 'Generate Summary')
-          // addButton('storagePlay', 'playFromLocalStorage()', 'Storage Play')
-        break;
-
-        case 'Record':
-          clearDisplay()
-          clearControls()
-
-          addMessage('Recording...')
-          addButton('stop', 'stopRecording()', 'Stop Recording')
-        break
-
-        case 'Download':
-          clearControls()
-          clearDisplay()
-
-          addAudio()
-          addButton('record', 'record()', 'Record Again')
-          addButton('send', 'sendToLocalStorage()', 'Generate Summary')
-          // addButton('storagePlay', 'playFromLocalStorage()', 'Storage Play')
-        break
-
-        default:
-          clearControls()
-          clearDisplay()
-
-          addMessage('Your browser does not support mediaDevices')
-        break;
-      }
-    }
-
-    application(stateIndex)
-
-    document.addEventListener("DOMContentLoaded", function() {
-    const audio = document.querySelector('audio');
-    audio.addEventListener('loadedmetadata', function() {
-        const controls = audio.shadowRoot.querySelectorAll('[title="Download"]');
-        controls.forEach(control => control.style.display = 'none');
-    });
-});
 
   </script>
 </body>
