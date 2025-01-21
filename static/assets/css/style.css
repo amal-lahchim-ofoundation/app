@@ -2022,7 +2022,6 @@ output {
   display: flex;
   justify-content: center;
   align-items: center;
-  /* height: 100vh; */
   margin: 0;
   color: #fff;
   text-align: center;
@@ -2044,53 +2043,53 @@ output {
   background-color: rgba(34, 41, 139, 0.5);
 }
 
-    /* Style for custom audio player */
-    .audio-player {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 60%;
-      margin: 0 auto;
-      gap: 1rem;
-      background-color: #E28647;
-      border-radius: 50px;
-    }
+/* Style for custom audio player */
+.audio-player {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60%;
+  margin: 0 auto;
+  gap: 1rem;
+  background-color: #E28647;
+  border-radius: 50px;
+}
 
-    .play-pause-btn {
-      background-color: #767676 !important;
-      border: none !important; 
-      border-radius: 100px !important;
-      padding: 1px !important;
-      cursor: pointer;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+.play-pause-btn {
+  background-color: #767676 !important;
+  border: none !important; 
+  border-radius: 100px !important;
+  padding: 1px !important;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    .timeline {
-      flex: 1;
-      position: relative;
-    }
+.timeline {
+  flex: 1;
+  position: relative;
+}
 
-    .timeline input[type="range"] {
-      width: 100%;
-    }
+.timeline input[type="range"] {
+  width: 100%;
+}
 
-    .volume-control {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      width: 90px;
-      margin-right: 8px;
-    }
+.volume-control {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 90px;
+  margin-right: 8px;
+}
 
-    .volume-control input[type="range"] {
-      width: 100%;
-    }
-      
-    .time-display {
-      color: black;
-      font-family: Arial, sans-serif;
-      font-size: 0.875rem;
-    }
+.volume-control input[type="range"] {
+  width: 100%;
+}
+  
+.time-display {
+  color: black;
+  font-family: Arial, sans-serif;
+  font-size: 0.875rem;
+}
