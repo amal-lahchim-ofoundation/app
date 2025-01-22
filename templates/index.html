@@ -43,38 +43,39 @@
 </head>
 
 <body class="main-body ph1-font">
-  <!-- Header -->
-  <nav  class="login-nav fixed-top top-0 d-flex align-items-center py-2">
-    <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
-      {% if session['user_logged_in'] %}
-        <div class="d-flex">
-          <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
-          <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
-        </div>
-        <div id="navbarItems" class="col-6 d-flex align-items-center float-end">
-          <a href="{{ url_for('treatment') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Treatment</a>
-          <a href="#services" class="book-a-table-btn d-none d-lg-flex text-decoration-none">Our Services</a>
-          <a href="#testimonial" class="book-a-table-btn d-none d-lg-flex text-decoration-none">Testimonials</a>
-          <a href="#footer" class="book-a-table-btn d-none d-lg-flex text-decoration-none">Contact Us</a>
-          <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Logout</a>
-          <a herf="" id="userMenuBtn" class="book-a-table-btn ml-3 d-none d-lg-flex text-decoration-none pl-3">
-            <img src="{{ url_for('static', filename='../static/assets/img/user.png') }}" alt="User">
-          </a>
-        </div>
-      {% else %}
-        <div class="d-flex login-nav">
-          <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
-          <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="">ChatPsychologistAI</a></h1>
-        </div>
-        <div id="navbarItems" class="col-4 d-flex align-items-center justify-content-end">
-          <a href="#services" class="book-a-table-btn d-none d-lg-flex text-decoration-none">Our Services</a>
-          <a href="#testimonial" class="book-a-table-btn d-none d-lg-flex text-decoration-none">Testimonials</a>
-          <a href="#footer" class="book-a-table-btn d-none d-lg-flex text-decoration-none">Contact Us</a>
-          <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex ">Login</a>
-        </div>
-      {% endif %}
-    </div>
-  </nav>
+<!-- Header -->
+<nav  class="login-nav fixed-top top-0 d-flex align-items-center py-2">
+  <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
+    {% if session['user_logged_in'] %}
+      <div class="d-flex">
+        <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
+        <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
+      </div>
+      <div id="navbarItems" class="col-6 d-flex align-items-center float-end">
+        <a href="{{ url_for('treatment') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Treatment</a>
+        <a href="#services" class="book-a-table-btn d-none d-lg-flex text-decoration-none">Our Services</a>
+        <a href="#testimonial" class="book-a-table-btn d-none d-lg-flex text-decoration-none">Testimonials</a>
+        <a href="#footer" class="book-a-table-btn d-none d-lg-flex text-decoration-none">Contact Us</a>
+        <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Logout</a>
+        <a herf="" id="userMenuBtn" class="book-a-table-btn ml-3 d-none d-lg-flex text-decoration-none pl-3">
+          <img src="{{ url_for('static', filename='../static/assets/img/user.png') }}" alt="User">
+        </a>
+      </div>
+    {% else %}
+      <div class="d-flex login-nav">
+        <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
+        <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="">ChatPsychologistAI</a></h1>
+      </div>
+      <div id="navbarItems" class="col-4 d-flex align-items-center justify-content-end">
+        <a href="#services" class="book-a-table-btn d-none d-lg-flex text-decoration-none">Our Services</a>
+        <a href="#testimonial" class="book-a-table-btn d-none d-lg-flex text-decoration-none">Testimonials</a>
+        <a href="#footer" class="book-a-table-btn d-none d-lg-flex text-decoration-none">Contact Us</a>
+        <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex ">Login</a>
+      </div>
+    {% endif %}
+  </div>
+</nav>
+
   <main id="main">
     <!-- ======= Hero Section ======= -->
     <section id="hero" class="container mt-5">
@@ -458,13 +459,16 @@
       }
     });
 
-    // Change navbar color on scroll
-    window.addEventListener('scroll', function() {
-      if (!userMenuSidebar.classList.contains('show')) {
-        navbar.style.backgroundColor = window.scrollY > 0 ? '#00112D' : 'transparent';
-      }
-    });
+
+    
   });
+      // Change navbar color on scroll
+      document.addEventListener('DOMContentLoaded', function() {
+  window.addEventListener('scroll', function() {
+    const navbar = document.querySelector('.login-nav');
+    navbar.style.backgroundColor = window.scrollY > 0 ? '#00112D' : 'transparent';
+  });
+});
 
 
 </script>
