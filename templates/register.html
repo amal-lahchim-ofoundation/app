@@ -62,10 +62,9 @@
   </nav>
 
   <main id="main" class="main-page">
-    <!-- ======= Speaker Details Sectionn ======= -->
-    <section id="speakers-details">
+    <section>
       <div class="container mt-5">
-        <form action="/register" class="login-form shadow-sm bg-white"  method="post">
+        <form id="registerForm" action="{{ url_for('register') }}" class="login-form shadow-sm bg-white"  method="post">
           <h2 class="mb-4 text-center">Register</h2>
           <div class="mb-3">
             <label for="password" class="form-label">Password</label>
@@ -78,21 +77,25 @@
           <button class="submit-btn" data-bs-toggle="modal" data-bs-target="#buy-ticket-modal" data-ticket-type="premium-access" value="register">Register</button>
           <p class="message mt-3 text-center">Already registered? <a href="{{ url_for('login') }}">Sign In</a></p>
         </form>
-        <div class="modal fade" id="flashModal" tabindex="-1" role="dialog1" aria-labelledby="flashModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="flashModalLabel">Message</h5>
-                <button class="btn-orange" id="randomKeyCopyButton" data-clipboard-target="#randomKeyCopyButton">Copy</button>
-              </div>
-              <div class="modal-body">
-                <!-- Flash message content will go here -->
-              </div>
-              <div class="modal-footer">
-                <a href="{{url_for('register')}}" class="btn-orange">Cancel</a>
-                <a href="{{url_for('login')}}" class="btn-orange" style="display: none;">Login</a> 
-                <input type="text" class="form-control" id="randomKeyInput" value="{{ session['random_key'] }}" readonly style="display:none;"/>
-              </div>
+
+      </div>
+    </section>
+    <!-- Random key modal -->
+    <section>
+      <div class="modal fade" id="flashModal" tabindex="-1" role="dialog1" aria-labelledby="flashModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="flashModalLabel">Message</h5>
+              <button class="btn-orange" id="randomKeyCopyButton" data-clipboard-target="#randomKeyCopyButton">Copy</button>
+            </div>
+            <div class="modal-body">
+              <!-- Flash message will display here -->
+            </div>
+            <div class="modal-footer">
+              <a href="{{url_for('register')}}" class="btn-orange">Cancel</a>
+              <a href="{{url_for('login')}}" class="btn-orange" style="display: none;">Login</a> 
+              <input type="text" class="form-control" id="randomKeyInput" value="{{ session['random_key'] }}" readonly style="display:none;"/>
             </div>
           </div>
         </div>
@@ -123,7 +126,6 @@
           {% endif %}
         {% endwith %}
       });
-      
       document.addEventListener('DOMContentLoaded', (event) => {
         const copyButton = document.getElementById('randomKeyCopyButton');
         const copyText = document.getElementById('randomKeyInput');
