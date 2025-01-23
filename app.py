@@ -30,6 +30,8 @@ from questions.personal_info import personal_info_questions_phase_1, personal_in
 from questions.diagnose_questions import diagnose_questions
 from questions.personal_insight import personal_insights_questions
 from multiprocessing.dummy import Pool
+import whisper
+import os
 
 pool = Pool(5)
 app = Flask(__name__, static_folder='static')
@@ -40,6 +42,52 @@ Session(app)
 load_dotenv()
 openAI = openai.OpenAI()
 DATABASE_URL = os.getenv('FIREBASE_DATABASE_URL')
+
+@app.route("/generate_summary", methods=['POST'])
+def generate_summary():
+    # Check if a file is in the request
+    if 'audio_file' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+
+    # Get the file from the request
+    audio_file = request.files['audio_file']
+    print("audio_file", audio_file)
+
+    if audio_file:
+        # Save the file to the server
+        audio_file.save(f"uploaded_audio/{audio_file.filename}")
+    else:
+        return jsonify({"error": "No audio file received"}), 400
+
+    try:
+        model = whisper.load_model("turbo")
+        result = model.transcribe(f"uploaded_audio/{audio_file.filename}")
+
+        '''Transcribe the audio directly without saving. 
+        NOTE: the quality of the text is not quality as the above method.'''
+        # from io import BytesIO
+        # from pydub import AudioSegment
+        # import numpy as np
+
+        # file_like_object = BytesIO(audio_file.read())
+        # Load the audio using pydub (this should work for various formats like mp3, wav, etc.)
+        # audio = AudioSegment.from_file(file_like_object)
+        # Convert to mono and resample to 16000 Hz if needed
+        # audio = audio.set_channels(1).set_frame_rate(16000)
+        # Convert audio to numpy array
+        # samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
+        # Normalize the audio (Whisper expects values between -1 and 1)
+        # samples = samples / 2 ** 15
+        # result = model.transcribe(samples, task="translate")
+        # result = model.transcribe(samples)
+
+        print("Text", result["text"])
+    except Exception as e:
+        print(f"An error occurred when transcrbing: {e}")
+
+    os.remove(f"uploaded_audio/{audio_file.filename}")
+    return {"success": True}
+
 @app.route("/", methods=['GET', 'POST'])
 def home():
     cards = [
