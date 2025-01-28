@@ -1,6 +1,7 @@
 from flask import Flask, session, request, render_template, redirect, url_for, flash, jsonify, make_response
 from logging import DEBUG
 from flask_session import Session
+import re
 import firebase_admin
 from firebase_admin import credentials, db, firestore, storage
 import uuid
@@ -29,7 +30,6 @@ from questions.personal_info import personal_info_questions_phase_1, personal_in
 from questions.diagnose_questions import diagnose_questions
 from questions.personal_insight import personal_insights_questions
 from multiprocessing.dummy import Pool
-import re
 
 pool = Pool(5)
 app = Flask(__name__, static_folder='static')
@@ -92,6 +92,9 @@ def redirect_if_logged_in(route_function):
             return redirect(url_for('home'))
         return route_function(*args, **kwargs)
     return wrapper
+
+
+
 
 ##### Register Firebase #####
 
@@ -389,6 +392,11 @@ def reports():
     ]
     return render_template('reports.html', reports=reports)
 
+# My Code
+@app.route('/sessions', methods=['GET', 'POST'])
+@login_required
+def sessions():
+    return render_template('sessions.html')
 
 ##### Sahar's Work Profile Page #####
 @app.route('/first_report', methods=['GET', 'POST'])

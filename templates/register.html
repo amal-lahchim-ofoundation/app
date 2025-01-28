@@ -73,7 +73,11 @@
           <div class="mb-3">
             <label for="confirm_password" class="form-label">Confirm Password</label>
             <input type="password" class="form-control" placeholder=" Repeat password" name="pass2" value=""/> 
-          </div>              
+          </div>
+          <div class="mb-3">
+            <label for="referral" class="form-label">Referral Link<span class="text-secondary text-base">(Optional)</span></label>
+            <input type="text" class="form-control" placeholder="Add your referral link" name="referral" value=""/> 
+          </div>             
           <button class="submit-btn" data-bs-toggle="modal" data-bs-target="#buy-ticket-modal" data-ticket-type="premium-access" value="register">Register</button>
           <p class="message mt-3 text-center">Already registered? <a href="{{ url_for('login') }}">Sign In</a></p>
         </form>
