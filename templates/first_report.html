@@ -1,69 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
-  <title>Chat Psychologist A.I.</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
-
-  <!-- Favicons -->
-  <link href="{{ url_for('static', filename='assets/img/favicon.png') }}" rel="icon">
-
-  <!-- Vendor CSS Files and Template Main CSS File -->
-  <link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/animate.css/animate.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+{% extends 'base.html' %}
+{% block custom_style %}
   <style>
     h2 {
       color: #e98644;
       padding: 35px 0;
     }
   </style>
-</head>
+{% endblock %}
 
-<body class="login-body">
-
-    <!-- Header -->
-    <nav  class="login-nav fixed-top top-0 d-flex align-items-center py-2">
-      <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
-        <div class="d-flex">
-          <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
-          <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
-        </div>
-        <div class="d-flex">
-          <a href="{{ url_for('home') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Home</a>
-          <a href="{{ url_for('reports') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Reports</a> 
-        </div>
-      </div>
-    </nav>
-
-    <main class="mt-5 pt-5 mb-5">
-      <section class="bg-white mx-auto p-4 shadow custom-rounded w-75 mt-5 p-5 pt-5" >
-        <!-- Your content here -->
-        {{ report_content | safe }}
-      </section>
-    </main>
-
-  <!-- Scripts -->
-  <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/js/firebase.js') }}"></script>
-  <script>
-    window.addEventListener('scroll', function() {
-      var navbar = document.querySelector('.login-nav');
-      if (window.scrollY > 0) {
-        navbar.style.backgroundColor = '#00112D';
-      } else {
-        navbar.style.backgroundColor = 'transparent';
-      }
-    });
-  </script>
-  
-  </body>
-  
-  </html>
+{% block content %}
+  <main class="login-body mt-5 pt-5 mb-5">
+    <section class="bg-white mx-auto p-4 shadow custom-rounded w-75 mt-5 p-5 pt-5" >
+      <!-- Your content here -->
+      {{ report_content | safe }}
+    </section>
+  </main>
+{% endblock %}
