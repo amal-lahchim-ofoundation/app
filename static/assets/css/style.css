@@ -2110,3 +2110,7 @@ output {
   font-family: Arial, sans-serif;
   font-size: 0.875rem;
 }
+
+.form-text {
+  font-size: 12px !important;
+}
