@@ -1,65 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
-    <title>Chat Psychologist A.I.</title>
-    <meta content="" name="description">
-    <meta content="" name="keywords">
-
-    <!-- Favicons -->
-    <link href="{{ url_for('static', filename='assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
-    <link href="{{ url_for('static', filename='assets/img/favicon.png') }}" rel="icon">
-
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
-
-    <!-- Vendor CSS Files and Template Main CSS File -->
-    <link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='assets/vendor/animate.css/animate.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
-
-     <!-- Template Main CSS File -->
-  <link href="../static/assets/css/style.css" rel="stylesheet">
-   <!-- Template Main CSS File -->
-   <link href="../static/assets/css/login.css" rel="stylesheet">
-
-   <!-- Bootstrap 5 CSS -->
-   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<!-- jQuery and Bootstrap JS -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
-
-
-<style>
-</style>
-
-</head>
-<body class="login-body">
-  <!-- Navbar -->
-  <nav class="login-nav fixed-top top-0 d-flex align-items-center py-2">
-    <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
-      <div class="d-flex">
-        <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
-        <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
-      </div>
-      <div class="d-flex">
-        <a href="{{ url_for('home') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Home</a>
-        <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Login</a>
-      </div>
-    </div>
-  </nav>
-
-  <main id="main" class="main-page">
+{% extends 'base.html'%}
+{% block content %}
+  <main id="main" class="login-body">
     <section>
       <div class="container mt-5">
         <form id="registerForm" action="{{ url_for('register') }}" class="login-form shadow-sm bg-white"  method="post">
@@ -83,7 +24,6 @@
       </div>
     </section>
     <!-- Random key modal -->
-    <section>
       <div class="modal fade" id="flashModal" tabindex="-1" role="dialog1" aria-labelledby="flashModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
@@ -102,7 +42,6 @@
           </div>
         </div>
       </div>
-    </section>
   </main><!-- End #main -->
     <script>
       $('.message a').click(function(){
@@ -170,17 +109,4 @@
             }
         });
     </script>
-
-    <!-- Scripts -->
-    <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
-    <script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
-    <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
-    <script src="{{ url_for('static', filename='assets/js/firebase.js') }}"></script>
-
-</body>
-
-</html>
+{% endblock %}

@@ -102,8 +102,6 @@ def redirect_if_logged_in(route_function):
 def register():
     password1 = request.form.get('pass')
     password2 = request.form.get('pass2')
-    # Password validation criteria
-    password_regex = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?])[A-Za-z\d!@#$%^&*()_\-+=<>?]{12,}$')
 
     if not password1 or not password2:
         flash('Please fill in both password fields.' )
@@ -111,10 +109,6 @@ def register():
 
     if password1 != password2:
         flash('Passwords do not match.')
-        return redirect(url_for('register_page'))
-    
-    if not password_regex.match(password1):
-        flash('Password does not meet the required criteria.')
         return redirect(url_for('register_page'))
 
     # Generate a random key
@@ -527,6 +521,10 @@ def personal_insights():
     return render_template('personal_insights.html', questions=personal_insights_questions)
 ###### End of personal insight Page ####
 
+@app.route('/appointment', methods=['GET', 'POST'])
+@login_required
+def appointment():
+    return render_template('appointment.html')
 
 
 #### web3 routes ####
@@ -604,4 +602,3 @@ if __name__ == '__main__':
     serverHost = os.getenv('host')
     serverPort = os.getenv('port')
     app.run(host=serverHost,port=serverPort, debug=os.getenv('debug') )
-    

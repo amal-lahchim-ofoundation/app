@@ -1,60 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-
-  <title>Chat Psychologist A.I</title>
-  <meta content="" name="description">
-  <meta content="" name="keywords">
-
-  <!-- Favicons -->
-  <link href="{{ url_for('static', filename='assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
-  <link href="{{ url_for('static', filename='assets/img/favicon.png') }}" rel="icon">
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i%7CPlayfair+Display:400,500,600,700,400i,500i,600i,700i%7CPoppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Additional CSS Files -->
-  <link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/animate.css/animate.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
-  <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
-</head>
-<body class="ph1-body ph1-font treatment-body">
-  <!-- Header -->
-  <header id="header" class="fixed-top top-0 d-flex align-items-center py-2 shadow">
-    {% if session['user_logged_in'] %}
-      <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
-        <div class="d-flex">
-          <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
-          <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
-        </div>
-        <div class="d-flex">
-          <a href="{{ url_for('questions') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Treatment</a>
-          <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Logout</a>
-        </div>
-      </div>
-    {% else %}
-      <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
-        <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}">ChatPsychologistAI</a></h1>
-        <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex">Login</a>
-      </div>
-    {% endif %}
-  </header>
-
-  <main id="main" class="mt-5 pt-5">
+{% include 'phases_header.html'%}
+  <main id="main" class="mt-5 pt-5 text-">
     <section class="container-fluid p-0 pt-5">
       <div class="row pt-5">
         <div class="col-1"></div>
-        <div class="col-6" data-aos="zoom-in" data-aos-delay="100">
-          <h1>Start with Treatmant</h1>
+        <div class="col-6">
+          <h1 class="text-black">Start with Treatmant</h1>
           <h5 class="ph1-h5 text-xs"> Please respond to these questions and explain in more detail what is bothering you!</h5>
         </div>
         <div class="col-5">
@@ -104,11 +54,29 @@
                 <textarea name="prompt" required></textarea>
                 <br>
               </div>
-              <button type="submit" class="btn btn-primary" id="submit-btn">
+              <button type="submit" class="btn btn-primary" id="submit-btn" data-bs-toggle="modal" data-bs-target="#confirmationModal">
                 Send
                 <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
               </button>
           </form>
+          <section>
+            <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Successful Submission</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    The questionnaire for ‘therapist name’ has been filled successfully. A report will be generated for you after the first therapy session has been recorded.
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn-orange" data-bs-dismiss="modal">OK</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
 
         {% else %}
@@ -179,17 +147,5 @@
       });
     });
     </script>
-  <!-- Scripts -->
-  <!-- Bootstrap Bundle JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Additional Scripts -->
-  <script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
-<!-- Bootstrap Bundle with Popper -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
-</body>
+  </body>
 </html>

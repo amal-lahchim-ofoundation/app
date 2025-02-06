@@ -4,20 +4,24 @@
 <main id="main" class="login-body">
     <section>
       <div class="container mt-5">
-        <form action="/login" method="post" class="login-form shadow-sm bg-white">
-          <h2 class="mb-4 text-center">Log in</h2>
+        <form action="/appointment" method="post" class="login-form shadow-sm bg-white">
+          <h2 class="mb-5 text-center">Book an Appointment</h2>
           <div class="mb-3">
-            <label for="random_key" class="form-label">Random Key</label>
-            <input type="text" class="form-control" id="random_key" placeholder="Enter Your Random Key" name="random_key" required>
+            <label for="appointment_date" class="form-label">Appointment Date</label>
+            <input type="date" class="form-control" id="appointment_date" name="appointment_date" required>
           </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" placeholder="Enter Your Password" name="password" required>
+          <div class="mb-5">
+            <label for="therapist" class="form-label">Select Therapist</label>
+            <select class="form-select rounded-section py-2" id="therapist" name="therapist" required>
+              <option value="" disabled selected>Select a therapist</option>
+              <option value="therapist1">Therapist 1</option>
+              <option value="therapist2">Therapist 2</option>
+              <option value="therapist3">Therapist 3</option>
+            </select>
           </div>
-          <div class="d-grid">
-            <button type="submit" data-bs-toggle="modal" data-bs-target="#buy-ticket-modal" data-ticket-type="premium-access" value="login">LOGIN</button>
+          <div class="d-grid mb-5">
+            <button type="submit" data-bs-toggle="modal" data-bs-target="#buy-ticket-modal" data-ticket-type="premium-access" value="book">Book Appointment</button>
           </div>
-            <p class="message mt-3 text-center">Not registered? <a href="{{ url_for('register') }}" data-bs-toggle="modal" data-bs-target="#registerModal">Create an account</a></p>
         </form>
       </div>
     </section>
