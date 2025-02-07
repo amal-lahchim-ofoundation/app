@@ -526,7 +526,6 @@ def personal_insights():
 def appointment():
     return render_template('appointment.html')
 
-
 #### web3 routes ####
 @app.route('/nonce')
 def nonce():

@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% extends 'guide_message.html' %}
+{% block general %}
 {% block custom_style %}
   <style>
     p {
@@ -213,4 +215,9 @@
     }
 
   </script>
+  {% block title %}Last Questionaire{% endblock %}
+  {% block modal_content %} 
+    <p></p>
+  {% endblock %}
+{% endblock %}
 {% endblock %}
