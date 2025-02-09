@@ -7,7 +7,7 @@
     left: 1px;
     margin: 0;
     width: 300px;
-    height: 200px;
+    height: 240px;
     background-color: #00112D;
     color: white;
     border-radius: 20px;
@@ -39,6 +39,7 @@
     position: absolute;
     bottom: -15px;
     right: 7px;
+    z-index: -1;
 }
 
 </style>
@@ -47,13 +48,15 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">{% block title%}{% endblock %}</h5>
-        <button type="button" class="btn text-white text-lg" onclick="closeModal()" data-bs-dismiss="modal" aria-label="Close">x</button>
+        <button type="button" class="btn text-white text-lg p-0" onclick="closeModal()" data-bs-dismiss="modal" aria-label="Close">x</button>
       </div>
       <div class="modal-body">
         {% block modal_content %}
         {% endblock %}
-      </div>
-      <button class="btn btn-dark">Skip</button>
+      </div>   
+    </div>
+    <div class="d-flex justify-content-end m-2">
+      <button type="button" class="btn btn-dark btn-sm" onclick="closeModal()" data-bs-dismiss="modal">Skip</button>
     </div>
     <div class="modal-tail"></div>
   </div>
