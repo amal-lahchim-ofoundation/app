@@ -102,6 +102,8 @@ def redirect_if_logged_in(route_function):
 def register():
     password1 = request.form.get('pass')
     password2 = request.form.get('pass2')
+    # Password validation criteria
+    password_regex = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?])[A-Za-z\d!@#$%^&*()_\-+=<>?]{12,}$')
 
     if not password1 or not password2:
         flash('Please fill in both password fields.' )
@@ -109,6 +111,10 @@ def register():
 
     if password1 != password2:
         flash('Passwords do not match.')
+        return redirect(url_for('register_page'))
+
+    if not password_regex.match(password1):
+        flash('Password does not meet the required criteria.')
         return redirect(url_for('register_page'))
 
     # Generate a random key
