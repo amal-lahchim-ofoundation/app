@@ -244,7 +244,7 @@ def personal_info_phase_1():
                     comments = request.form.get(f'{topic}_phase_1_comments_{index}')
                     # Log to console for debugging
                     personal_info_responses[topic][question_info_type] = {
-                        'score': (score if score else 0) + "/100",  # Default to 0 if score is empty
+                        'score': (str(score) if score else "0") + "/100",  # Default to 0 if score is empty
                         'comments': comments if comments else None  # Default to None if comments are empty
                     }
 
