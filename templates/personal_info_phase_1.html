@@ -107,10 +107,13 @@ function updateOutput(value, index) {
     });
 
   </script>
+  <div class="d-none">
+    {% block title %}Step One{% endblock %}
+    {% block modal_content %} 
+    <p>This is the first pre-questionaire that you should fill it before your therapy session with your therapist.</p>
+    {% endblock %}
+  </div>
 </body>
 </html>
-  {% block title %}Step One{% endblock %}
-  {% block modal_content %} 
-  <p>This is the first pre-questionaire that you should fill it before your therapy session with your therapist.</p>
-  {% endblock %}
+
 {% endblock %}

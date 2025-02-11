@@ -84,10 +84,12 @@
       };
     });
   </script>
+  <div class="d-none">
+    {% block title %}Step Two{% endblock %}
+    {% block modal_content %} 
+    <p>This is the second pre-questionaire that you should fill it before your therapy session with your therapist.</p>
+    {% endblock %}
+  </div>
 </body>
 </html>
-  {% block title %}Step Two{% endblock %}
-  {% block modal_content %} 
-  <p>This is the second pre-questionaire that you should fill it before your therapy session with your therapist.</p>
-  {% endblock %}
 {% endblock %}
