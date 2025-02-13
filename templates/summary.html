@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block custom_style %}
+  <style>
+    h2 {
+      color: #e98644;
+      padding: 35px 0;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+  <main class="login-body mt-5 pt-5 mb-5">
+    <section class="bg-white mx-auto p-4 shadow custom-rounded w-75 mt-5 p-5 pt-5" >
+      {{ summary|safe }}
+    </section>
+  </main>
+{% endblock %}
