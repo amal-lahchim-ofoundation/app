@@ -1,4 +1,6 @@
 {% include 'phases_header.html' %}
+{% extends 'guide_message.html' %}
+{% block general %}
   <main id="main" class="mt-5">
     <section class="container-fluid p-0 pt-5">
       <div class="row pt-5">
@@ -82,5 +84,12 @@
       };
     });
   </script>
+  <div class="d-none">
+    {% block title %}Step Two{% endblock %}
+    {% block modal_content %} 
+    <p>This is the second pre-questionaire that you should fill it before your therapy session with your therapist.</p>
+    {% endblock %}
+  </div>
 </body>
 </html>
+{% endblock %}
