@@ -94,8 +94,6 @@ def redirect_if_logged_in(route_function):
     return wrapper
 
 
-
-
 ##### Register Firebase #####
 
 @app.route('/register', methods=['POST'])
@@ -160,7 +158,7 @@ def login():
     session['random_key'] = random_key  # Store the random_key in the session
     session['has_interacted'] = user_data.get('has_interacted', False)  # Get interaction status
     session['first_login'] = 'diagnosis' not in user_data
-    return redirect(url_for('home'))
+    return redirect(url_for('dashboard'))
 
 
 @app.route('/login', methods=['GET'])
@@ -191,6 +189,11 @@ def login_required(route_function):
             return redirect(url_for('login_page'))
         return route_function(*args, **kwargs)
     return wrapper
+
+@app.route('/dashboard')
+def dashboard():
+    random_key = session.get('random_key', 'No key available')
+    return render_template('dash_main.html', random_key=random_key)
 
 ######### Treatment Page #############
 @app.route('/treatment')
