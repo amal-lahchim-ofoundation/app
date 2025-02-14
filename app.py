@@ -73,6 +73,9 @@ The summary should be structured into sections, with each section containing one
     print("audio_file", audio_file)
 
     if audio_file:
+        # Ensure the directory exists
+        if not os.path.exists('uploaded_audio'):
+            os.makedirs('uploaded_audio')
         # Save the file to the server
         audio_file.save(f"uploaded_audio/{audio_file.filename}")
     else:
@@ -115,9 +118,10 @@ The summary should be structured into sections, with each section containing one
         blob.upload_from_string(summary.content, content_type='text/markdown')
     except Exception as e:
         print(f"An error occurred when generating summary: {e}")
-
-    os.remove(f"uploaded_audio/{audio_file.filename}")
-    return render_template('summary.html', summary=summary.content)
+        return jsonify({"error": str(e)}), 500
+    finally:
+        os.remove(f"uploaded_audio/{audio_file.filename}")
+    return jsonify({"summary": summary.content})
 
 @app.route("/", methods=['GET', 'POST'])
 def home():

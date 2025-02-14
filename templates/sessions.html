@@ -200,6 +200,22 @@
         // Append the audio file to the FormData object
         formData.append('audio_file', audioFile);
 
+        // $.ajax({
+        //   url: '/generate_summary', // The target URL
+        //   type: 'POST', // Specify the POST method
+        //   processData: false,  // Don't process the data (important for file uploads)
+        //   contentType: false,  // Don't set content type, FormData will set it automatically
+        //   data: formData,
+        //   success: function(data) {
+        //     // Handle the successful response here (data is the response)
+        //     console.log('Response:', data);
+        //   },
+        //   error: function(error) {
+        //     // Handle any errors that occur during the request
+        //     console.error('Error:', error);
+        //   }
+        // });
+
         $.ajax({
           url: '/generate_summary', // The target URL
           type: 'POST', // Specify the POST method
@@ -209,6 +225,12 @@
           success: function(data) {
             // Handle the successful response here (data is the response)
             console.log('Response:', data);
+            if (data.summary) {
+              // Display the summary on the page
+              const summaryDiv = document.createElement('div');
+              summaryDiv.innerHTML = `<h2 class="text-white">Therapy Session Summary</h2><p class="text-white">${data.summary}</p>`;
+              document.body.appendChild(summaryDiv);
+            }
           },
           error: function(error) {
             // Handle any errors that occur during the request
