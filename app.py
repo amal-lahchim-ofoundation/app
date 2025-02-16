@@ -48,83 +48,7 @@ DATABASE_URL = os.getenv('FIREBASE_DATABASE_URL')
 def sanitize_filename(filename: str) -> str:
     return re.sub(r"[^\w\s-]", "", filename).strip()
 
-# @app.route("/generate_summary", methods=['GET','POST'])
-# def generate_summary():
-#     # llm = ChatOpenAI(model="gpt-4o-mini") # OpenAI model
-#     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-exp")
-#     prompt = PromptTemplate.from_template("""
-# You are a psychologist about to make mental diagnoses based on this subject's mental data and the therapy session. You have to make summaries about the therapy session that are helpful to combine with the subject's mental data.
-# ----Therapy session----
-# {therapy_session}
-
-# Make summary of the therapy session with all key points, ONLY with information related to the subject/patient.
-# Summary should be well structured, informative, in-depth, and comprehensive, with facts and numbers mentioned.
-# Please ensure the summary contains only the factual information that was discussed, and that there is no preamble or introductory statement.
-# The summary should be structured into sections, with each section containing one or more paragraphs of information
-#     """)
-#     chain = prompt | llm
-
-#     # Check if a file is in the request
-#     if 'audio_file' not in request.files:
-#         return jsonify({"error": "No file provided"}), 400
-
-#     # Get the file from the request
-#     audio_file = request.files['audio_file']
-#     print("audio_file", audio_file)
-
-#     if audio_file:
-#         # Ensure the directory exists
-#         if not os.path.exists('uploaded_audio'):
-#             os.makedirs('uploaded_audio')
-#         # Save the file to the server
-#         audio_file.save(f"uploaded_audio/{audio_file.filename}")
-#     else:
-#         return jsonify({"error": "No audio file received"}), 400
-
-#     try:
-#         model = whisper.load_model("base")
-#         result = model.transcribe(f"uploaded_audio/{audio_file.filename}", verbose=True)
-
-#         '''Transcribe the audio directly without saving. 
-#         NOTE: the quality of the text is not quality as the above method.'''
-#         # from io import BytesIO
-#         # from pydub import AudioSegment
-#         # import numpy as np
-
-#         # file_like_object = BytesIO(audio_file.read())
-#         # Load the audio using pydub (this should work for various formats like mp3, wav, etc.)
-#         # audio = AudioSegment.from_file(file_like_object)
-#         # Convert to mono and resample to 16000 Hz if needed
-#         # audio = audio.set_channels(1).set_frame_rate(16000)
-#         # Convert audio to numpy array
-#         # samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
-#         # Normalize the audio (Whisper expects values between -1 and 1)
-#         # samples = samples / 2 ** 15
-#         # result = model.transcribe(samples, task="translate")
-#         # result = model.transcribe(samples)
-
-#         print("Text", result["text"])
-
-#         summary = chain.invoke(
-#             {
-#                 "therapy_session": result["text"]
-#             }
-#         )
-#         print("summary", summary.content)
-
-#         sanitized_filename = sanitize_filename(f"summary_{int(time.time())}")
-#         bucket = storage.bucket()
-#         blob = bucket.blob(f"therapy_session/{session['random_key']}/{sanitized_filename}.md")
-#         blob.upload_from_string(summary.content, content_type='text/markdown')
-#     except Exception as e:
-#         print(f"An error occurred when generating summary: {e}")
-#         return jsonify({"error": str(e)}), 500
-
-#     os.remove(f"uploaded_audio/{audio_file.filename}")
-#     return {"success": True}
-
-
-@app.route("/generate_summary", methods=['GET','POST'])
+@app.route("/generate_summary", methods=['POST'])
 def generate_summary():
     # llm = ChatOpenAI(model="gpt-4o-mini") # OpenAI model
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-exp")
@@ -152,19 +76,36 @@ The summary should be structured into sections, with each section containing one
         # Ensure the directory exists
         if not os.path.exists('uploaded_audio'):
             os.makedirs('uploaded_audio')
+
+        # I added to test the path
+        audio_file_path = os.path.join('uploaded_audio', audio_file.filename)
         # Save the file to the server
-        audio_file_path = f"uploaded_audio/{audio_file.filename}"
-        audio_file.save(audio_file_path)
+        audio_file.save(f"uploaded_audio/{audio_file.filename}")
         print(f"File saved to {audio_file_path}")
     else:
         return jsonify({"error": "No audio file received"}), 400
 
     try:
-        if not os.path.exists(audio_file_path):
-            raise FileNotFoundError(f"File {audio_file_path} does not exist")
-
         model = whisper.load_model("base")
-        result = model.transcribe(audio_file_path, verbose=True)
+        result = model.transcribe(f"uploaded_audio/{audio_file.filename}", verbose=True)
+
+        '''Transcribe the audio directly without saving. 
+        NOTE: the quality of the text is not quality as the above method.'''
+        # from io import BytesIO
+        # from pydub import AudioSegment
+        # import numpy as np
+
+        # file_like_object = BytesIO(audio_file.read())
+        # Load the audio using pydub (this should work for various formats like mp3, wav, etc.)
+        # audio = AudioSegment.from_file(file_like_object)
+        # Convert to mono and resample to 16000 Hz if needed
+        # audio = audio.set_channels(1).set_frame_rate(16000)
+        # Convert audio to numpy array
+        # samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
+        # Normalize the audio (Whisper expects values between -1 and 1)
+        # samples = samples / 2 ** 15
+        # result = model.transcribe(samples, task="translate")
+        # result = model.transcribe(samples)
 
         print("Text", result["text"])
 
@@ -175,6 +116,9 @@ The summary should be structured into sections, with each section containing one
         )
         print("summary", summary.content)
 
+        session['summary'] = summary.content
+
+
         sanitized_filename = sanitize_filename(f"summary_{int(time.time())}")
         bucket = storage.bucket()
         blob = bucket.blob(f"therapy_session/{session['random_key']}/{sanitized_filename}.md")
@@ -183,8 +127,15 @@ The summary should be structured into sections, with each section containing one
         print(f"An error occurred when generating summary: {e}")
         return jsonify({"error": str(e)}), 500
 
-    os.remove(audio_file_path)
+    os.remove(f"uploaded_audio/{audio_file.filename}")
     return {"success": True}
+
+
+@app.route("/general_summary", methods=['GET'])
+def general_summary():
+    transcription = session.get('transcription')
+    return render_template('summary.html', transcription=transcription)
+
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
