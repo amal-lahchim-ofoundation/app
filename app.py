@@ -94,14 +94,14 @@ def redirect_if_logged_in(route_function):
     return wrapper
 
 
-
-
 ##### Register Firebase #####
 
 @app.route('/register', methods=['POST'])
 def register():
     password1 = request.form.get('pass')
     password2 = request.form.get('pass2')
+    # Password validation criteria
+    password_regex = re.compile(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?])[A-Za-z\d!@#$%^&*()_\-+=<>?]{12,}$')
 
     if not password1 or not password2:
         flash('Please fill in both password fields.' )
@@ -109,6 +109,10 @@ def register():
 
     if password1 != password2:
         flash('Passwords do not match.')
+        return redirect(url_for('register_page'))
+
+    if not password_regex.match(password1):
+        flash('Password does not meet the required criteria.')
         return redirect(url_for('register_page'))
 
     # Generate a random key
@@ -154,7 +158,7 @@ def login():
     session['random_key'] = random_key  # Store the random_key in the session
     session['has_interacted'] = user_data.get('has_interacted', False)  # Get interaction status
     session['first_login'] = 'diagnosis' not in user_data
-    return redirect(url_for('home'))
+    return redirect(url_for('dashboard'))
 
 
 @app.route('/login', methods=['GET'])
@@ -185,6 +189,11 @@ def login_required(route_function):
             return redirect(url_for('login_page'))
         return route_function(*args, **kwargs)
     return wrapper
+
+@app.route('/dashboard')
+def dashboard():
+    random_key = session.get('random_key', 'No key available')
+    return render_template('dash_main.html', random_key=random_key)
 
 ######### Treatment Page #############
 @app.route('/treatment')
@@ -238,7 +247,7 @@ def personal_info_phase_1():
                     comments = request.form.get(f'{topic}_phase_1_comments_{index}')
                     # Log to console for debugging
                     personal_info_responses[topic][question_info_type] = {
-                        'score': (score if score else 0) + "/100",  # Default to 0 if score is empty
+                        'score': (str(score) if score else "0") + "/100",  # Default to 0 if score is empty
                         'comments': comments if comments else None  # Default to None if comments are empty
                     }
 
@@ -521,7 +530,10 @@ def personal_insights():
     return render_template('personal_insights.html', questions=personal_insights_questions)
 ###### End of personal insight Page ####
 
-
+@app.route('/appointment', methods=['GET', 'POST'])
+@login_required
+def appointment():
+    return render_template('appointment.html')
 
 #### web3 routes ####
 @app.route('/nonce')

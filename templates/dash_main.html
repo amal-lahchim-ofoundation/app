@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Chat Psychologist A.I.</title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+  <!-- Favicons -->
+  <link href="{{ url_for('static', filename='assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
+  <link href="{{ url_for('static', filename='assets/img/favicon.png') }}" rel="icon">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <!-- Vendor CSS Files and Template Main CSS File -->
+  <link href="{{ url_for('static', filename='assets/css/style.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/animate.css/animate.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/aos/aos.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/boxicons/css/boxicons.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/glightbox/css/glightbox.min.css') }}" rel="stylesheet">
+  <link href="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+  <!-- MetaMask and Web3 Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@metamask/detect-provider/dist/detect-provider.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.7.3/web3.min.js" integrity="sha512-Ws+qbaGHSFw2Zc1e7XRpvW+kySrhmPLFYTyQ95mxAkss0sshj6ObdNP3HDWcwTs8zBJ60KpynKZywk0R8tG1GA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <style>
+    body {
+      color: #0F3E77;
+    }
+    h1 {
+    font-weight: 900;
+  }
+
+  h3 {
+    font-weight: 600;
+    color: #308CBA;
+  }
+
+  .card {
+    background: #00112D;
+  }
+
+  .circle {
+    position: relative;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 80px;
+    background-color: #E38748;
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+  }
+  
+  .side {
+    position: fixed;
+  top: 0;
+  right: 1px;
+  width: 250px;
+  height: 100vh;
+  background-color: #00112D;
+  transition: right 0.5s ease;
+  padding: 20px;
+  box-shadow: -5px 0 10px rgba(0,0,0,0.1);
+  color: #FFFFFF;
+    z-index: 1000;
+  }
+
+  .side ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.side ul li {
+  margin: 12px 0;
+  border-bottom: 1px solid #49C2FE;
+}
+
+.side ul li a {
+  text-decoration: none;
+  margin: 0 0 0 15px;
+  color: #fff;
+  font-family: Verdana, sans-serif;
+  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  transition: 0.3s;
+}
+
+.side img {
+  width: 180px; 
+  height: 130px;
+  margin-top: -20px;
+}
+
+.side p {
+  margin-top: -10px;
+  font-size: 10px;
+}
+  </style>
+</head>
+<body>
+<header id="header" class="fixed-top top-0 d-flex align-items-center py-2 shadow">
+  <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
+    <div class="d-flex">
+      <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
+      <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
+    </div>
+  </div>
+</header>
+<main class="row">
+  <section class="col-md-9">
+  <div class="mt-5 pb-5 text-center">
+    <h1 class="">Welcome to Your Dashboard</h1>
+    <h3 class="">These are the steps and processes that  you'll </h3>
+    <h3>go through it with your account.</h3>
+  </div>
+  <div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-3 d-flex justify-content-center align-items-center">
+      <div class="card text-white" style="backdrop-filter: blur(10px); border-radius: 15px;">
+        <div class="circle">
+          <i class="icon-class">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <mask id="mask0_544_40" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="2" y="2" width="31" height="30">
+              <path d="M15.9841 28.1503C22.909 28.1503 28.5226 22.5368 28.5226 15.6118C28.5226 8.68687 22.909 3.0733 15.9841 3.0733C9.05912 3.0733 3.44556 8.68687 3.44556 15.6118C3.44556 22.5368 9.05912 28.1503 15.9841 28.1503Z" fill="white" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M20.1564 10.7019C19.6089 10.1533 18.9586 9.71826 18.2425 9.42171C17.5265 9.12515 16.759 8.97293 15.984 8.97376C15.209 8.97293 14.4415 9.12515 13.7255 9.42171C13.0095 9.71826 12.3591 10.1533 11.8116 10.7019" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M24.9985 24.6263L31.2567 30.8845" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </mask>
+              <g mask="url(#mask0_544_40)">
+              <path d="M0.495361 0.123047H35.8982V35.5259H0.495361V0.123047Z" fill="white"/>
+              </g>
+            </svg>
+          </i>
+        </div>
+        <div class="card-body text-center">
+          <h5 class="card-title">QUESTIONNAIRE</h5>
+          <p class="card-text">Filling the pre-questionaire that you should submit it before your therapy session with your therapist.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 d-flex justify-content-center align-items-center">
+      <div class="card text-white" style="backdrop-filter: blur(10px); border-radius: 15px;">
+        <div class="circle">
+          <i class="icon-class">
+            <svg width="31" height="34" viewBox="0 0 31 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2 16C2 15.7348 1.89464 15.4804 1.70711 15.2929C1.51957 15.1054 1.26522 15 1 15C0.734784 15 0.48043 15.1054 0.292894 15.2929C0.105357 15.4804 1.09166e-07 15.7348 1.09166e-07 16C-0.000386331 18.7445 1.02522 21.3901 2.87544 23.4172C4.72566 25.4443 7.26683 26.7065 10 26.956V31C10 31.2652 10.1054 31.5196 10.2929 31.7071C10.4804 31.8946 10.7348 32 11 32C11.2652 32 11.5196 31.8946 11.7071 31.7071C11.8946 31.5196 12 31.2652 12 31V29.588C11.3403 28.1485 10.9992 26.5835 11 25C8.61305 25 6.32387 24.0518 4.63604 22.364C2.94821 20.6761 2 18.3869 2 16ZM17 6V15.2C15.6536 15.887 14.4632 16.8442 13.5031 18.0117C12.543 19.1793 11.8339 20.5322 11.42 21.986C11.2787 21.9953 11.1387 22 11 22C9.4087 22 7.88258 21.3679 6.75736 20.2426C5.63214 19.1174 5 17.5913 5 16V6C5 4.4087 5.63214 2.88258 6.75736 1.75736C7.88258 0.632141 9.4087 0 11 0C12.5913 0 14.1174 0.632141 15.2426 1.75736C16.3679 2.88258 17 4.4087 17 6ZM27 25C27 26.3261 26.4732 27.5979 25.5355 28.5355C24.5979 29.4732 23.3261 30 22 30C20.6739 30 19.4021 29.4732 18.4645 28.5355C17.5268 27.5979 17 26.3261 17 25C17 23.6739 17.5268 22.4021 18.4645 21.4645C19.4021 20.5268 20.6739 20 22 20C23.3261 20 24.5979 20.5268 25.5355 21.4645C26.4732 22.4021 27 23.6739 27 25ZM31 25C31 27.3869 30.0518 29.6761 28.364 31.364C26.6761 33.0518 24.3869 34 22 34C19.6131 34 17.3239 33.0518 15.636 31.364C13.9482 29.6761 13 27.3869 13 25C13 22.6131 13.9482 20.3239 15.636 18.636C17.3239 16.9482 19.6131 16 22 16C24.3869 16 26.6761 16.9482 28.364 18.636C30.0518 20.3239 31 22.6131 31 25ZM15 25C15 25.9193 15.1811 26.8295 15.5328 27.6788C15.8846 28.5281 16.4002 29.2997 17.0503 29.9497C17.7003 30.5998 18.4719 31.1154 19.3212 31.4672C20.1705 31.8189 21.0807 32 22 32C22.9193 32 23.8295 31.8189 24.6788 31.4672C25.5281 31.1154 26.2997 30.5998 26.9497 29.9497C27.5998 29.2997 28.1154 28.5281 28.4672 27.6788C28.8189 26.8295 29 25.9193 29 25C29 23.1435 28.2625 21.363 26.9497 20.0503C25.637 18.7375 23.8565 18 22 18C20.1435 18 18.363 18.7375 17.0503 20.0503C15.7375 21.363 15 23.1435 15 25Z" fill="#FBFBFB"/>
+            </svg>
+          </i>
+        </div>
+        <div class="card-body text-center">
+          <h5 class="card-title">THERAPY SESSION</h5>
+          <p class="card-text">You or your therapist will record the audio during the appointment; we'll provide a report without personal info.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 d-flex justify-content-center align-items-center">
+      <div class="card text-white" style="backdrop-filter: blur(10px); border-radius: 15px;">
+        <div class="circle">
+          <i class="icon-class">
+            <svg width="37" height="37" viewBox="0 0 37 37" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M32.1112 29.5527H8.77783V16.6579C8.77783 10.5541 14.0016 5.60529 20.4445 5.60529C26.8874 5.60529 32.1112 10.5541 32.1112 16.6579V29.5527Z" fill="white" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M4.88889 36H36M1 9.28947L3.91667 10.2105M9.75 1L10.7222 3.76316M6.83333 6.52632L3.91667 3.76316" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </i>
+        </div>
+        <div class="card-body text-center">
+          <h5 class="card-title">REPORTS</h5>
+          <p class="card-text">You will receive reports based on your pre-questionnaire and therapy session with your therapist.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+<section class="side col-md-3">
+  <button id="closeSidebarBtn" class="btn btn-link p-0 float-end">
+    <i class="fas fa-times"></i>
+  </button>
+  <div class="text-center mt-0">
+    <img src="{{ url_for('static', filename='../static/assets/img/user1.png') }}" class="img-fluid rounded-circle mt-n3">
+    <p>{{ random_key }}</p>
+  </div>
+  <ul class="list-unstyled">
+    <li class="d-flex align-items-center mb-2">
+      <svg width="23" height="18" viewBox="0 0 23 18" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-1 ms-2">
+        <path d="M18.2083 1.5H4.79167C4.28333 1.5 3.79582 1.65804 3.43638 1.93934C3.07693 2.22064 2.875 2.60218 2.875 3V13.5C2.875 14.325 3.7375 15 4.79167 15H8.625L10.8196 16.7175C11.1933 17.01 11.7971 17.01 12.1708 16.7175L14.375 15H18.2083C19.2625 15 20.125 14.325 20.125 13.5V3C20.125 2.175 19.2625 1.5 18.2083 1.5ZM12.4583 13.5H10.5417V12H12.4583V13.5ZM14.4421 7.6875L13.5796 8.3775C13.0238 8.82 12.6308 9.2025 12.5063 9.9225C12.4487 10.245 12.1133 10.4925 11.6917 10.4925H11.3946C11.2768 10.4923 11.1604 10.4724 11.0532 10.434C10.9461 10.3957 10.8507 10.3398 10.7735 10.2701C10.6963 10.2005 10.6391 10.1187 10.6057 10.0302C10.5723 9.94181 10.5636 9.8488 10.58 9.7575C10.6854 9.075 11.0879 8.4675 11.6725 8.0025L12.8608 7.0575C13.2058 6.7875 13.4167 6.4125 13.4167 6C13.4167 5.175 12.5542 4.5 11.5 4.5C10.6662 4.5 9.9475 4.9275 9.68875 5.5125C9.56417 5.79 9.26708 5.9925 8.89333 5.9925H8.60583C8.05 5.9925 7.66667 5.5725 7.82 5.1525C8.08116 4.4607 8.65193 3.86565 9.42785 3.47627C10.2038 3.08689 11.1329 2.92922 12.0452 3.03213C12.9575 3.13504 13.792 3.49164 14.3958 4.03665C14.9996 4.58167 15.3324 5.27864 15.3333 6C15.3333 6.66 14.9883 7.26 14.4421 7.6875Z" fill="#E38748"/>
+      </svg>
+      <a href="{{url_for('appointment')}}" class="book-a-table-btn sidebar-link">Questionaire</a>
+    </li>
+    <li class="d-flex align-items-center mb-2">
+      <svg width="24" height="24" viewBox="0 0 19 17" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-1 ms-2">
+        <path d="M17.4167 14.875H1.58337V2.125H3.16671V13.4583H4.75004V12.0417H7.91671V13.4583H9.50004V11.3333H12.6667V13.4583H14.25V12.0417H17.4167V14.875ZM14.25 9.91667H17.4167V11.3333H14.25V9.91667ZM9.50004 4.25H12.6667V6.375H9.50004V4.25ZM12.6667 10.625H9.50004V7.08333H12.6667V10.625ZM4.75004 7.08333H7.91671V8.5H4.75004V7.08333ZM7.91671 11.3333H4.75004V9.20833H7.91671V11.3333Z" fill="#E38748"/>
+      </svg>
+      <a href="{{url_for('reports')}}" class="book-a-table-btn sidebar-link">Reports</a>
+    </li>
+    <li class="d-flex align-items-center mb-2">
+      <svg width="23" height="18" viewBox="0 0 23 18" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-1 ms-2">
+        <path d="M18.2083 1.5H4.79167C4.28333 1.5 3.79582 1.65804 3.43638 1.93934C3.07693 2.22064 2.875 2.60218 2.875 3V13.5C2.875 14.325 3.7375 15 4.79167 15H8.625L10.8196 16.7175C11.1933 17.01 11.7971 17.01 12.1708 16.7175L14.375 15H18.2083C19.2625 15 20.125 14.325 20.125 13.5V3C20.125 2.175 19.2625 1.5 18.2083 1.5ZM12.4583 13.5H10.5417V12H12.4583V13.5ZM14.4421 7.6875L13.5796 8.3775C13.0238 8.82 12.6308 9.2025 12.5063 9.9225C12.4487 10.245 12.1133 10.4925 11.6917 10.4925H11.3946C11.2768 10.4923 11.1604 10.4724 11.0532 10.434C10.9461 10.3957 10.8507 10.3398 10.7735 10.2701C10.6963 10.2005 10.6391 10.1187 10.6057 10.0302C10.5723 9.94181 10.5636 9.8488 10.58 9.7575C10.6854 9.075 11.0879 8.4675 11.6725 8.0025L12.8608 7.0575C13.2058 6.7875 13.4167 6.4125 13.4167 6C13.4167 5.175 12.5542 4.5 11.5 4.5C10.6662 4.5 9.9475 4.9275 9.68875 5.5125C9.56417 5.79 9.26708 5.9925 8.89333 5.9925H8.60583C8.05 5.9925 7.66667 5.5725 7.82 5.1525C8.08116 4.4607 8.65193 3.86565 9.42785 3.47627C10.2038 3.08689 11.1329 2.92922 12.0452 3.03213C12.9575 3.13504 13.792 3.49164 14.3958 4.03665C14.9996 4.58167 15.3324 5.27864 15.3333 6C15.3333 6.66 14.9883 7.26 14.4421 7.6875Z" fill="#E38748"/>
+      </svg>
+      <a href="{{url_for('sessions')}}" class="book-a-table-btn sidebar-link">Therapy Session</a>
+    </li>
+    <li class="d-flex align-items-center mb-2">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-1 ms-2">
+        <path d="M5.39995 12C5.39995 11.8409 5.33674 11.6883 5.22422 11.5757C5.11169 11.4632 4.95908 11.4 4.79995 11.4C4.64082 11.4 4.48821 11.4632 4.37569 11.5757C4.26317 11.6883 4.19995 11.8409 4.19995 12C4.19972 13.6467 4.81508 15.234 5.92522 16.4503C7.03535 17.6666 8.56005 18.4239 10.2 18.5736V21C10.2 21.1591 10.2632 21.3117 10.3757 21.4243C10.4882 21.5368 10.6408 21.6 10.8 21.6C10.9591 21.6 11.1117 21.5368 11.2242 21.4243C11.3367 21.3117 11.4 21.1591 11.4 21V20.1528C11.0041 19.2891 10.7995 18.3501 10.8 17.4C9.36778 17.4 7.99427 16.8311 6.98157 15.8184C5.96888 14.8057 5.39995 13.4322 5.39995 12ZM14.4 5.99999V11.52C13.5921 11.9322 12.8779 12.5065 12.3018 13.207C11.7258 13.9076 11.3003 14.7193 11.052 15.5916C10.9672 15.5972 10.8832 15.6 10.8 15.6C9.84517 15.6 8.9295 15.2207 8.25437 14.5456C7.57924 13.8704 7.19995 12.9548 7.19995 12V5.99999C7.19995 5.04521 7.57924 4.12954 8.25437 3.45441C8.9295 2.77928 9.84517 2.39999 10.8 2.39999C11.7547 2.39999 12.6704 2.77928 13.3455 3.45441C14.0207 4.12954 14.4 5.04521 14.4 5.99999ZM20.4 17.4C20.4 18.1956 20.0839 18.9587 19.5213 19.5213C18.9587 20.0839 18.1956 20.4 17.4 20.4C16.6043 20.4 15.8412 20.0839 15.2786 19.5213C14.716 18.9587 14.4 18.1956 14.4 17.4C14.4 16.6043 14.716 15.8413 15.2786 15.2787C15.8412 14.7161 16.6043 14.4 17.4 14.4C18.1956 14.4 18.9587 14.7161 19.5213 15.2787C20.0839 15.8413 20.4 16.6043 20.4 17.4ZM22.8 17.4C22.8 18.8322 22.231 20.2057 21.2183 21.2184C20.2056 22.2311 18.8321 22.8 17.4 22.8C15.9678 22.8 14.5943 22.2311 13.5816 21.2184C12.5689 20.2057 12 18.8322 12 17.4C12 15.9678 12.5689 14.5943 13.5816 13.5816C14.5943 12.5689 15.9678 12 17.4 12C18.8321 12 20.2056 12.5689 21.2183 13.5816C22.231 14.5943 22.8 15.9678 22.8 17.4ZM13.2 17.4C13.2 17.9515 13.3086 18.4977 13.5197 19.0073C13.7307 19.5168 14.0401 19.9798 14.4301 20.3698C14.8201 20.7598 15.2831 21.0692 15.7927 21.2803C16.3022 21.4914 16.8484 21.6 17.4 21.6C17.9515 21.6 18.4977 21.4914 19.0072 21.2803C19.5168 21.0692 19.9798 20.7598 20.3698 20.3698C20.7598 19.9798 21.0692 19.5168 21.2802 19.0073C21.4913 18.4977 21.6 17.9515 21.6 17.4C21.6 16.2861 21.1575 15.2178 20.3698 14.4301C19.5821 13.6425 18.5139 13.2 17.4 13.2C16.286 13.2 15.2178 13.6425 14.4301 14.4301C13.6425 15.2178 13.2 16.2861 13.2 17.4Z" fill="#E38748"/>
+      </svg>            
+      <a href="{{url_for('sessions')}}" class="book-a-table-btn sidebar-link">Record</a>
+    </li>
+    <li class="d-flex align-items-center mb-2">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-1 ms-2">
+        <path d="M8.79995 11.2C7.73909 11.2 6.72167 10.7786 5.97152 10.0284C5.22138 9.27829 4.79995 8.26087 4.79995 7.20001V4.00001C4.79995 3.78783 4.88424 3.58435 5.03427 3.43432C5.1843 3.28429 5.38778 3.20001 5.59995 3.20001H6.39995C6.61212 3.20001 6.81561 3.11572 6.96564 2.96569C7.11567 2.81566 7.19995 2.61218 7.19995 2.40001C7.19995 2.18783 7.11567 1.98435 6.96564 1.83432C6.81561 1.68429 6.61212 1.60001 6.39995 1.60001H5.59995C4.96343 1.60001 4.35298 1.85286 3.90289 2.30295C3.45281 2.75304 3.19995 3.36349 3.19995 4.00001V7.20001C3.20098 8.1038 3.42137 8.99383 3.84219 9.79367C4.26301 10.5935 4.87169 11.2793 5.61595 11.792C6.33173 12.4218 6.91212 13.1905 7.32193 14.0513C7.73173 14.9122 7.9624 15.8473 7.99995 16.8C7.99995 18.2852 8.58995 19.7096 9.64015 20.7598C10.6904 21.81 12.1147 22.4 13.6 22.4C15.0852 22.4 16.5095 21.81 17.5597 20.7598C18.61 19.7096 19.2 18.2852 19.2 16.8V15.888C19.9541 15.6933 20.6113 15.2302 21.0484 14.5856C21.4856 13.941 21.6726 13.1591 21.5744 12.3864C21.4763 11.6138 21.0997 10.9034 20.5153 10.3885C19.9309 9.87368 19.1788 9.58962 18.4 9.58962C17.6211 9.58962 16.869 9.87368 16.2846 10.3885C15.7002 10.9034 15.3236 11.6138 15.2255 12.3864C15.1273 13.1591 15.3143 13.941 15.7515 14.5856C16.1886 15.2302 16.8458 15.6933 17.6 15.888V16.8C17.6 17.8609 17.1785 18.8783 16.4284 19.6284C15.6782 20.3786 14.6608 20.8 13.6 20.8C12.5391 20.8 11.5217 20.3786 10.7715 19.6284C10.0214 18.8783 9.59995 17.8609 9.59995 16.8C9.63952 15.8461 9.87269 14.9103 10.2853 14.0494C10.6979 13.1884 11.2812 12.4204 12 11.792C12.7413 11.2775 13.3468 10.591 13.7648 9.79122C14.1828 8.99149 14.4007 8.10238 14.4 7.20001V4.00001C14.4 3.36349 14.1471 2.75304 13.697 2.30295C13.2469 1.85286 12.6365 1.60001 12 1.60001H11.2C10.9878 1.60001 10.7843 1.68429 10.6343 1.83432C10.4842 1.98435 10.4 2.18783 10.4 2.40001C10.4 2.61218 10.4842 2.81566 10.6343 2.96569C10.7843 3.11572 10.9878 3.20001 11.2 3.20001H12C12.2121 3.20001 12.4156 3.28429 12.5656 3.43432C12.7157 3.58435 12.8 3.78783 12.8 4.00001V7.20001C12.8 7.72529 12.6965 8.24544 12.4955 8.73074C12.2945 9.21604 11.9998 9.657 11.6284 10.0284C11.2569 10.3999 10.816 10.6945 10.3307 10.8955C9.84538 11.0965 9.32524 11.2 8.79995 11.2ZM18.4 14.4C17.9756 14.4 17.5686 14.2314 17.2686 13.9314C16.9685 13.6313 16.8 13.2244 16.8 12.8C16.8 12.3757 16.9685 11.9687 17.2686 11.6686C17.5686 11.3686 17.9756 11.2 18.4 11.2C18.8243 11.2 19.2313 11.3686 19.5313 11.6686C19.8314 11.9687 20 12.3757 20 12.8C20 13.2244 19.8314 13.6313 19.5313 13.9314C19.2313 14.2314 18.8243 14.4 18.4 14.4Z" fill="#E38748"/>
+      </svg> 
+      <a href="{{url_for('sessions')}}" class="book-a-table-btn sidebar-link">Therapists</a>
+    </li>
+  </ul>
+</section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='assets/vendor/aos/aos.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/isotope-layout/isotope.pkgd.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
+<script src="{{ url_for('static', filename='assets/js/firebase.js') }}"></script>
+
+</body>
+</html>

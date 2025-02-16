@@ -1,0 +1,83 @@
+{% block general %}
+{% endblock %}
+<style>
+.modal-dialog {
+    position: fixed;
+    top: 150px;
+    left: 1px;
+    margin: 0;
+    width: 300px;
+    height: 240px;
+    background-color: #00112D;
+    color: white;
+    border-radius: 20px;
+    border: 1px solid white;
+}
+
+.modal-content {
+    background-color: #00112D;
+    color: white;
+    border: 0;
+    border-radius: 20px;
+    position: relative;
+}
+
+.modal-header {
+    border-bottom: 1px solid #444;
+}
+
+.modal-body {
+    overflow-y: auto;
+}
+
+.modal-tail {
+    width: 0;
+    height: 0;
+    border-left: 30px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 50px solid #00112D;
+    position: absolute;
+    bottom: -15px;
+    right: 7px;
+    z-index: -1;
+}
+
+</style>
+<div id="globalModal" class="modal show" tabindex="-1" role="dialog" style="display: block;">
+  <div class="modal-dialog modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{% block title%}{% endblock %}</h5>
+        <button type="button" class="btn text-white text-lg p-0" onclick="closeModal()" data-bs-dismiss="modal" aria-label="Close">x</button>
+      </div>
+      <div class="modal-body">
+        {% block modal_content %}
+        {% endblock %}
+      </div>
+      <div class="d-flex justify-content-end m-2">
+        <button type="button" class="btn btn-dark btn-sm" onclick="closeModal()" data-bs-dismiss="modal" aria-label="Close">Skip</button>
+      </div> 
+    </div>
+    <div class="modal-tail"></div>
+  </div>
+</div>
+<script>
+  function closeModal() {
+    var modal = document.querySelector('.modal');
+    var backdrop = document.querySelector('.modal-backdrop');
+    if (modal) {
+      modal.classList.remove('show');
+      modal.style.display = 'none';
+    }
+    if (backdrop) {
+      backdrop.remove();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add a backdrop when the modal is shown
+    var backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop fade show';
+    document.body.appendChild(backdrop);
+  });
+</script>
