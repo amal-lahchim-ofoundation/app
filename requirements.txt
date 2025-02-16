@@ -319,7 +319,7 @@ tiktoken==0.8.0
     #   openai-whisper
 tomli==2.0.2
     # via -r requirements.in
-torch==2.5.1
+torch==2.2.2
     # via openai-whisper
 tqdm==4.66.5
     # via

@@ -45,6 +45,24 @@
   </section>
   </main>
 
+    <!-- Bootstrap Modal -->
+    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="messageModalLabel">Message</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="modalMessage">
+            <!-- Message will be inserted here -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <script>
     const display = document.querySelector('.display');
@@ -200,22 +218,6 @@
         // Append the audio file to the FormData object
         formData.append('audio_file', audioFile);
 
-        // $.ajax({
-        //   url: '/generate_summary', // The target URL
-        //   type: 'POST', // Specify the POST method
-        //   processData: false,  // Don't process the data (important for file uploads)
-        //   contentType: false,  // Don't set content type, FormData will set it automatically
-        //   data: formData,
-        //   success: function(data) {
-        //     // Handle the successful response here (data is the response)
-        //     console.log('Response:', data);
-        //   },
-        //   error: function(error) {
-        //     // Handle any errors that occur during the request
-        //     console.error('Error:', error);
-        //   }
-        // });
-
         $.ajax({
           url: '/generate_summary', // The target URL
           type: 'POST', // Specify the POST method
@@ -225,12 +227,6 @@
           success: function(data) {
             // Handle the successful response here (data is the response)
             console.log('Response:', data);
-            if (data.summary) {
-              // Display the summary on the page
-              const summaryDiv = document.createElement('div');
-              summaryDiv.innerHTML = `<h2 class="text-white">Therapy Session Summary</h2><p class="text-white">${data.summary}</p>`;
-              document.body.appendChild(summaryDiv);
-            }
           },
           error: function(error) {
             // Handle any errors that occur during the request
@@ -238,9 +234,9 @@
           }
         });
 
-        alert('We are going to generate the summary after some seconds!');
+        showModal('We are going to generate the summary after some seconds!');
       } else {
-        alert('No audio recorded yet.');
+        showModal('No audio recorded yet.');
       }
     };
 
@@ -262,6 +258,12 @@
     function setStoredAudio(audioUrl) {
       const timestamp = new Date().getTime();
       localStorage.setItem('storedAudio', JSON.stringify([audioUrl, timestamp]));
+    }
+
+    function showModal(message) {
+      document.getElementById('modalMessage').textContent = message;
+      var myModal = new bootstrap.Modal(document.getElementById('messageModal'), {});
+      myModal.show();
     }
 
   </script>
