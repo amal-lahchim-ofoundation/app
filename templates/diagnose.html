@@ -1,4 +1,6 @@
 {% include 'phases_header.html'%}
+{% extends 'guide_message.html' %}
+{% block general %}
   <main id="main" class="mt-5 pt-5 text-">
     <section class="container-fluid p-0 pt-5">
       <div class="row pt-5">
@@ -54,11 +56,33 @@
                 <textarea name="prompt" required></textarea>
                 <br>
               </div>
-              <button type="submit" class="btn btn-primary" id="submit-btn">
+              <button type="submit" class="btn btn-primary" id="submit-btn" data-bs-toggle="modal" data-bs-target="#confirmationModal">
                 Send
                 <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
               </button>
           </form>
+          {% block title %}Last Questionaire{% endblock %}
+          {% block modal_content %} 
+           <p>you kdks lslsl</p>
+          {% endblock %}
+          <section>
+            <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="confirmationModalLabel">Successful Submission</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    The questionnaire for ‘therapist name’ has been filled successfully. A report will be generated for you after the first therapy session has been recorded.
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn-orange" data-bs-dismiss="modal">OK</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
 
         {% else %}
@@ -131,3 +155,4 @@
     </script>
   </body>
 </html>
+{% endblock %}

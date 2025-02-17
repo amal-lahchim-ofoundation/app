@@ -1,5 +1,4 @@
 {% extends 'base.html'%}
-
 {% block content %}
   <main id="main" class="login-body">
     <section>
@@ -8,11 +7,12 @@
           <h2 class="mb-4 text-center">Register</h2>
           <div class="mb-3">
             <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" placeholder="Password" name="pass" value=""/> 
+            <input type="password" id="password" class="form-control" placeholder="Password" name="pass" value="" required/>
+            <div id="passwordHelp" class="form-text alert-warning p-1 rounded">Use at least 12 characters, with at least one A-Z, one a-z, one 1-9, and one symbol(@,$,#,...).</div>
           </div>
           <div class="mb-3">
             <label for="confirm_password" class="form-label">Confirm Password</label>
-            <input type="password" class="form-control" placeholder=" Repeat password" name="pass2" value=""/> 
+            <input type="password" class="form-control" placeholder=" Repeat password" name="pass2" value=""/>
           </div>
           <div class="mb-3">
             <label for="referral" class="form-label">Referral Link<span class="text-secondary text-base">(Optional)</span></label>
@@ -21,7 +21,6 @@
           <button class="submit-btn" data-bs-toggle="modal" data-bs-target="#buy-ticket-modal" data-ticket-type="premium-access" value="register">Register</button>
           <p class="message mt-3 text-center">Already registered? <a href="{{ url_for('login') }}">Sign In</a></p>
         </form>
-
       </div>
     </section>
     <!-- Random key modal -->
@@ -95,5 +94,19 @@
           });
         }
       });
+
+      document.getElementById('password').addEventListener('blur', function() {
+            const password = document.getElementById('password').value;
+            const passwordHelp = document.getElementById('passwordHelp');
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?])[A-Za-z\d!@#$%^&*()_\-+=<>?]{12,}$/;
+
+            if (!passwordRegex.test(password)) {
+                passwordHelp.style.color = 'red';
+                passwordHelp.textContent = 'Password does not meet the required criteria.';
+            } else {
+                passwordHelp.style.color = 'green';
+                passwordHelp.textContent = 'Password is valid.';
+            }
+        });
     </script>
 {% endblock %}
