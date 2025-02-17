@@ -283,6 +283,29 @@ def login_required(route_function):
         return route_function(*args, **kwargs)
     return wrapper
 
+########## Therapy Session Display Page ##########
+@app.route('/summary-report', methods=['GET', 'POST'])
+@login_required
+def summary_report():
+    bucket = storage.bucket()
+    summaries = ""
+    blobs = bucket.list_blobs(prefix=f"therapy_session/{session['random_key']}/")
+
+    for blob in blobs:
+        print(blob.name)
+        file_name = os.path.basename(blob.name)
+        print(file_name)
+        blob = bucket.blob(blob.name)
+
+        contents = blob.download_as_bytes()
+        markdown_content = contents.decode('utf-8')
+        html_content = convert_markdown_to_html(markdown_content)
+        summaries += f"---{file_name}---\n{html_content}\n\n"
+
+    print("summaries", summaries)
+
+    return render_template('summary.html', summary=summaries)
+
 ######### Treatment Page #############
 @app.route('/treatment')
 @login_required
@@ -410,6 +433,12 @@ def convert_markdown_to_html(text):
     # Make text bold
     text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
 
+    # Make text italic
+    text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)
+
+    # Make text strikethrough
+    text = re.sub(r'--(.*?)--', r'<del>\1</del>', text)
+    
     # Wrap plain text in <p> tags
     lines = text.split('\n')
     for i in range(len(lines)):
@@ -482,7 +511,7 @@ def reports():
     # Fetch the reports (this is just a placeholder, replace with actual logic)
     reports = [
         {"id": "01", "title": "Diagnose Mental Disorder Report", "download": "", "url": "./first_report" if personal_info_phase_3_complete else "#"},
-        {"id": "02", "title": "Report 2", "download": "Content for report 2.", "url": "#"},
+        {"id": "02", "title": "Ttherapy Session Reports", "download": ".", "url": "./summary-report"},
         {"id": "03", "title": "Report 3", "download": "Content for report 3.", "url": "#"},
         {"id": "04", "title": "Report 4", "download": "Content for report 4.", "url": "#"}
     ]
