@@ -30,80 +30,118 @@
     body {
       color: #0F3E77;
     }
+
     h1 {
-    font-weight: 900;
+      font-weight: 900;
+    }
+
+    h3 {
+      font-weight: 600;
+      color: #308CBA;
+    }
+
+    .card {
+      background: #00112D;
+      width: 80%;
+      border-top-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      border-top-right-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    .circle {
+      position: relative;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 80px;
+      background-color: #E38748;
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+    }
+  
+    .side {
+      position: fixed;
+      top: 0;
+      right: 1px;
+      width: 250px;
+      height: 100vh;
+      /* background-color: #00112D; */
+      background-color: rgba(2, 40, 100, 0.8);
+      transition: right 0.5s ease;
+      padding: 20px;
+      box-shadow: -5px 0 10px rgba(0,0,0,0.1);
+      color: #FFFFFF;
+      /* color: gray; */
+      /* z-index: 1000; */
+      border-left: 1px solid gray;
+    }
+
+  .side ul {
+    list-style-type: none;
+    padding: 0;
   }
 
-  h3 {
-    font-weight: 600;
-    color: #308CBA;
+  .side ul li {
+    margin: 12px 0;
+    border-bottom: 1px solid #49C2FE;
   }
 
-  .card {
-    background: #00112D;
+  .side ul li a {
+    text-decoration: none;
+    margin: 0 0 0 15px;
+    color: #fff;
+    /* color: gray; */
+    font-family: Verdana, sans-serif;
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    transition: 0.3s;
   }
 
-  .circle {
-    position: relative;
-    top: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 80px;
+  .side img {
+    width: 180px; 
+    height: 130px;
+    margin-top: -20px;
+  }
+
+  .side p {
+    margin-top: -10px;
+    font-size: 10px;
+  }
+
+  .small-circle {
+    position: absolute;
+    bottom: -5px;
+    right: -10px;
+    width: 30px;
+    height: 30px;
     background-color: #E38748;
-    border-radius: 50%; 
-    display: flex; 
+    border-radius: 50%;
+    display: flex;
     align-items: center;
     justify-content: center;
     border: 2px solid white;
   }
+
+  .small-circle-text {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+  }
   
-  .side {
-    position: fixed;
-  top: 0;
-  right: 1px;
-  width: 250px;
-  height: 100vh;
-  background-color: #00112D;
-  transition: right 0.5s ease;
-  padding: 20px;
-  box-shadow: -5px 0 10px rgba(0,0,0,0.1);
-  color: #FFFFFF;
-    z-index: 1000;
+  .card-title {
+    font-size: 16px;
   }
 
-  .side ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.side ul li {
-  margin: 12px 0;
-  border-bottom: 1px solid #49C2FE;
-}
-
-.side ul li a {
-  text-decoration: none;
-  margin: 0 0 0 15px;
-  color: #fff;
-  font-family: Verdana, sans-serif;
-  text-transform: uppercase;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 1px;
-  transition: 0.3s;
-}
-
-.side img {
-  width: 180px; 
-  height: 130px;
-  margin-top: -20px;
-}
-
-.side p {
-  margin-top: -10px;
-  font-size: 10px;
-}
+  .card-text {
+    font-size: 14px;
+  }
   </style>
 </head>
 <body>
@@ -116,16 +154,16 @@
   </div>
 </header>
 <main class="row">
-  <section class="col-md-9">
+  <section class="col-md-10">
   <div class="mt-5 pb-5 text-center">
     <h1 class="">Welcome to Your Dashboard</h1>
-    <h3 class="">These are the steps and processes that  you'll </h3>
-    <h3>go through it with your account.</h3>
+    <h3>These are the steps and processes that  you'll </h3>
+    <h3 class="mb-4">go through it with your account.</h3>
   </div>
   <div class="row">
-    <div class="col-md-2"></div>
-    <div class="col-md-3 d-flex justify-content-center align-items-center">
-      <div class="card text-white" style="backdrop-filter: blur(10px); border-radius: 15px;">
+    <div class="col-md-1"></div>
+    <div class="col-md-3 d-flex justify-content-end align-items-center">
+      <div class="card text-white" style="backdrop-filter: blur(10px);">
         <div class="circle">
           <i class="icon-class">
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -139,6 +177,9 @@
               </g>
             </svg>
           </i>
+          <div class="small-circle">
+            <span class="small-circle-text">1</span>
+          </div>
         </div>
         <div class="card-body text-center">
           <h5 class="card-title">QUESTIONNAIRE</h5>
@@ -146,14 +187,17 @@
         </div>
       </div>
     </div>
-    <div class="col-md-3 d-flex justify-content-center align-items-center">
-      <div class="card text-white" style="backdrop-filter: blur(10px); border-radius: 15px;">
+    <div class="col-md-3 d-flex justify-content-end align-items-center">
+      <div class="card text-white" style="backdrop-filter: blur(10px);">
         <div class="circle">
           <i class="icon-class">
             <svg width="31" height="34" viewBox="0 0 31 34" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M2 16C2 15.7348 1.89464 15.4804 1.70711 15.2929C1.51957 15.1054 1.26522 15 1 15C0.734784 15 0.48043 15.1054 0.292894 15.2929C0.105357 15.4804 1.09166e-07 15.7348 1.09166e-07 16C-0.000386331 18.7445 1.02522 21.3901 2.87544 23.4172C4.72566 25.4443 7.26683 26.7065 10 26.956V31C10 31.2652 10.1054 31.5196 10.2929 31.7071C10.4804 31.8946 10.7348 32 11 32C11.2652 32 11.5196 31.8946 11.7071 31.7071C11.8946 31.5196 12 31.2652 12 31V29.588C11.3403 28.1485 10.9992 26.5835 11 25C8.61305 25 6.32387 24.0518 4.63604 22.364C2.94821 20.6761 2 18.3869 2 16ZM17 6V15.2C15.6536 15.887 14.4632 16.8442 13.5031 18.0117C12.543 19.1793 11.8339 20.5322 11.42 21.986C11.2787 21.9953 11.1387 22 11 22C9.4087 22 7.88258 21.3679 6.75736 20.2426C5.63214 19.1174 5 17.5913 5 16V6C5 4.4087 5.63214 2.88258 6.75736 1.75736C7.88258 0.632141 9.4087 0 11 0C12.5913 0 14.1174 0.632141 15.2426 1.75736C16.3679 2.88258 17 4.4087 17 6ZM27 25C27 26.3261 26.4732 27.5979 25.5355 28.5355C24.5979 29.4732 23.3261 30 22 30C20.6739 30 19.4021 29.4732 18.4645 28.5355C17.5268 27.5979 17 26.3261 17 25C17 23.6739 17.5268 22.4021 18.4645 21.4645C19.4021 20.5268 20.6739 20 22 20C23.3261 20 24.5979 20.5268 25.5355 21.4645C26.4732 22.4021 27 23.6739 27 25ZM31 25C31 27.3869 30.0518 29.6761 28.364 31.364C26.6761 33.0518 24.3869 34 22 34C19.6131 34 17.3239 33.0518 15.636 31.364C13.9482 29.6761 13 27.3869 13 25C13 22.6131 13.9482 20.3239 15.636 18.636C17.3239 16.9482 19.6131 16 22 16C24.3869 16 26.6761 16.9482 28.364 18.636C30.0518 20.3239 31 22.6131 31 25ZM15 25C15 25.9193 15.1811 26.8295 15.5328 27.6788C15.8846 28.5281 16.4002 29.2997 17.0503 29.9497C17.7003 30.5998 18.4719 31.1154 19.3212 31.4672C20.1705 31.8189 21.0807 32 22 32C22.9193 32 23.8295 31.8189 24.6788 31.4672C25.5281 31.1154 26.2997 30.5998 26.9497 29.9497C27.5998 29.2997 28.1154 28.5281 28.4672 27.6788C28.8189 26.8295 29 25.9193 29 25C29 23.1435 28.2625 21.363 26.9497 20.0503C25.637 18.7375 23.8565 18 22 18C20.1435 18 18.363 18.7375 17.0503 20.0503C15.7375 21.363 15 23.1435 15 25Z" fill="#FBFBFB"/>
             </svg>
           </i>
+          <div class="small-circle">
+            <span class="small-circle-text">2</span>
+          </div>
         </div>
         <div class="card-body text-center">
           <h5 class="card-title">THERAPY SESSION</h5>
@@ -161,15 +205,18 @@
         </div>
       </div>
     </div>
-    <div class="col-md-3 d-flex justify-content-center align-items-center">
-      <div class="card text-white" style="backdrop-filter: blur(10px); border-radius: 15px;">
+    <div class="col-md-3 d-flex justify-content-end align-items-center">
+      <div class="card text-white" style="backdrop-filter: blur(10px);">
         <div class="circle">
-          <i class="icon-class">
+          <i class="icon-class mb-2">
             <svg width="37" height="37" viewBox="0 0 37 37" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M32.1112 29.5527H8.77783V16.6579C8.77783 10.5541 14.0016 5.60529 20.4445 5.60529C26.8874 5.60529 32.1112 10.5541 32.1112 16.6579V29.5527Z" fill="white" stroke="white" stroke-width="2" stroke-linejoin="round"/>
               <path d="M4.88889 36H36M1 9.28947L3.91667 10.2105M9.75 1L10.7222 3.76316M6.83333 6.52632L3.91667 3.76316" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </i>
+          <div class="small-circle">
+            <span class="small-circle-text">3</span>
+          </div>
         </div>
         <div class="card-body text-center">
           <h5 class="card-title">REPORTS</h5>
@@ -177,18 +224,19 @@
         </div>
       </div>
     </div>
+    <div class="col-md-1"></div>
   </div>
   </section>
 
-<section class="side col-md-3">
+<section class="side col-md-2">
   <button id="closeSidebarBtn" class="btn btn-link p-0 float-end">
-    <i class="fas fa-times"></i>
+    <!-- <i class="fas fa-times"></i> -->
   </button>
   <div class="text-center mt-0">
-    <img src="{{ url_for('static', filename='../static/assets/img/user1.png') }}" class="img-fluid rounded-circle mt-n3">
-    <p>{{ random_key }}</p>
+    <!-- <img src="{{ url_for('static', filename='../static/assets/img/user1.png') }}" class="img-fluid rounded-circle mt-n3"> -->
+    <!-- <p>{{ random_key }}</p> -->
   </div>
-  <ul class="list-unstyled">
+  <ul class="list-unstyled mt-5 pt-5">
     <li class="d-flex align-items-center mb-2">
       <svg width="23" height="18" viewBox="0 0 23 18" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-1 ms-2">
         <path d="M18.2083 1.5H4.79167C4.28333 1.5 3.79582 1.65804 3.43638 1.93934C3.07693 2.22064 2.875 2.60218 2.875 3V13.5C2.875 14.325 3.7375 15 4.79167 15H8.625L10.8196 16.7175C11.1933 17.01 11.7971 17.01 12.1708 16.7175L14.375 15H18.2083C19.2625 15 20.125 14.325 20.125 13.5V3C20.125 2.175 19.2625 1.5 18.2083 1.5ZM12.4583 13.5H10.5417V12H12.4583V13.5ZM14.4421 7.6875L13.5796 8.3775C13.0238 8.82 12.6308 9.2025 12.5063 9.9225C12.4487 10.245 12.1133 10.4925 11.6917 10.4925H11.3946C11.2768 10.4923 11.1604 10.4724 11.0532 10.434C10.9461 10.3957 10.8507 10.3398 10.7735 10.2701C10.6963 10.2005 10.6391 10.1187 10.6057 10.0302C10.5723 9.94181 10.5636 9.8488 10.58 9.7575C10.6854 9.075 11.0879 8.4675 11.6725 8.0025L12.8608 7.0575C13.2058 6.7875 13.4167 6.4125 13.4167 6C13.4167 5.175 12.5542 4.5 11.5 4.5C10.6662 4.5 9.9475 4.9275 9.68875 5.5125C9.56417 5.79 9.26708 5.9925 8.89333 5.9925H8.60583C8.05 5.9925 7.66667 5.5725 7.82 5.1525C8.08116 4.4607 8.65193 3.86565 9.42785 3.47627C10.2038 3.08689 11.1329 2.92922 12.0452 3.03213C12.9575 3.13504 13.792 3.49164 14.3958 4.03665C14.9996 4.58167 15.3324 5.27864 15.3333 6C15.3333 6.66 14.9883 7.26 14.4421 7.6875Z" fill="#E38748"/>
