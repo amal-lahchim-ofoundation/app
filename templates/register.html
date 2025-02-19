@@ -29,7 +29,8 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="flashModalLabel">Message</h5>
-              <button class="btn-orange" id="randomKeyCopyButton" data-clipboard-target="#randomKeyCopyButton">Copy</button>
+              <button class="btn-orange" id="randomKeyCopyButton" data-clipboard-target="#randomKeyCopyButton" style="display: none;">Copy</button>
+              <button type="button" class="btn-close" id="closeButton" data-bs-dismiss="modal" aria-label="Close" style="display: none;"></button>
             </div>
             <div class="modal-body">
               <!-- Flash message will display here -->
@@ -48,25 +49,40 @@
         $('form').animate({height: "toggle", opacity: "toggle"}, "slow");
       });
       $(document).ready(function() {
-        {% with messages = get_flashed_messages(category_filter=['success']) %}
+    {% with messages = get_flashed_messages(category_filter=['success']) %}
+      {% if messages %}
+        var flashMessage = "{{ messages[0] }}";
+        $(".modal-body").text(flashMessage);
+        $(".modal-footer a").show();  // Show the Login button
+        if (flashMessage.startsWith("Your registration key is:")) {
+          document.getElementById('randomKeyCopyButton').style.display = "inline-block";
+          document.getElementById('closeButton').style.display = "none";
+        } else {
+          document.getElementById('randomKeyCopyButton').style.display = "none";
+          document.getElementById('closeButton').style.display = "inline-block";
+        }
+        var myModal = new bootstrap.Modal(document.getElementById('flashModal'), {});
+        myModal.show();
+      {% else %}
+        {% with messages = get_flashed_messages() %}
           {% if messages %}
-            $(".modal-body").text("{{ messages[0] }}");
-            $(".modal-footer a").show();  // Show the Login button
-            document.getElementById('randomKeyCopyButton').style="display: inline-block";
+            var flashMessage = "{{ messages[0] }}";
+            $(".modal-body").text(flashMessage);
+            $(".modal-footer a").hide();  // Hide the Login button
+            if (flashMessage.startsWith("Your registration key is:")) {
+              document.getElementById('randomKeyCopyButton').style.display = "inline-block";
+              document.getElementById('closeButton').style.display = "none";
+            } else {
+              document.getElementById('randomKeyCopyButton').style.display = "none";
+              document.getElementById('closeButton').style.display = "inline-block";
+            }
             var myModal = new bootstrap.Modal(document.getElementById('flashModal'), {});
             myModal.show();
-          {% else %}
-            {% with messages = get_flashed_messages() %}
-              {% if messages %}
-                $(".modal-body").text("{{ messages[0] }}");
-                $(".modal-footer a").hide();  // Hide the Login button
-                var myModal = new bootstrap.Modal(document.getElementById('flashModal'), {});
-                myModal.show();
-              {% endif %}
-            {% endwith %}
           {% endif %}
         {% endwith %}
-      });
+      {% endif %}
+    {% endwith %}
+  });
       document.addEventListener('DOMContentLoaded', (event) => {
         const copyButton = document.getElementById('randomKeyCopyButton');
         const copyText = document.getElementById('randomKeyInput');
