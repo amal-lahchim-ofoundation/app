@@ -31,22 +31,14 @@
       color: #0F3E77;
     }
 
-    h1 {
-      font-weight: 900;
-    }
-
-    h3 {
-      font-weight: 600;
-      color: #308CBA;
-    }
-
     .card {
-      background: #00112D;
+      background: #FFFFFF;
       width: 80%;
-      border-top-left-radius: 20px;
-      border-bottom-right-radius: 20px;
+      border-top-left-radius: 40px;
+      border-bottom-right-radius: 40px;
       border-top-right-radius: 0;
       border-bottom-left-radius: 0;
+      color: #00112D;
     }
 
     .circle {
@@ -61,7 +53,7 @@
       display: flex; 
       align-items: center;
       justify-content: center;
-      border: 2px solid white;
+      border: 2px solid #00112D;
     }
   
     .side {
@@ -70,15 +62,13 @@
       right: 1px;
       width: 250px;
       height: 100vh;
-      /* background-color: #00112D; */
-      background-color: rgba(2, 40, 100, 0.8);
+      background-color: #00112D;
       transition: right 0.5s ease;
       padding: 20px;
       box-shadow: -5px 0 10px rgba(0,0,0,0.1);
       color: #FFFFFF;
-      /* color: gray; */
-      /* z-index: 1000; */
-      border-left: 1px solid gray;
+      z-index: 1000;
+      border-left: 1px solid #49C2FE;
     }
 
   .side ul {
@@ -87,15 +77,14 @@
   }
 
   .side ul li {
-    margin: 12px 0;
+    margin: 25px 0;
     border-bottom: 1px solid #49C2FE;
   }
 
   .side ul li a {
     text-decoration: none;
     margin: 0 0 0 15px;
-    color: #fff;
-    /* color: gray; */
+    color: #FFFFFF;
     font-family: Verdana, sans-serif;
     text-transform: uppercase;
     font-size: 13px;
@@ -105,14 +94,14 @@
   }
 
   .side img {
-    width: 180px; 
-    height: 130px;
-    margin-top: -20px;
+    width: 100px; 
+    height: 100px;
   }
 
   .side p {
     margin-top: -10px;
     font-size: 10px;
+    color: #FFFFFF;
   }
 
   .small-circle {
@@ -126,7 +115,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid white;
+    border: 2px solid #00112D;
   }
 
   .small-circle-text {
@@ -137,6 +126,7 @@
   
   .card-title {
     font-size: 16px;
+    font-weight: bold;
   }
 
   .card-text {
@@ -144,8 +134,8 @@
   }
   </style>
 </head>
-<body>
-<header id="header" class="fixed-top top-0 d-flex align-items-center py-2 shadow">
+<body class="main-body ph1-font">
+<header id="header" class="fixed-top top-0 d-flex align-items-center py-2">
   <div class="container-fluid container-xl d-flex align-items-center  justify-content-lg-between">
     <div class="d-flex">
       <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
@@ -154,16 +144,14 @@
   </div>
 </header>
 <main class="row">
-  <section class="col-md-10">
-  <div class="mt-5 pb-5 text-center">
-    <h1 class="">Welcome to Your Dashboard</h1>
-    <h3>These are the steps and processes that  you'll </h3>
-    <h3 class="mb-4">go through it with your account.</h3>
+  <section class="container col-md-10">
+  <div class=" mt-5 pb-5 mb-5">
+    <h5 class="text-white">Welcome to Your Dashboard</h5>
+    <hr class="bg-white w-75"/>
   </div>
   <div class="row">
-    <div class="col-md-1"></div>
     <div class="col-md-3 d-flex justify-content-end align-items-center">
-      <div class="card text-white" style="backdrop-filter: blur(10px);">
+      <div class="card" style="backdrop-filter: blur(10px);">
         <div class="circle">
           <i class="icon-class">
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -187,8 +175,8 @@
         </div>
       </div>
     </div>
-    <div class="col-md-3 d-flex justify-content-end align-items-center">
-      <div class="card text-white" style="backdrop-filter: blur(10px);">
+    <div class="col-md-3 d-flex justify-content-center align-items-center">
+      <div class="card" style="backdrop-filter: blur(10px);">
         <div class="circle">
           <i class="icon-class">
             <svg width="31" height="34" viewBox="0 0 31 34" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -205,8 +193,8 @@
         </div>
       </div>
     </div>
-    <div class="col-md-3 d-flex justify-content-end align-items-center">
-      <div class="card text-white" style="backdrop-filter: blur(10px);">
+    <div class="col-md-3 d-flex justify-content-start align-items-center">
+      <div class="card" style="backdrop-filter: blur(10px);">
         <div class="circle">
           <i class="icon-class mb-2">
             <svg width="37" height="37" viewBox="0 0 37 37" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -232,11 +220,12 @@
   <button id="closeSidebarBtn" class="btn btn-link p-0 float-end">
     <!-- <i class="fas fa-times"></i> -->
   </button>
-  <div class="text-center mt-0">
+  <div class="text-center">
     <!-- <img src="{{ url_for('static', filename='../static/assets/img/user1.png') }}" class="img-fluid rounded-circle mt-n3"> -->
+    <img src="{{ url_for('static', filename='../static/assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
     <!-- <p>{{ random_key }}</p> -->
   </div>
-  <ul class="list-unstyled mt-5 pt-5">
+  <ul class="list-unstyled mt-5">
     <li class="d-flex align-items-center mb-2">
       <svg width="23" height="18" viewBox="0 0 23 18" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-1 ms-2">
         <path d="M18.2083 1.5H4.79167C4.28333 1.5 3.79582 1.65804 3.43638 1.93934C3.07693 2.22064 2.875 2.60218 2.875 3V13.5C2.875 14.325 3.7375 15 4.79167 15H8.625L10.8196 16.7175C11.1933 17.01 11.7971 17.01 12.1708 16.7175L14.375 15H18.2083C19.2625 15 20.125 14.325 20.125 13.5V3C20.125 2.175 19.2625 1.5 18.2083 1.5ZM12.4583 13.5H10.5417V12H12.4583V13.5ZM14.4421 7.6875L13.5796 8.3775C13.0238 8.82 12.6308 9.2025 12.5063 9.9225C12.4487 10.245 12.1133 10.4925 11.6917 10.4925H11.3946C11.2768 10.4923 11.1604 10.4724 11.0532 10.434C10.9461 10.3957 10.8507 10.3398 10.7735 10.2701C10.6963 10.2005 10.6391 10.1187 10.6057 10.0302C10.5723 9.94181 10.5636 9.8488 10.58 9.7575C10.6854 9.075 11.0879 8.4675 11.6725 8.0025L12.8608 7.0575C13.2058 6.7875 13.4167 6.4125 13.4167 6C13.4167 5.175 12.5542 4.5 11.5 4.5C10.6662 4.5 9.9475 4.9275 9.68875 5.5125C9.56417 5.79 9.26708 5.9925 8.89333 5.9925H8.60583C8.05 5.9925 7.66667 5.5725 7.82 5.1525C8.08116 4.4607 8.65193 3.86565 9.42785 3.47627C10.2038 3.08689 11.1329 2.92922 12.0452 3.03213C12.9575 3.13504 13.792 3.49164 14.3958 4.03665C14.9996 4.58167 15.3324 5.27864 15.3333 6C15.3333 6.66 14.9883 7.26 14.4421 7.6875Z" fill="#E38748"/>
@@ -253,7 +242,7 @@
       <svg width="23" height="18" viewBox="0 0 23 18" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-1 ms-2">
         <path d="M18.2083 1.5H4.79167C4.28333 1.5 3.79582 1.65804 3.43638 1.93934C3.07693 2.22064 2.875 2.60218 2.875 3V13.5C2.875 14.325 3.7375 15 4.79167 15H8.625L10.8196 16.7175C11.1933 17.01 11.7971 17.01 12.1708 16.7175L14.375 15H18.2083C19.2625 15 20.125 14.325 20.125 13.5V3C20.125 2.175 19.2625 1.5 18.2083 1.5ZM12.4583 13.5H10.5417V12H12.4583V13.5ZM14.4421 7.6875L13.5796 8.3775C13.0238 8.82 12.6308 9.2025 12.5063 9.9225C12.4487 10.245 12.1133 10.4925 11.6917 10.4925H11.3946C11.2768 10.4923 11.1604 10.4724 11.0532 10.434C10.9461 10.3957 10.8507 10.3398 10.7735 10.2701C10.6963 10.2005 10.6391 10.1187 10.6057 10.0302C10.5723 9.94181 10.5636 9.8488 10.58 9.7575C10.6854 9.075 11.0879 8.4675 11.6725 8.0025L12.8608 7.0575C13.2058 6.7875 13.4167 6.4125 13.4167 6C13.4167 5.175 12.5542 4.5 11.5 4.5C10.6662 4.5 9.9475 4.9275 9.68875 5.5125C9.56417 5.79 9.26708 5.9925 8.89333 5.9925H8.60583C8.05 5.9925 7.66667 5.5725 7.82 5.1525C8.08116 4.4607 8.65193 3.86565 9.42785 3.47627C10.2038 3.08689 11.1329 2.92922 12.0452 3.03213C12.9575 3.13504 13.792 3.49164 14.3958 4.03665C14.9996 4.58167 15.3324 5.27864 15.3333 6C15.3333 6.66 14.9883 7.26 14.4421 7.6875Z" fill="#E38748"/>
       </svg>
-      <a href="{{url_for('sessions')}}" class="book-a-table-btn sidebar-link">Therapy Session</a>
+      <a href="{{url_for('sessions')}}" class="book-a-table-btn sidebar-link text-white">Therapy Session</a>
     </li>
     <li class="d-flex align-items-center mb-2">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-1 ms-2">
