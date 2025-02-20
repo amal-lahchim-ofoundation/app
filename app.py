@@ -86,7 +86,9 @@ The summary should be structured into sections, with each section containing one
         return jsonify({"error": "No audio file received"}), 400
 
     try:
-        model = whisper.load_model("turbo")
+        cache_dir = os.path.join(os.getcwd(), "cache")
+        download_root = os.path.join(cache_dir, "whisper")
+        model = whisper.load_model("turbo", download_root=download_root)
         result = model.transcribe(f"uploaded_audio/{audio_file.filename}", verbose=True)
 
         '''Transcribe the audio directly without saving. 
