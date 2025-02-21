@@ -108,6 +108,12 @@ The summary should be structured into sections, with each section containing one
         # result = model.transcribe(samples)
 
         print("Text", result["text"])
+        audio_report_suffix = int(time.time())
+
+        sanitized_filename = sanitize_filename(f"therapy_{audio_report_suffix}")
+        bucket = storage.bucket()
+        blob = bucket.blob(f"therapy_transcription/{session['random_key']}/{sanitized_filename}.md")
+        blob.upload_from_string(result["text"], content_type='text/markdown')
 
         summary = chain.invoke(
             {
@@ -118,8 +124,7 @@ The summary should be structured into sections, with each section containing one
 
         session['summary'] = summary.content
 
-
-        sanitized_filename = sanitize_filename(f"summary_{int(time.time())}")
+        sanitized_filename = sanitize_filename(f"therapy_{audio_report_suffix}")
         bucket = storage.bucket()
         blob = bucket.blob(f"therapy_session/{session['random_key']}/{sanitized_filename}.md")
         blob.upload_from_string(summary.content, content_type='text/markdown')
@@ -289,6 +294,28 @@ def login_required(route_function):
 
 
 ########## Therapy Session Display Page ##########
+@app.route('/therapy-transcription', methods=['GET', 'POST'])
+@login_required
+def therapy_transcription():
+    bucket = storage.bucket()
+    transcription = ""
+    blobs = bucket.list_blobs(prefix=f"therapy_transcription/{session['random_key']}/")
+
+    for blob in blobs:
+        print(blob.name)
+        file_name = os.path.basename(blob.name)
+        print(file_name)
+        blob = bucket.blob(blob.name)
+
+        contents = blob.download_as_bytes()
+        markdown_content = contents.decode('utf-8')
+        html_content = convert_markdown_to_html(markdown_content)
+        transcription += f"---{file_name}---\n{html_content}\n\n"
+
+    print("transcription", transcription)
+
+    return render_template('summary.html', summary=transcription)
+
 @app.route('/summary-report', methods=['GET', 'POST'])
 @login_required
 def summary_report():
