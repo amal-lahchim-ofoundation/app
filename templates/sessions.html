@@ -115,6 +115,7 @@
 
           addButton('record', 'record()', 'Start Recording');
           addButton('send', 'sendToLocalStorage()', 'Generate Summary');
+          addButton('seeConversation', 'redirectToConversation()', 'See Conversation');
           break;
 
         case 'Record':
@@ -141,6 +142,11 @@
           addMessage('Your browser does not support mediaDevices');
           break;
       }
+    }
+
+
+    const redirectToConversation = () => {
+      window.location.href = '/therapy-transcription';
     }
 
     // Custom Audio Player Logic
