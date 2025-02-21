@@ -512,7 +512,7 @@ def get_user():
     user_data = USERS_REF.child(session['random_key']).get()
     return user_data
 
-##### Sahar's Work on Reports Page #####
+##### Reports Page #####
 @app.route('/reports', methods=['GET', 'POST'])
 @login_required
 def reports():
@@ -528,13 +528,13 @@ def reports():
     ]
     return render_template('reports.html', reports=reports)
 
-# My Code
+
 @app.route('/sessions', methods=['GET', 'POST'])
 @login_required
 def sessions():
     return render_template('sessions.html')
 
-##### Sahar's Work Profile Page #####
+##### first report Page #####
 @app.route('/first_report', methods=['GET', 'POST'])
 @login_required
 def first_report():
@@ -578,6 +578,20 @@ def personal_info_phase_3():
         research_data('personal_info_responses_phase_3', write_report=True)
         return redirect(url_for('treatment'))
     return render_template('personal_info_phase_3.html', questions=personal_info_questions_phase_3)
+
+
+@app.route('/therapy_sessions', methods=['GET', 'POST'])
+@login_required
+def therapy_sessions():
+    # Fetch the reports (this is just a placeholder, replace with actual logic)
+    summaries = [
+        {"id": "01", "title": "Diagnose Mental Disorder Report", "download": "", "url": "./first_report"},
+        {"id": "02", "title": "Ttherapy Session Reports", "download": ".", "url": "./summary-report"},
+        {"id": "03", "title": "Report 3", "download": "Content for report 3.", "url": "#"},
+        {"id": "04", "title": "Report 4", "download": "Content for report 4.", "url": "#"}
+    ]
+    return render_template('therapy_sessions.html', summaries=summaries)
+
 
 ##### Sahar's Work on Personal Insight Page #####
 

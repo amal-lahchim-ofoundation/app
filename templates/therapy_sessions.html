@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block custom_style %}
+  <style>
+    .card {
+      background-color: transparent;
+      border: 2px solid #E28647;
+      transition: border-color 0.3s;
+      border-radius: 10px;
+      color: #fff;
+    }
+    .card:hover {
+      border-color: #49C2FE;
+      background-color: rgba(34, 41, 139, 0.5);
+    }
+
+    .fade-in-left {
+    animation: fadeInLeft 2s;
+    }
+
+    .fade-in-right {
+    animation: fadeInRight 2s;
+    }
+
+    .fade-in-bottom {
+    animation: fadeInUp 3s;
+    }
+  </style>
+{% endblock %}
+{% block content %}
+  <main class="login-body">
+    <div class="container mt-5 pt-5">
+      <h5 class="text-white">Therapy Sessions</h5>
+      <hr class="bg-white"/>
+      <div class="row mt-5">
+        {% for summary in summaries %}
+          <div class="col-md-6 p-3">
+            <div class="card mb-4">
+
+            
+              <div class="card-body row g-4">
+                <div class="col-md-6">
+                  <h1 class="card-title">{{ summary.id }}</h1>
+                </div>
+                <div class="col-md-6">
+                </div>
+                <div class="col-md-9">
+                  <h4 class="card-title">{{ summary.title }}</h4>
+                </div>
+                <div class="col-md-3">
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </main>
+{% endblock %}
