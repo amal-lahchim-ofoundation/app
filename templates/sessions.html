@@ -45,6 +45,25 @@
   </section>
   </main>
 
+    <!-- Bootstrap Modal -->
+    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="messageModalLabel">Message</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="modalMessage">
+            <!-- Message will be inserted here -->
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
   <script>
     const display = document.querySelector('.display');
     const controllerWrapper = document.querySelector('.controllers');
@@ -52,6 +71,7 @@
     let stateIndex = 0;
     let mediaRecorder, chunks = [], audioURL = '';
     let audio = new Audio();
+    let generate_summary = '{{ generate_summary }}'
 
     const clearDisplay = () => {
       display.textContent = '';
@@ -165,13 +185,14 @@
         audio: true
       }).then(stream => {
         mediaRecorder = new MediaRecorder(stream);
+        chunks = [];
+
         mediaRecorder.ondataavailable = (e) => {
           chunks.push(e.data);
         }
 
         mediaRecorder.onstop = () => {
           const blob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });
-          chunks = [];
           audioURL = window.URL.createObjectURL(blob);
           audio.src = audioURL;
         }
@@ -185,10 +206,37 @@
 
     const sendToLocalStorage = () => {
       if (audioURL) {
+
         setStoredAudio(audioURL);
-        alert('We are going to generate the summary after some seconds!');
+
+        // Create a new FormData object
+        var formData = new FormData();
+        // Get the audio file (assuming you have a blob URL)
+        var audioBlob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });  // Adjust type accordingly
+        var audioFile = new File([audioBlob], 'audio.ogg', { 'type': 'audio/ogg; codecs=opus' });
+
+        // Append the audio file to the FormData object
+        formData.append('audio_file', audioFile);
+
+        $.ajax({
+          url: '/generate_summary', // The target URL
+          type: 'POST', // Specify the POST method
+          processData: false,  // Don't process the data (important for file uploads)
+          contentType: false,  // Don't set content type, FormData will set it automatically
+          data: formData,
+          success: function(data) {
+            // Handle the successful response here (data is the response)
+            console.log('Response:', data);
+          },
+          error: function(error) {
+            // Handle any errors that occur during the request
+            console.error('Error:', error);
+          }
+        });
+
+        showModal('We are going to generate the summary after some seconds!');
       } else {
-        alert('No audio recorded yet.');
+        showModal('No audio recorded yet.');
       }
     };
 
@@ -210,6 +258,12 @@
     function setStoredAudio(audioUrl) {
       const timestamp = new Date().getTime();
       localStorage.setItem('storedAudio', JSON.stringify([audioUrl, timestamp]));
+    }
+
+    function showModal(message) {
+      document.getElementById('modalMessage').textContent = message;
+      var myModal = new bootstrap.Modal(document.getElementById('messageModal'), {});
+      myModal.show();
     }
 
   </script>

@@ -16,7 +16,9 @@ import os
 import requests
 import time
 # from langchain_openai import OpenAI
-# from langchain.prompts import PromptTemplate
+# from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.prompts import PromptTemplate
 # from langchain.chains import LLMChain
 # from langchain.memory import ConversationBufferMemory
 # from langchain_community.utilities import WikipediaAPIWrapper
@@ -30,6 +32,8 @@ from questions.personal_info import personal_info_questions_phase_1, personal_in
 from questions.diagnose_questions import diagnose_questions
 from questions.personal_insight import personal_insights_questions
 from multiprocessing.dummy import Pool
+import whisper
+import os
 
 pool = Pool(5)
 app = Flask(__name__, static_folder='static')
@@ -38,8 +42,101 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_PERMANENT'] = False
 Session(app)
 load_dotenv()
-openAI = openai.OpenAI()
+#openAI = openai.OpenAI()
 DATABASE_URL = os.getenv('FIREBASE_DATABASE_URL')
+
+def sanitize_filename(filename: str) -> str:
+    return re.sub(r"[^\w\s-]", "", filename).strip()
+
+@app.route("/generate_summary", methods=['POST'])
+def generate_summary():
+    # llm = ChatOpenAI(model="gpt-4o-mini") # OpenAI model
+    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-exp")
+    prompt = PromptTemplate.from_template("""
+You are a psychologist about to make mental diagnoses based on this subject's mental data and the therapy session. You have to make summaries about the therapy session that are helpful to combine with the subject's mental data.
+----Therapy session----
+{therapy_session}
+
+Make summary of the therapy session with all key points, ONLY with information related to the subject/patient.
+Summary should be well structured, informative, in-depth, and comprehensive, with facts and numbers mentioned.
+Please ensure the summary contains only the factual information that was discussed, and that there is no preamble or introductory statement.
+The summary should be structured into sections, with each section containing one or more paragraphs of information
+    """)
+    chain = prompt | llm
+
+    # Check if a file is in the request
+    if 'audio_file' not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+
+    # Get the file from the request
+    audio_file = request.files['audio_file']
+    print("audio_file", audio_file)
+
+    if audio_file:
+        # Ensure the directory exists
+        if not os.path.exists('uploaded_audio'):
+            os.makedirs('uploaded_audio')
+
+        # I added to test the path
+        audio_file_path = os.path.join('uploaded_audio', audio_file.filename)
+        # Save the file to the server
+        audio_file.save(f"uploaded_audio/{audio_file.filename}")
+        print(f"File saved to {audio_file_path}")
+    else:
+        return jsonify({"error": "No audio file received"}), 400
+
+    try:
+        model = whisper.load_model("turbo")
+        result = model.transcribe(f"uploaded_audio/{audio_file.filename}", verbose=True)
+
+        '''Transcribe the audio directly without saving. 
+        NOTE: the quality of the text is not quality as the above method.'''
+        # from io import BytesIO
+        # from pydub import AudioSegment
+        # import numpy as np
+
+        # file_like_object = BytesIO(audio_file.read())
+        # Load the audio using pydub (this should work for various formats like mp3, wav, etc.)
+        # audio = AudioSegment.from_file(file_like_object)
+        # Convert to mono and resample to 16000 Hz if needed
+        # audio = audio.set_channels(1).set_frame_rate(16000)
+        # Convert audio to numpy array
+        # samples = np.array(audio.get_array_of_samples(), dtype=np.float32)
+        # Normalize the audio (Whisper expects values between -1 and 1)
+        # samples = samples / 2 ** 15
+        # result = model.transcribe(samples, task="translate")
+        # result = model.transcribe(samples)
+
+        print("Text", result["text"])
+
+        summary = chain.invoke(
+            {
+                "therapy_session": result["text"]
+            }
+        )
+        print("summary", summary.content)
+
+        session['summary'] = summary.content
+
+
+        sanitized_filename = sanitize_filename(f"summary_{int(time.time())}")
+        bucket = storage.bucket()
+        blob = bucket.blob(f"therapy_session/{session['random_key']}/{sanitized_filename}.md")
+        blob.upload_from_string(summary.content, content_type='text/markdown')
+    except Exception as e:
+        print(f"An error occurred when generating summary: {e}")
+        return jsonify({"error": str(e)}), 500
+
+    os.remove(f"uploaded_audio/{audio_file.filename}")
+    return {"success": True}
+
+
+@app.route("/general_summary", methods=['GET'])
+def general_summary():
+    transcription = session.get('transcription')
+    return render_template('summary.html', transcription=transcription)
+
+
 @app.route("/", methods=['GET', 'POST'])
 def home():
     cards = [
@@ -190,10 +287,35 @@ def login_required(route_function):
         return route_function(*args, **kwargs)
     return wrapper
 
+
+########## Therapy Session Display Page ##########
+@app.route('/summary-report', methods=['GET', 'POST'])
+@login_required
+def summary_report():
+    bucket = storage.bucket()
+    summaries = ""
+    blobs = bucket.list_blobs(prefix=f"therapy_session/{session['random_key']}/")
+
+    for blob in blobs:
+        print(blob.name)
+        file_name = os.path.basename(blob.name)
+        print(file_name)
+        blob = bucket.blob(blob.name)
+
+        contents = blob.download_as_bytes()
+        markdown_content = contents.decode('utf-8')
+        html_content = convert_markdown_to_html(markdown_content)
+        summaries += f"---{file_name}---\n{html_content}\n\n"
+
+    print("summaries", summaries)
+
+    return render_template('summary.html', summary=summaries)
+
 @app.route('/dashboard')
 def dashboard():
     random_key = session.get('random_key', 'No key available')
     return render_template('dash_main.html', random_key=random_key)
+
 
 ######### Treatment Page #############
 @app.route('/treatment')
@@ -209,13 +331,9 @@ def treatment():
         personal_info_phase_2_complete,
         personal_info_phase_3_complete
     ])
-    personal_insights_complete = user_data.get('personal_insights_completed', False)
-    diagnosis_complete = 'diagnosis_name' in user_data and bool(user_data['diagnosis_name'])
     # Redirect to the appropriate page if any step is incomplete
     if not personal_info_complete:
         return redirect(url_for('personal_info_phase_1'))
-    if not personal_insights_complete:
-        return redirect(url_for('personal_insights'))
 
     return render_template('treatment.html')
 
@@ -326,6 +444,12 @@ def convert_markdown_to_html(text):
     # Make text bold
     text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
 
+    # Make text italic
+    text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)
+
+    # Make text strikethrough
+    text = re.sub(r'--(.*?)--', r'<del>\1</del>', text)
+    
     # Wrap plain text in <p> tags
     lines = text.split('\n')
     for i in range(len(lines)):
@@ -392,10 +516,13 @@ def get_user():
 @app.route('/reports', methods=['GET', 'POST'])
 @login_required
 def reports():
+
+    user_data = get_user()
+    personal_info_phase_3_complete = user_data.get('personal_info_phase_3_completed', False)
     # Fetch the reports (this is just a placeholder, replace with actual logic)
     reports = [
-        {"id": "01", "title": "Diagnose Mental Disorder Report", "download": "", "url": "./first_report"},
-        {"id": "02", "title": "Report 2", "download": "Content for report 2.", "url": "#"},
+        {"id": "01", "title": "Diagnose Mental Disorder Report", "download": "", "url": "./first_report" if personal_info_phase_3_complete else "#"},
+        {"id": "02", "title": "Ttherapy Session Reports", "download": ".", "url": "./summary-report"},
         {"id": "03", "title": "Report 3", "download": "Content for report 3.", "url": "#"},
         {"id": "04", "title": "Report 4", "download": "Content for report 4.", "url": "#"}
     ]
@@ -449,85 +576,39 @@ def personal_info_phase_3():
         # Save updated user data to the database
         USERS_REF.child(session['random_key']).set(user_data)
         research_data('personal_info_responses_phase_3', write_report=True)
-        return redirect(url_for('personal_insights'))
+        return redirect(url_for('treatment'))
     return render_template('personal_info_phase_3.html', questions=personal_info_questions_phase_3)
 
 ##### Sahar's Work on Personal Insight Page #####
-@app.route("/questions", methods=['GET', 'POST'])
-@login_required  # Ensure user is logged in to access this route
-def questions():
-   # Initialize variables
-    result = None
-    diagnosis_found = False
-    saved_diagnosis = None
 
-    user_data = get_user()
+# @app.route('/personal_insights', methods=['GET', 'POST'])
+# @login_required
+# def personal_insights():
+#     user_data = get_user()
 
+#     if request.method == 'POST':
+#         personal_insight_responses = {}
 
-    # Check if it's the user's first login based on the session variable
-    first_login = session.get('first_login', True)
-    if request.method == 'POST':
-        if first_login:
-            diagnose_responses = {}
+#         for index, question in enumerate(personal_insights_questions, start=1):
+#             topic = sanitize_key(question.get('topic', f"Topic {index}"))
+#             personal_insight_responses[topic] = {}
 
-        for index, question in enumerate(diagnose_questions, start=1):
-            topic = sanitize_key(question.get('topic', f"Topic {index}"))
-            diagnose_responses[topic] = {}
+#             questions = question.get('questions')
+#             for index, question in enumerate(questions, start=1):
+#                 question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
 
-            questions = question.get('questions')
-            for index, question in enumerate(questions, start=1):
-                question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
+#                 answer = request.form.get(f'{topic}_question_{index}')
+#                 print(f"Received answer: {answer} for question {index}")
 
-                # Capture range and text input for the  question
-                score = request.form.get(f'{topic}_diagnose_score_{index}')
-                comments = request.form.get(f'{topic}_diagnose_comments_{index}')
+#                 personal_insight_responses[topic][question_info_type] = answer if answer else None
 
-                # Log to console for debugging
-                print(f"Received score: {score}, comments: {comments} for question {index}")
-                diagnose_responses[topic][question_info_type] = {
-                    'score': (str(score) if score else "0") + "/100",  # Default to None if score is empty
-                    'comments': comments if comments else None  # Default to None if comments are empty
-                }
+#         user_data['personal_insights_completed'] = True
+#         user_data['personal_insight_responses'] = personal_insight_responses
+#         USERS_REF.child(session['random_key']).set(user_data)
 
-        # Update user data
-        user_data['diagnosis_complete'] = True
-        user_data['diagnose_responses'] = diagnose_responses
-        # Save updated user data to the database
-        USERS_REF.child(session['random_key']).set(user_data)
-        print("Diagnosis complete flag set to True")
-        print("Redirecting to treatment")
-        return redirect(url_for('treatment'))
-    return render_template('diagnose.html', questions=diagnose_questions)
+#         return redirect(url_for('questions'))
 
-#################################################### End of Sahar's Work for diagnose page
-@app.route('/personal_insights', methods=['GET', 'POST'])
-@login_required
-def personal_insights():
-    user_data = get_user()
-
-    if request.method == 'POST':
-        personal_insight_responses = {}
-
-        for index, question in enumerate(personal_insights_questions, start=1):
-            topic = sanitize_key(question.get('topic', f"Topic {index}"))
-            personal_insight_responses[topic] = {}
-
-            questions = question.get('questions')
-            for index, question in enumerate(questions, start=1):
-                question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
-
-                answer = request.form.get(f'{topic}_question_{index}')
-                print(f"Received answer: {answer} for question {index}")
-
-                personal_insight_responses[topic][question_info_type] = answer if answer else None
-
-        user_data['personal_insights_completed'] = True
-        user_data['personal_insight_responses'] = personal_insight_responses
-        USERS_REF.child(session['random_key']).set(user_data)
-
-        return redirect(url_for('questions'))
-
-    return render_template('personal_insights.html', questions=personal_insights_questions)
+#     return render_template('personal_insights.html', questions=personal_insights_questions)
 ###### End of personal insight Page ####
 
 @app.route('/appointment', methods=['GET', 'POST'])
