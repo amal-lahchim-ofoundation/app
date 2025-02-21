@@ -726,6 +726,10 @@ def disconnect():
     response.set_cookie('walletAddress', '', expires=0)
     return response
 
+@app.route('/health', methods=['GET'])
+def check_health():
+    return {"status": "OK"}, 200
+
 ### end web3 routes ####
 if __name__ == '__main__':
     # Configure the logging system
