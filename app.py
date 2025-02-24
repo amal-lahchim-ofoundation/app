@@ -31,6 +31,7 @@ import random
 from questions.personal_info import personal_info_questions_phase_1, personal_info_questions_phase_2, personal_info_questions_phase_3
 from questions.diagnose_questions import diagnose_questions
 from questions.personal_insight import personal_insights_questions
+from .guard.anonymize import anonymize_text
 from multiprocessing.dummy import Pool
 import whisper
 import os
@@ -729,6 +730,29 @@ def disconnect():
 @app.route('/health', methods=['GET'])
 def check_health():
     return {"status": "OK"}, 200
+
+@app.route('/anonymize', methods=['POST'])
+def anonymize_data():
+    """
+    Anonymizes sensitive information in the provided text prompt.
+    Request (JSON):
+    {
+        "prompt": "Text containing sensitive information."
+    }
+    Response (JSON):
+    {
+        "sanitized_prompt": "Anonymized text",
+        "is_valid": true,
+        "risk_score": 0.5
+    }
+    """
+    data = request.json
+    prompt = data.get('prompt', '')
+    allowed_names = []
+    hidden_names = []
+    preamble = ""
+    response = anonymize_text(prompt, allowed_names, hidden_names, preamble)
+    return jsonify(response), 200
 
 ### end web3 routes ####
 if __name__ == '__main__':
