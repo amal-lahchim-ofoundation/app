@@ -31,7 +31,9 @@ import random
 from questions.personal_info import personal_info_questions_phase_1, personal_info_questions_phase_2, personal_info_questions_phase_3
 from questions.diagnose_questions import diagnose_questions
 from questions.personal_insight import personal_insights_questions
-from .guard.anonymize import anonymize_text
+from guard.anonymize import anonymize_text
+from guard.code import scan_code
+from llm_guard.input_scanners import BanCode
 from multiprocessing.dummy import Pool
 import whisper
 import os
@@ -752,6 +754,44 @@ def anonymize_data():
     hidden_names = []
     preamble = ""
     response = anonymize_text(prompt, allowed_names, hidden_names, preamble)
+    return jsonify(response), 200
+
+@app.route('/ban_code', methods=['POST'])
+def ban_code_data():
+    """
+    Scans the provided text prompt for banned code patterns.
+    Request (JSON):
+    {
+        "prompt": "Text containing potential banned code."
+    }
+    Response (JSON):
+    {
+        "sanitized_prompt": "Sanitized text",
+        "is_valid": true,
+        "risk_score": 0.5
+    }
+    """
+    data = request.json
+    prompt = data.get('prompt', '')
+    scanner = BanCode()
+    sanitized_prompt, is_valid, risk_score = scanner.scan(prompt)
+    response = {
+        "sanitized_prompt": sanitized_prompt,
+        "is_valid": is_valid,
+        "risk_score": risk_score
+    }
+    return jsonify(response), 200
+
+@app.route('/code_scan', methods=['POST'])
+def code_scan():
+    data = request.json
+    prompt = data.get('prompt', '')  # Extract prompt data
+    sanitized_prompt, is_valid, risk_score = scan_code(prompt)
+    response = {
+        "sanitized_prompt": sanitized_prompt,
+        "is_valid": is_valid,
+        "risk_score": risk_score
+    }
     return jsonify(response), 200
 
 ### end web3 routes ####
