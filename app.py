@@ -35,6 +35,7 @@ from guard.anonymize import anonymize_text
 from guard.code import scan_code
 from guard.topics import topic_scan
 from guard.gibberish import gibberish_scan
+from guard.language import language_scan
 from llm_guard.input_scanners import BanCode
 from multiprocessing.dummy import Pool
 import whisper
@@ -820,6 +821,17 @@ def gib_scan():
     }
     return jsonify(response), 200
 
+@app.route("/ban_language", methods=["POST"])
+def lang_scan():
+    data = request.json
+    prompt = data.get('prompt', '')
+    sanitized_prompt, is_valid, risk_score = language_scan(prompt)
+    response = {
+        "sanitized_prompt": sanitized_prompt,
+        "is_valid": is_valid,
+        "risk_score": risk_score
+    }
+    return jsonify(response), 200
 
 ### end web3 routes ####
 if __name__ == '__main__':
