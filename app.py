@@ -108,6 +108,12 @@ The summary should be structured into sections, with each section containing one
         # result = model.transcribe(samples)
 
         print("Text", result["text"])
+        audio_report_suffix = int(time.time())
+
+        sanitized_filename = sanitize_filename(f"therapy_{audio_report_suffix}")
+        bucket = storage.bucket()
+        blob = bucket.blob(f"therapy_transcription/{session['random_key']}/{sanitized_filename}.md")
+        blob.upload_from_string(result["text"], content_type='text/markdown')
 
         summary = chain.invoke(
             {
@@ -118,8 +124,7 @@ The summary should be structured into sections, with each section containing one
 
         session['summary'] = summary.content
 
-
-        sanitized_filename = sanitize_filename(f"summary_{int(time.time())}")
+        sanitized_filename = sanitize_filename(f"therapy_{audio_report_suffix}")
         bucket = storage.bucket()
         blob = bucket.blob(f"therapy_session/{session['random_key']}/{sanitized_filename}.md")
         blob.upload_from_string(summary.content, content_type='text/markdown')
@@ -289,6 +294,50 @@ def login_required(route_function):
 
 
 ########## Therapy Session Display Page ##########
+# @app.route('/therapy-transcription', methods=['GET', 'POST'])
+# @login_required
+# def therapy_transcription():
+#     bucket = storage.bucket()
+#     transcription = ""
+#     blobs = bucket.list_blobs(prefix=f"therapy_transcription/{session['random_key']}/")
+
+#     for blob in blobs:
+#         print(blob.name)
+#         file_name = os.path.basename(blob.name)
+#         print(file_name)
+#         blob = bucket.blob(blob.name)
+
+#         contents = blob.download_as_bytes()
+#         markdown_content = contents.decode('utf-8')
+#         html_content = convert_markdown_to_html(markdown_content)
+#         transcription += f"---{file_name}---\n{html_content}\n\n"
+
+#     print("transcription", transcription)
+
+#     return render_template('conversation.html', summary=transcription)
+
+@app.route('/therapy-transcription', methods=['GET', 'POST'])
+@login_required
+def therapy_transcription():
+    bucket = storage.bucket()
+    transcription = ""
+    blobs = bucket.list_blobs(prefix=f"therapy_transcription/{session['random_key']}/")
+
+    for blob in blobs:
+        print(blob.name)
+        file_name = os.path.basename(blob.name)
+        print(file_name)
+        blob = bucket.blob(blob.name)
+
+        contents = blob.download_as_bytes()
+        markdown_content = contents.decode('utf-8')
+        html_content = convert_markdown_to_html(markdown_content)
+        transcription += f"---{file_name}---\n{html_content}\n\n"
+
+    print("transcription", transcription)
+
+    return render_template('conversation.html', transcription=transcription)
+
 @app.route('/summary-report', methods=['GET', 'POST'])
 @login_required
 def summary_report():
@@ -585,10 +634,10 @@ def personal_info_phase_3():
 def therapy_sessions():
     # Fetch the reports (this is just a placeholder, replace with actual logic)
     summaries = [
-        {"id": "01", "title": "Diagnose Mental Disorder Report", "download": "", "url": "./first_report"},
-        {"id": "02", "title": "Ttherapy Session Reports", "download": ".", "url": "./summary-report"},
-        {"id": "03", "title": "Report 3", "download": "Content for report 3.", "url": "#"},
-        {"id": "04", "title": "Report 4", "download": "Content for report 4.", "url": "#"}
+        {"date": "01/02/2025", "title": "Dr. Sara Jims", "url": "./summary-report"},
+        {"date": "02/02/2025", "title": "Dr. Sara Jims", "url": "./summary-report"},
+        {"date": "03/02/2025", "title": "Dr. Sara Jims", "url": "#"},
+        {"date": "04/02/2025", "title": "Dr. Sara Jims", "url": "#"}
     ]
     return render_template('therapy_sessions.html', summaries=summaries)
 
@@ -691,7 +740,71 @@ def disconnect():
     response.set_cookie('walletAddress', '', expires=0)
     return response
 
+@app.route('/health', methods=['GET'])
+def check_health():
+    return {"status": "OK"}, 200
+
 ### end web3 routes ####
+
+
+################################################################### MY CODE ####################################################################
+from datetime import datetime
+
+@app.route('/summaries', methods=['GET', 'POST'])
+@login_required
+def list_summaries():
+    if "random_key" not in session:
+        return "User not authenticated", 401
+
+    random_key = session["random_key"]
+    prefix = f"therapy_session/{random_key}/"
+    bucket = storage.bucket()
+    blobs = bucket.list_blobs(prefix=prefix)
+
+    summaries = []
+    for blob in blobs:
+        if blob.name.endswith(".md"):
+            filename = blob.name.split("/")[-1]
+            timestamp_str = filename.replace("summary_", "").replace(".md", "")
+
+            # Convert Unix timestamp to readable format
+            try:
+                timestamp = datetime.utcfromtimestamp(int(timestamp_str))
+                formatted_date = timestamp.strftime("%d/%m/%y")  # Convert to dd/mm/yy
+            except ValueError:
+                formatted_date = "Unknown Date"
+
+            summaries.append({"filename": filename, "timestamp": formatted_date, "raw_timestamp": int(timestamp_str)})
+
+    # Sorting Summaries: Most Recent First
+    summaries.sort(key=lambda x: x["raw_timestamp"], reverse=True)
+
+    return render_template("summaries.html", summaries=summaries)
+
+
+
+@app.route('/summary-reporting', methods=['GET', 'POST'])
+@login_required
+def summary_reporting():
+    filename = request.args.get("file")
+    if not filename:
+        return "No summary specified", 400
+
+    random_key = session.get("random_key")
+    if not random_key:
+        return "User not authenticated", 401
+
+    file_path = f"therapy_session/{random_key}/{filename}"
+    bucket = storage.bucket()
+    blob = bucket.blob(file_path)
+    summary_content = blob.download_as_text()
+
+    return render_template("summary_reporting.html", summary=summary_content)
+
+
+
+
+
 if __name__ == '__main__':
     # Configure the logging system
     logging.basicConfig(
@@ -705,3 +818,10 @@ if __name__ == '__main__':
     serverHost = os.getenv('host')
     serverPort = os.getenv('port')
     app.run(host=serverHost,port=serverPort, debug=os.getenv('debug') )
+
+
+
+
+
+
+
