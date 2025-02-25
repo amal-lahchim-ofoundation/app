@@ -34,6 +34,7 @@ from questions.personal_insight import personal_insights_questions
 from guard.anonymize import anonymize_text
 from guard.code import scan_code
 from guard.topics import topic_scan
+from guard.gibberish import gibberish_scan
 from llm_guard.input_scanners import BanCode
 from multiprocessing.dummy import Pool
 import whisper
@@ -800,6 +801,18 @@ def topics_scan():
     data = request.json
     prompt = data.get('prompt', '')
     sanitized_prompt, is_valid, risk_score = topic_scan(prompt)
+    response = {
+        "sanitized_prompt": sanitized_prompt,
+        "is_valid": is_valid,
+        "risk_score": risk_score
+    }
+    return jsonify(response), 200
+    
+@app.route("/ban_gibberish", methods=["POST"])
+def gib_scan():
+    data = request.json
+    prompt = data.get('prompt', '')
+    sanitized_prompt, is_valid, risk_score = gibberish_scan(prompt)
     response = {
         "sanitized_prompt": sanitized_prompt,
         "is_valid": is_valid,
