@@ -859,6 +859,7 @@ def scan_secrets():
     }
     return jsonify(response), 200
 
+
 ### end web3 routes ####
 if __name__ == '__main__':
     # Configure the logging system
