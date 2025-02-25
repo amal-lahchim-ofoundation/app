@@ -37,6 +37,7 @@ from guard.topics import topic_scan
 from guard.gibberish import gibberish_scan
 from guard.language import language_scan
 from guard.injection import injection_scan
+from guard.secrets import secrets_scan
 from llm_guard.input_scanners import BanCode
 from multiprocessing.dummy import Pool
 import whisper
@@ -839,6 +840,18 @@ def scan_injection():
     data = request.json
     prompt = data.get('prompt', '')
     sanitized_prompt, is_valid, risk_score = injection_scan(prompt)
+    response = {
+        "sanitized_prompt": sanitized_prompt,
+        "is_valid": is_valid,
+        "risk_score": risk_score
+    }
+    return jsonify(response), 200
+
+@app.route("/ban_secrets", methods=["POST"])
+def scan_secrets():
+    data = request.json
+    prompt = data.get('prompt', '')
+    sanitized_prompt, is_valid, risk_score = secrets_scan(prompt)
     response = {
         "sanitized_prompt": sanitized_prompt,
         "is_valid": is_valid,
