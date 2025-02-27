@@ -29,8 +29,7 @@ import pycountry
 from datetime import datetime
 import random
 from questions.personal_info import personal_info_questions_phase_1, personal_info_questions_phase_2, personal_info_questions_phase_3
-from questions.diagnose_questions import diagnose_questions
-from questions.personal_insight import personal_insights_questions
+from datetime import datetime
 from multiprocessing.dummy import Pool
 import whisper
 import os
@@ -293,29 +292,6 @@ def login_required(route_function):
     return wrapper
 
 
-########## Therapy Session Display Page ##########
-# @app.route('/therapy-transcription', methods=['GET', 'POST'])
-# @login_required
-# def therapy_transcription():
-#     bucket = storage.bucket()
-#     transcription = ""
-#     blobs = bucket.list_blobs(prefix=f"therapy_transcription/{session['random_key']}/")
-
-#     for blob in blobs:
-#         print(blob.name)
-#         file_name = os.path.basename(blob.name)
-#         print(file_name)
-#         blob = bucket.blob(blob.name)
-
-#         contents = blob.download_as_bytes()
-#         markdown_content = contents.decode('utf-8')
-#         html_content = convert_markdown_to_html(markdown_content)
-#         transcription += f"---{file_name}---\n{html_content}\n\n"
-
-#     print("transcription", transcription)
-
-#     return render_template('conversation.html', summary=transcription)
-
 @app.route('/therapy-transcription', methods=['GET', 'POST'])
 @login_required
 def therapy_transcription():
@@ -338,27 +314,7 @@ def therapy_transcription():
 
     return render_template('conversation.html', transcription=transcription)
 
-@app.route('/summary-report', methods=['GET', 'POST'])
-@login_required
-def summary_report():
-    bucket = storage.bucket()
-    summaries = ""
-    blobs = bucket.list_blobs(prefix=f"therapy_session/{session['random_key']}/")
 
-    for blob in blobs:
-        print(blob.name)
-        file_name = os.path.basename(blob.name)
-        print(file_name)
-        blob = bucket.blob(blob.name)
-
-        contents = blob.download_as_bytes()
-        markdown_content = contents.decode('utf-8')
-        html_content = convert_markdown_to_html(markdown_content)
-        summaries += f"---{file_name}---\n{html_content}\n\n"
-
-    print("summaries", summaries)
-
-    return render_template('summary.html', summary=summaries)
 
 @app.route('/dashboard')
 def dashboard():
@@ -632,13 +588,31 @@ def personal_info_phase_3():
 @app.route('/therapy_sessions', methods=['GET', 'POST'])
 @login_required
 def therapy_sessions():
-    # Fetch the reports (this is just a placeholder, replace with actual logic)
-    summaries = [
-        {"date": "01/02/2025", "title": "Dr. Sara Jims", "url": "./summary-report"},
-        {"date": "02/02/2025", "title": "Dr. Sara Jims", "url": "./summary-report"},
-        {"date": "03/02/2025", "title": "Dr. Sara Jims", "url": "#"},
-        {"date": "04/02/2025", "title": "Dr. Sara Jims", "url": "#"}
-    ]
+    if "random_key" not in session:
+        return "User not authenticated", 401
+
+    random_key = session["random_key"]
+    prefix = f"therapy_session/{random_key}/"
+    bucket = storage.bucket()
+    blobs = bucket.list_blobs(prefix=prefix)
+
+    summaries = []
+    for blob in blobs:
+        if blob.name.endswith(".md"):
+            filename = blob.name.split("/")[-1]
+            timestamp_str = filename.replace("summary_", "").replace(".md", "")
+
+            # Convert Unix timestamp to readable format
+            try:
+                timestamp = datetime.utcfromtimestamp(int(timestamp_str))
+                formatted_date = timestamp.strftime("%d/%m/%y")  # Convert to dd/mm/yy
+            except ValueError:
+                formatted_date = "Unknown Date"
+
+            summaries.append({"filename": filename, "timestamp": formatted_date, "raw_timestamp": int(timestamp_str)})
+
+    # Sorting Summaries: Most Recent First
+    summaries.sort(key=lambda x: x["raw_timestamp"], reverse=True)
     return render_template('therapy_sessions.html', summaries=summaries)
 
 
@@ -748,7 +722,7 @@ def check_health():
 
 
 ################################################################### MY CODE ####################################################################
-from datetime import datetime
+
 
 @app.route('/summaries', methods=['GET', 'POST'])
 @login_required
@@ -799,7 +773,11 @@ def summary_reporting():
     blob = bucket.blob(file_path)
     summary_content = blob.download_as_text()
 
-    return render_template("summary_reporting.html", summary=summary_content)
+    # Convert the markdown content to HTML
+    html_summary_content = convert_markdown_to_html(summary_content)
+
+
+    return render_template("summary.html", summary=html_summary_content)
 
 
 
