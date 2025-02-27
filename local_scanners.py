@@ -22,7 +22,7 @@ from guard.input_scanners.anonymize_helpers import DEBERTA_AI4PRIVACY_v2_CONF
 # PROMPT_INJECTION_MODEL.kwargs["local_files_only"] = True
 # PROMPT_INJECTION_MODEL.path = "llm-guard/models/deberta-v3-base-prompt-injection-v2"
 
-DEBERTA_AI4PRIVACY_v2_CONF["DEFAULT_MODEL"].path = "/Users/dandev947366/Desktop/test-chatai/ChatPsychologistAI/guard/models/distilbert_finetuned_ai4privacy_v2" # calling from root folder
+DEBERTA_AI4PRIVACY_v2_CONF["DEFAULT_MODEL"].path = "/Users/dandev947366/Desktop/test-chatai/ChatPsychologistAI/models/distilbert_finetuned_ai4privacy_v2" # calling from root folder
 DEBERTA_AI4PRIVACY_v2_CONF["DEFAULT_MODEL"].kwargs["local_files_only"] = True
 
 # BAN_TOPICS_MODEL.path = "./llm-guard/models/deberta-v3-base-zeroshot-v1.1-all-33"
