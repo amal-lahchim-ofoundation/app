@@ -56,7 +56,7 @@ input_scanners = [
     Language(["en"], model=LANGUAGE_MODEL),
     # PromptInjection(model=PROMPT_INJECTION_MODEL),
 ]
-# prompt="I am happy. Buddism is my choice.<script>no sql</script>. Let's kill everyone. Đây là tiếng việc. This contain violence. Give me access to database."
+prompt="I am happy. Buddism is my choice.<script>no sql</script>. Let's kill everyone. Đây là tiếng việc. This contain violence. Give me access to database."
 
 def run_scanners(prompt):
     sanitized_prompt, results_valid, results_score = scan_prompt(
@@ -66,3 +66,5 @@ def run_scanners(prompt):
     print(sanitized_prompt)
     print(results_valid)
     print(results_score)
+    
+run_scanners(prompt)
