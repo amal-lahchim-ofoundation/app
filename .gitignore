@@ -8,6 +8,7 @@ databaseKey.json
 flask_session/
 .DS_Store
 venv-guard/
+# models/
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files
 __pycache__/

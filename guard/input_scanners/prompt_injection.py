@@ -4,9 +4,9 @@ from enum import Enum
 
 from transformers import PreTrainedTokenizer, PreTrainedTokenizerFast
 
-from llm_guard.model import Model
-from llm_guard.transformers_helpers import get_tokenizer_and_model_for_classification, pipeline
-from llm_guard.util import (
+from guard.model import Model
+from guard.transformers_helpers import get_tokenizer_and_model_for_classification, pipeline
+from guard.util import (
     calculate_risk_score,
     get_logger,
     split_text_by_sentences,
@@ -22,9 +22,9 @@ PROMPT_CHARACTERS_LIMIT = 256
 
 # This model is proprietary but open source.
 V1_MODEL = Model(
-    path="/Users/dandev947366/Desktop/test-chatai/llm-guard/models/deberta-v3-base-prompt-injection",
+    path="/Users/dandev947366/Desktop/test-chatai/ChatPsychologistAI/models/deberta-v3-base-prompt-injection-v2",
     revision="f51c3b2a5216ae1af467b511bc7e3b78dc4a99c9",
-    onnx_path="/Users/dandev947366/Desktop/test-chatai/llm-guard/models/deberta-v3-base-prompt-injection",
+    onnx_path="/Users/dandev947366/Desktop/test-chatai/ChatPsychologistAI/models/deberta-v3-base-prompt-injection-v2",
     onnx_revision="f51c3b2a5216ae1af467b511bc7e3b78dc4a99c9",
     onnx_subfolder="onnx",
     onnx_filename="model.onnx",
@@ -36,9 +36,9 @@ V1_MODEL = Model(
 )
 
 V2_MODEL = Model(
-    path="/Users/dandev947366/Desktop/test-chatai/llm-guard/models/deberta-v3-base-prompt-injection-v2",
+    path="/Users/dandev947366/Desktop/test-chatai/ChatPsychologistAI/models/deberta-v3-base-prompt-injection-v2",
     revision="89b085cd330414d3e7d9dd787870f315957e1e9f",
-    onnx_path="/Users/dandev947366/Desktop/test-chatai/llm-guard/models/deberta-v3-base-prompt-injection-v2",
+    onnx_path="/Users/dandev947366/Desktop/test-chatai/ChatPsychologistAI/models/deberta-v3-base-prompt-injection-v2",
     onnx_revision="89b085cd330414d3e7d9dd787870f315957e1e9f",
     onnx_subfolder="onnx",
     onnx_filename="model.onnx",
