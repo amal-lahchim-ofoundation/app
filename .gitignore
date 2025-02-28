@@ -18,6 +18,8 @@ venv/
 # C extensions
 *.so
 flask_session/
+venv-deploy/
+venv-deploy2/
 # Distribution / packaging
 .Python
 build/
