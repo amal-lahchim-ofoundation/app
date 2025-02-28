@@ -124,7 +124,7 @@ The summary should be structured into sections, with each section containing one
 
         session['summary'] = summary.content
 
-        sanitized_filename = sanitize_filename(f"therapy_{audio_report_suffix}")
+        sanitized_filename = sanitize_filename(f"summary_{audio_report_suffix}")
         bucket = storage.bucket()
         blob = bucket.blob(f"therapy_session/{session['random_key']}/{sanitized_filename}.md")
         blob.upload_from_string(summary.content, content_type='text/markdown')
