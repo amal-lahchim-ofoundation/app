@@ -33,6 +33,7 @@ from datetime import datetime
 from multiprocessing.dummy import Pool
 import whisper
 import os
+from google.api_core.exceptions import NotFound
 
 pool = Pool(5)
 app = Flask(__name__, static_folder='static')
@@ -757,6 +758,28 @@ def list_summaries():
 
 
 
+# @app.route('/summary-reporting', methods=['GET', 'POST'])
+# @login_required
+# def summary_reporting():
+#     filename = request.args.get("file")
+#     if not filename:
+#         return "No summary specified", 400
+
+#     random_key = session.get("random_key")
+#     if not random_key:
+#         return "User not authenticated", 401
+
+#     file_path = f"therapy_session/{random_key}/{filename}"
+#     bucket = storage.bucket()
+#     blob = bucket.blob(file_path)
+#     summary_content = blob.download_as_text()
+
+#     # Convert the markdown content to HTML
+#     html_summary_content = convert_markdown_to_html(summary_content)
+
+
+#     return render_template("summary.html", summary=html_summary_content)
+
 @app.route('/summary-reporting', methods=['GET', 'POST'])
 @login_required
 def summary_reporting():
@@ -768,16 +791,31 @@ def summary_reporting():
     if not random_key:
         return "User not authenticated", 401
 
-    file_path = f"therapy_session/{random_key}/{filename}"
+    # Fetch the summary content
+    summary_file_path = f"therapy_session/{random_key}/{filename}"
     bucket = storage.bucket()
-    blob = bucket.blob(file_path)
-    summary_content = blob.download_as_text()
+    summary_blob = bucket.blob(summary_file_path)
+    summary_content = summary_blob.download_as_text()
 
-    # Convert the markdown content to HTML
+    # Convert the summary markdown content to HTML
     html_summary_content = convert_markdown_to_html(summary_content)
 
+    # Adjust the filename for the transcription
+    transcription_filename = filename.replace("summary_", "therapy_")
+    transcription_file_path = f"therapy_transcription/{random_key}/{transcription_filename}"
+    transcription_blob = bucket.blob(transcription_file_path)
+    
+    try:
+        transcription_content = transcription_blob.download_as_text()
+        # Convert the transcription markdown content to HTML
+        html_transcription_content = convert_markdown_to_html(transcription_content)
+    except NotFound:
+        html_transcription_content = "<p>No transcription available for this summary.</p>"
 
-    return render_template("summary.html", summary=html_summary_content)
+    # Combine the summary and transcription content
+    combined_content = f"<h2>Summary</h2>{html_summary_content}<hr><h2>Transcription</h2>{html_transcription_content}"
+
+    return render_template("summary.html", summary=combined_content)
 
 
 
