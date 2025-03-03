@@ -34,6 +34,8 @@ from multiprocessing.dummy import Pool
 import whisper
 import os
 from google.api_core.exceptions import NotFound
+from pyannote.audio import Pipeline
+import subprocess
 
 pool = Pool(5)
 app = Flask(__name__, static_folder='static')
@@ -48,6 +50,15 @@ DATABASE_URL = os.getenv('FIREBASE_DATABASE_URL')
 def sanitize_filename(filename: str) -> str:
     return re.sub(r"[^\w\s-]", "", filename).strip()
 
+def convert_webm_to_wav(input_file, output_file):
+    """Function to convert WebM to WAV using FFmpeg."""
+    command = [
+        'ffmpeg',
+        '-i', input_file,  # Input WebM file
+        output_file        # Output WAV file
+    ]
+    subprocess.run(command, check=True)
+    
 @app.route("/generate_summary", methods=['POST'])
 def generate_summary():
     # llm = ChatOpenAI(model="gpt-4o-mini") # OpenAI model
@@ -77,17 +88,21 @@ The summary should be structured into sections, with each section containing one
         if not os.path.exists('uploaded_audio'):
             os.makedirs('uploaded_audio')
 
-        # I added to test the path
         audio_file_path = os.path.join('uploaded_audio', audio_file.filename)
         # Save the file to the server
         audio_file.save(f"uploaded_audio/{audio_file.filename}")
+        convert_webm_to_wav(audio_file_path, f"uploaded_audio/{audio_file.filename}.wav")
         print(f"File saved to {audio_file_path}")
+        audio_filename = f"uploaded_audio/{audio_file.filename}.wav"
     else:
         return jsonify({"error": "No audio file received"}), 400
 
     try:
-        model = whisper.load_model("turbo")
-        result = model.transcribe(f"uploaded_audio/{audio_file.filename}", verbose=True)
+        # Transcribing audio
+        cache_dir = os.path.join(os.getcwd(), "cache")
+        download_root = os.path.join(cache_dir, "whisper")
+        model = whisper.load_model("turbo", download_root=download_root)
+        result = model.transcribe(audio_filename, verbose=True, word_timestamps=True)
 
         '''Transcribe the audio directly without saving. 
         NOTE: the quality of the text is not quality as the above method.'''
@@ -115,6 +130,7 @@ The summary should be structured into sections, with each section containing one
         blob = bucket.blob(f"therapy_transcription/{session['random_key']}/{sanitized_filename}.md")
         blob.upload_from_string(result["text"], content_type='text/markdown')
 
+        # Generate summary
         summary = chain.invoke(
             {
                 "therapy_session": result["text"]
@@ -124,17 +140,64 @@ The summary should be structured into sections, with each section containing one
 
         session['summary'] = summary.content
 
-        sanitized_filename = sanitize_filename(f"summary_{audio_report_suffix}")
         bucket = storage.bucket()
         blob = bucket.blob(f"therapy_session/{session['random_key']}/{sanitized_filename}.md")
         blob.upload_from_string(summary.content, content_type='text/markdown')
+
+        # Diarizing speakers
+        segments_with_timestamps = result['segments']
+        pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization-3.1",
+                                            use_auth_token=os.getenv('PYANNOTE_AUDIO_AUTH_KEY'))
+
+        print("Preparing diarization...")
+        diarization = pipeline({'uri': 'audio_file', 'audio': audio_filename})
+
+        # Print out diarization output
+        '''for speech_turn, _, speaker_id in diarization.itertracks(yield_label=True):
+            print(f"Speaker {speaker_id}: {speech_turn.start} --> {speech_turn.end}")'''
+
+        transription_with_speakers = map_speakers_to_transcript(diarization, segments_with_timestamps)
+
+        bucket = storage.bucket()
+        blob = bucket.blob(f"therapy_transcription/{session['random_key']}/{sanitized_filename}.md")
+        blob.upload_from_string(transription_with_speakers, content_type='text/markdown')
     except Exception as e:
         print(f"An error occurred when generating summary: {e}")
         return jsonify({"error": str(e)}), 500
 
+    os.remove(audio_filename)
     os.remove(f"uploaded_audio/{audio_file.filename}")
     return {"success": True}
 
+def map_speakers_to_transcript(diarization, whisper_output):
+    speaker_transcriptions = []
+
+    words = []
+    for trans_segment in whisper_output:
+        words.extend(trans_segment['words'])
+
+    for speech_turn, _, speaker_id in diarization.itertracks(yield_label=True):
+        start_time = speech_turn.start
+        end_time = speech_turn.end
+        text = f"{speaker_id}: "
+
+        new_words = words[:]
+        for word in words:
+            if word['end'] <= end_time:
+                new_words.remove(word)
+                text += word['word']
+            else:
+                break
+
+        words = new_words
+        speaker_transcriptions.append(text)
+
+    # Print the combined result
+    print("map_speakers_to_transcript output")
+    for text in speaker_transcriptions:
+        print(text)
+
+    return "\n".join(speaker_transcriptions)
 
 @app.route("/general_summary", methods=['GET'])
 def general_summary():
