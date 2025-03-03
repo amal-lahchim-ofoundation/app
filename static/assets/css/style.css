@@ -76,7 +76,6 @@ h6 {
 --------------------------------------------------------------*/
 #header {
   background: #00112D;
-  border-bottom: 1px solid rgba(12, 11, 9, 0.6);
   transition: all 0.5s;
   z-index: 997;
   padding: 15px 0;
