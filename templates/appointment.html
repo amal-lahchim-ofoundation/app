@@ -1,5 +1,20 @@
 {% extends 'base.html' %}
 
+{% block custom_style %}
+<style>
+  .btn-orange {
+    background-color: #E28647;
+    text-decoration: none;
+    padding: 10px 10px;
+    display: inline;
+    color: #FFFFFF !important;
+    border-radius: 5px;
+    border: none;
+    font-weight: bold;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <main id="main" class="login-body">
     <section>
@@ -19,105 +34,11 @@
               <option value="therapist3">Therapist 3</option>
             </select>
           </div>
-          <div class="d-grid mb-5">
-            <button type="submit" formaction="{{ url_for('personal_info_phase_1') }}" data-bs-toggle="modal" data-bs-target="#buy-ticket-modal" data-ticket-type="premium-access" value="book">Book Appointment</button>
-          </div>
+          <a href="{{ url_for('personal_info_phase_1') }}" class="btn btn-orange d-grid mb-5">
+            Book Appointment
+          </a>
         </form>
       </div>
     </section>
-    <!-- Flash Message Modal -->
-    <div class="modal fade" id="flashModal" tabindex="-1" role="dialog" aria-labelledby="flashModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="flashModalLabel">
-              <i class="fas fa-exclamation-triangle me-2"></i>
-              Warning
-            </h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            {% with messages = get_flashed_messages() %}
-            {% if messages %}
-              {% for message in messages %}
-                <p>{{ message }}</p>
-              {% endfor %}
-            {% endif %}
-            {% endwith %}
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Register Modal -->
-    <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="registerModalLabel">Warning : Privacy by Design</h5>
-          </div>
-          <div class="modal-body">
-            To safeguard your privacy, we do not collect any personally identifiable information. 
-            Instead, we generate a unique key as your identifier, which serves as your username. 
-            This key, along with your password, is your sole access to your account. Please store both securely, 
-            as they cannot be recovered if lost.
-            <div class="form-check mt-3">
-              <input class="form-check-input" type="checkbox" id="confirmCheckbox">
-              <label class="form-check-label" for="confirmCheckbox">
-                I confirm that I have read and understood the above text
-              </label>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn-orange" id="okButton" data-dismiss="modal" disabled>OK</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main><!-- End #main -->
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Function to show the modal
-      function showFlashModal() {
-        const modal = new bootstrap.Modal(document.getElementById('flashModal'));
-        modal.show();
-      }
-    
-      // Check if there are any flash messages
-      const flashMessages = document.querySelector('.modal-body');
-      if (flashMessages && flashMessages.children.length > 0) {
-        showFlashModal();
-      }
-    
-      // Close button functionality
-      document.querySelectorAll('.close').forEach(function(closeButton) {
-        closeButton.addEventListener('click', function() {
-          const modal = bootstrap.Modal.getInstance(this.closest('.modal'));
-          modal.hide();
-        });
-      });
-
-
-      // Initialize the register modal with static backdrop and no keyboard close
-      const registerModal = new bootstrap.Modal(document.getElementById('registerModal'), {
-        backdrop: 'static',
-        keyboard: false
-      });
-
-    // Enable OK button when checkbox is checked
-      document.getElementById('confirmCheckbox').addEventListener('change', function() {
-      document.getElementById('okButton').disabled = !this.checked;
-    });
-
-    // Redirect to registration page when OK button is clicked
-    document.getElementById('okButton').addEventListener('click', function() {
-      if (!this.disabled) {
-        window.location.href = "{{ url_for('register') }}";
-      }
-    });
-  });
-    
-      sessionStorage.clear();
-  </script>
 </main>
 {% endblock %}
