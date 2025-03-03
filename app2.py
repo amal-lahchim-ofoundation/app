@@ -29,12 +29,18 @@ import pycountry
 from datetime import datetime
 import random
 from questions.personal_info import personal_info_questions_phase_1, personal_info_questions_phase_2, personal_info_questions_phase_3
-from datetime import datetime
+from guard.anonymize import anonymize_text
+from guard.code import scan_code
+from guard.topics import topic_scan
+from guard.gibberish import gibberish_scan
+from guard.language import language_scan
+from guard.injection import injection_scan
+from guard.secrets import secrets_scan
+from llm_guard.input_scanners import BanCode
 from multiprocessing.dummy import Pool
 import whisper
 import os
 from google.api_core.exceptions import NotFound
-
 pool = Pool(5)
 app = Flask(__name__, static_folder='static')
 app.secret_key = 'your_secret_key_here'
@@ -86,7 +92,9 @@ The summary should be structured into sections, with each section containing one
         return jsonify({"error": "No audio file received"}), 400
 
     try:
-        model = whisper.load_model("turbo")
+        cache_dir = os.path.join(os.getcwd(), "cache")
+        download_root = os.path.join(cache_dir, "whisper")
+        model = whisper.load_model("turbo", download_root=download_root)
         result = model.transcribe(f"uploaded_audio/{audio_file.filename}", verbose=True)
 
         '''Transcribe the audio directly without saving. 
@@ -124,7 +132,7 @@ The summary should be structured into sections, with each section containing one
 
         session['summary'] = summary.content
 
-        sanitized_filename = sanitize_filename(f"summary_{audio_report_suffix}")
+        sanitized_filename = sanitize_filename(f"therapy_{audio_report_suffix}")
         bucket = storage.bucket()
         blob = bucket.blob(f"therapy_session/{session['random_key']}/{sanitized_filename}.md")
         blob.upload_from_string(summary.content, content_type='text/markdown')
@@ -293,6 +301,29 @@ def login_required(route_function):
     return wrapper
 
 
+########## Therapy Session Display Page ##########
+# @app.route('/therapy-transcription', methods=['GET', 'POST'])
+# @login_required
+# def therapy_transcription():
+#     bucket = storage.bucket()
+#     transcription = ""
+#     blobs = bucket.list_blobs(prefix=f"therapy_transcription/{session['random_key']}/")
+
+#     for blob in blobs:
+#         print(blob.name)
+#         file_name = os.path.basename(blob.name)
+#         print(file_name)
+#         blob = bucket.blob(blob.name)
+
+#         contents = blob.download_as_bytes()
+#         markdown_content = contents.decode('utf-8')
+#         html_content = convert_markdown_to_html(markdown_content)
+#         transcription += f"---{file_name}---\n{html_content}\n\n"
+
+#     print("transcription", transcription)
+
+#     return render_template('conversation.html', summary=transcription)
+
 @app.route('/therapy-transcription', methods=['GET', 'POST'])
 @login_required
 def therapy_transcription():
@@ -315,7 +346,27 @@ def therapy_transcription():
 
     return render_template('conversation.html', transcription=transcription)
 
+@app.route('/summary-report', methods=['GET', 'POST'])
+@login_required
+def summary_report():
+    bucket = storage.bucket()
+    summaries = ""
+    blobs = bucket.list_blobs(prefix=f"therapy_session/{session['random_key']}/")
 
+    for blob in blobs:
+        print(blob.name)
+        file_name = os.path.basename(blob.name)
+        print(file_name)
+        blob = bucket.blob(blob.name)
+
+        contents = blob.download_as_bytes()
+        markdown_content = contents.decode('utf-8')
+        html_content = convert_markdown_to_html(markdown_content)
+        summaries += f"---{file_name}---\n{html_content}\n\n"
+
+    print("summaries", summaries)
+
+    return render_template('summary.html', summary=summaries)
 
 @app.route('/dashboard')
 def dashboard():
@@ -518,7 +569,7 @@ def get_user():
     user_data = USERS_REF.child(session['random_key']).get()
     return user_data
 
-##### Reports Page #####
+##### Sahar's Work on Reports Page #####
 @app.route('/reports', methods=['GET', 'POST'])
 @login_required
 def reports():
@@ -534,13 +585,13 @@ def reports():
     ]
     return render_template('reports.html', reports=reports)
 
-
+# My Code
 @app.route('/sessions', methods=['GET', 'POST'])
 @login_required
 def sessions():
     return render_template('sessions.html')
 
-##### first report Page #####
+##### Sahar's Work Profile Page #####
 @app.route('/first_report', methods=['GET', 'POST'])
 @login_required
 def first_report():
@@ -584,38 +635,6 @@ def personal_info_phase_3():
         research_data('personal_info_responses_phase_3', write_report=True)
         return redirect(url_for('treatment'))
     return render_template('personal_info_phase_3.html', questions=personal_info_questions_phase_3)
-
-
-@app.route('/therapy_sessions', methods=['GET', 'POST'])
-@login_required
-def therapy_sessions():
-    if "random_key" not in session:
-        return "User not authenticated", 401
-
-    random_key = session["random_key"]
-    prefix = f"therapy_session/{random_key}/"
-    bucket = storage.bucket()
-    blobs = bucket.list_blobs(prefix=prefix)
-
-    summaries = []
-    for blob in blobs:
-        if blob.name.endswith(".md"):
-            filename = blob.name.split("/")[-1]
-            timestamp_str = filename.replace("summary_", "").replace(".md", "")
-
-            # Convert Unix timestamp to readable format
-            try:
-                timestamp = datetime.utcfromtimestamp(int(timestamp_str))
-                formatted_date = timestamp.strftime("%d/%m/%y")  # Convert to dd/mm/yy
-            except ValueError:
-                formatted_date = "Unknown Date"
-
-            summaries.append({"filename": filename, "timestamp": formatted_date, "raw_timestamp": int(timestamp_str)})
-
-    # Sorting Summaries: Most Recent First
-    summaries.sort(key=lambda x: x["raw_timestamp"], reverse=True)
-    return render_template('therapy_sessions.html', summaries=summaries)
-
 
 ##### Sahar's Work on Personal Insight Page #####
 
@@ -719,108 +738,129 @@ def disconnect():
 def check_health():
     return {"status": "OK"}, 200
 
-### end web3 routes ####
+@app.route('/anonymize', methods=['POST'])
+def anonymize_data():
+    """
+    Anonymizes sensitive information in the provided text prompt.
+    Request (JSON):
+    {
+        "prompt": "Text containing sensitive information."
+    }
+    Response (JSON):
+    {
+        "sanitized_prompt": "Anonymized text",
+        "is_valid": true,
+        "risk_score": 0.5
+    }
+    """
+    data = request.json
+    prompt = data.get('prompt', '')
+    allowed_names = []
+    hidden_names = []
+    preamble = ""
+    response = anonymize_text(prompt, allowed_names, hidden_names, preamble)
+    return jsonify(response), 200
 
+@app.route('/ban_code', methods=['POST'])
+def ban_code_data():
+    """
+    Scans the provided text prompt for banned code patterns.
+    Request (JSON):
+    {
+        "prompt": "Text containing potential banned code."
+    }
+    Response (JSON):
+    {
+        "sanitized_prompt": "Sanitized text",
+        "is_valid": true,
+        "risk_score": 0.5
+    }
+    """
+    data = request.json
+    prompt = data.get('prompt', '')
+    scanner = BanCode()
+    sanitized_prompt, is_valid, risk_score = scanner.scan(prompt)
+    response = {
+        "sanitized_prompt": sanitized_prompt,
+        "is_valid": is_valid,
+        "risk_score": risk_score
+    }
+    return jsonify(response), 200
 
-################################################################### MY CODE ####################################################################
+@app.route('/code_scan', methods=['POST'])
+def code_scan():
+    data = request.json
+    prompt = data.get('prompt', '')  # Extract prompt data
+    sanitized_prompt, is_valid, risk_score = scan_code(prompt)
+    response = {
+        "sanitized_prompt": sanitized_prompt,
+        "is_valid": is_valid,
+        "risk_score": risk_score
+    }
+    return jsonify(response), 200
 
-
-@app.route('/summaries', methods=['GET', 'POST'])
-@login_required
-def list_summaries():
-    if "random_key" not in session:
-        return "User not authenticated", 401
-
-    random_key = session["random_key"]
-    prefix = f"therapy_session/{random_key}/"
-    bucket = storage.bucket()
-    blobs = bucket.list_blobs(prefix=prefix)
-
-    summaries = []
-    for blob in blobs:
-        if blob.name.endswith(".md"):
-            filename = blob.name.split("/")[-1]
-            timestamp_str = filename.replace("summary_", "").replace(".md", "")
-
-            # Convert Unix timestamp to readable format
-            try:
-                timestamp = datetime.utcfromtimestamp(int(timestamp_str))
-                formatted_date = timestamp.strftime("%d/%m/%y")  # Convert to dd/mm/yy
-            except ValueError:
-                formatted_date = "Unknown Date"
-
-            summaries.append({"filename": filename, "timestamp": formatted_date, "raw_timestamp": int(timestamp_str)})
-
-    # Sorting Summaries: Most Recent First
-    summaries.sort(key=lambda x: x["raw_timestamp"], reverse=True)
-
-    return render_template("summaries.html", summaries=summaries)
-
-
-
-# @app.route('/summary-reporting', methods=['GET', 'POST'])
-# @login_required
-# def summary_reporting():
-#     filename = request.args.get("file")
-#     if not filename:
-#         return "No summary specified", 400
-
-#     random_key = session.get("random_key")
-#     if not random_key:
-#         return "User not authenticated", 401
-
-#     file_path = f"therapy_session/{random_key}/{filename}"
-#     bucket = storage.bucket()
-#     blob = bucket.blob(file_path)
-#     summary_content = blob.download_as_text()
-
-#     # Convert the markdown content to HTML
-#     html_summary_content = convert_markdown_to_html(summary_content)
-
-
-#     return render_template("summary.html", summary=html_summary_content)
-
-@app.route('/summary-reporting', methods=['GET', 'POST'])
-@login_required
-def summary_reporting():
-    filename = request.args.get("file")
-    if not filename:
-        return "No summary specified", 400
-
-    random_key = session.get("random_key")
-    if not random_key:
-        return "User not authenticated", 401
-
-    # Fetch the summary content
-    summary_file_path = f"therapy_session/{random_key}/{filename}"
-    bucket = storage.bucket()
-    summary_blob = bucket.blob(summary_file_path)
-    summary_content = summary_blob.download_as_text()
-
-    # Convert the summary markdown content to HTML
-    html_summary_content = convert_markdown_to_html(summary_content)
-
-    # Adjust the filename for the transcription
-    transcription_filename = filename.replace("summary_", "therapy_")
-    transcription_file_path = f"therapy_transcription/{random_key}/{transcription_filename}"
-    transcription_blob = bucket.blob(transcription_file_path)
+@app.route("/ban_topics", methods=["POST"])
+def topics_scan():
+    data = request.json
+    prompt = data.get('prompt', '')
+    sanitized_prompt, is_valid, risk_score = topic_scan(prompt)
+    response = {
+        "sanitized_prompt": sanitized_prompt,
+        "is_valid": is_valid,
+        "risk_score": risk_score
+    }
+    return jsonify(response), 200
     
-    try:
-        transcription_content = transcription_blob.download_as_text()
-        # Convert the transcription markdown content to HTML
-        html_transcription_content = convert_markdown_to_html(transcription_content)
-    except NotFound:
-        html_transcription_content = "<p>No transcription available for this summary.</p>"
+@app.route("/ban_gibberish", methods=["POST"])
+def gib_scan():
+    data = request.json
+    prompt = data.get('prompt', '')
+    sanitized_prompt, is_valid, risk_score = gibberish_scan(prompt)
+    response = {
+        "sanitized_prompt": sanitized_prompt,
+        "is_valid": is_valid,
+        "risk_score": risk_score
+    }
+    return jsonify(response), 200
 
-    # Combine the summary and transcription content
-    combined_content = f"<h2>Summary</h2>{html_summary_content}<hr><h2>Transcription</h2>{html_transcription_content}"
+@app.route("/ban_language", methods=["POST"])
+def lang_scan():
+    data = request.json
+    prompt = data.get('prompt', '')
+    sanitized_prompt, is_valid, risk_score = language_scan(prompt)
+    response = {
+        "sanitized_prompt": sanitized_prompt,
+        "is_valid": is_valid,
+        "risk_score": risk_score
+    }
+    return jsonify(response), 200
 
-    return render_template("summary.html", summary=combined_content)
+@app.route("/ban_injection", methods=["POST"])
+def scan_injection():
+    data = request.json
+    prompt = data.get('prompt', '')
+    sanitized_prompt, is_valid, risk_score = injection_scan(prompt)
+    response = {
+        "sanitized_prompt": sanitized_prompt,
+        "is_valid": is_valid,
+        "risk_score": risk_score
+    }
+    return jsonify(response), 200
+
+@app.route("/ban_secrets", methods=["POST"])
+def scan_secrets():
+    data = request.json
+    prompt = data.get('prompt', '')
+    sanitized_prompt, is_valid, risk_score = secrets_scan(prompt)
+    response = {
+        "sanitized_prompt": sanitized_prompt,
+        "is_valid": is_valid,
+        "risk_score": risk_score
+    }
+    return jsonify(response), 200
 
 
-
-
-
+### end web3 routes ####
 if __name__ == '__main__':
     # Configure the logging system
     logging.basicConfig(
@@ -834,9 +874,3 @@ if __name__ == '__main__':
     serverHost = os.getenv('host')
     serverPort = os.getenv('port')
     app.run(host=serverHost,port=serverPort, debug=os.getenv('debug') )
-
-
-
-
-
-
