@@ -4,6 +4,16 @@
 #
 #    pip-compile requirements.in
 #
+uvicorn==0.34.0
+detect-secrets==1.4.0
+Faker==36.1.0
+transformers==4.48.3
+structlog==24.4.0
+presidio-anonymizer==2.2.355
+openai-whisper==20240930
+presidio-analyzer==2.2.353
+langchain_google_genai==2.0.9
+blis==1.1.0
 aiohappyeyeballs==2.4.3
     # via aiohttp
 aiohttp==3.10.10
