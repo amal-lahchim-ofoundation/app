@@ -35,6 +35,10 @@ import whisper
 import os
 from google.api_core.exceptions import NotFound
 
+THERAPY_SESSION_PREFIX = "therapy_session/"
+THERAPY_TRANSCRIPTION_PREFIX = "therapy_transcription/"
+THERAPY_PREFIX = "therapy_"
+
 pool = Pool(5)
 app = Flask(__name__, static_folder='static')
 app.secret_key = 'your_secret_key_here'
@@ -124,7 +128,7 @@ The summary should be structured into sections, with each section containing one
 
         session['summary'] = summary.content
 
-        sanitized_filename = sanitize_filename(f"summary_{audio_report_suffix}")
+        sanitized_filename = sanitize_filename(f"therapy_{audio_report_suffix}")
         bucket = storage.bucket()
         blob = bucket.blob(f"therapy_session/{session['random_key']}/{sanitized_filename}.md")
         blob.upload_from_string(summary.content, content_type='text/markdown')
@@ -593,7 +597,7 @@ def therapy_sessions():
         return "User not authenticated", 401
 
     random_key = session["random_key"]
-    prefix = f"therapy_session/{random_key}/"
+    prefix = f"{THERAPY_SESSION_PREFIX}{random_key}/"
     bucket = storage.bucket()
     blobs = bucket.list_blobs(prefix=prefix)
 
@@ -601,7 +605,7 @@ def therapy_sessions():
     for blob in blobs:
         if blob.name.endswith(".md"):
             filename = blob.name.split("/")[-1]
-            timestamp_str = filename.replace("summary_", "").replace(".md", "")
+            timestamp_str = filename.replace(THERAPY_PREFIX, "").replace(".md", "")
 
             # Convert Unix timestamp to readable format
             try:
@@ -732,7 +736,7 @@ def list_summaries():
         return "User not authenticated", 401
 
     random_key = session["random_key"]
-    prefix = f"therapy_session/{random_key}/"
+    prefix = f"{THERAPY_SESSION_PREFIX}{random_key}/"
     bucket = storage.bucket()
     blobs = bucket.list_blobs(prefix=prefix)
 
@@ -740,7 +744,7 @@ def list_summaries():
     for blob in blobs:
         if blob.name.endswith(".md"):
             filename = blob.name.split("/")[-1]
-            timestamp_str = filename.replace("summary_", "").replace(".md", "")
+            timestamp_str = filename.replace(THERAPY_PREFIX, "").replace(".md", "")
 
             # Convert Unix timestamp to readable format
             try:
@@ -754,31 +758,9 @@ def list_summaries():
     # Sorting Summaries: Most Recent First
     summaries.sort(key=lambda x: x["raw_timestamp"], reverse=True)
 
-    return render_template("summaries.html", summaries=summaries)
+    return render_template("therapy_sessions.html", summaries=summaries)
 
 
-
-# @app.route('/summary-reporting', methods=['GET', 'POST'])
-# @login_required
-# def summary_reporting():
-#     filename = request.args.get("file")
-#     if not filename:
-#         return "No summary specified", 400
-
-#     random_key = session.get("random_key")
-#     if not random_key:
-#         return "User not authenticated", 401
-
-#     file_path = f"therapy_session/{random_key}/{filename}"
-#     bucket = storage.bucket()
-#     blob = bucket.blob(file_path)
-#     summary_content = blob.download_as_text()
-
-#     # Convert the markdown content to HTML
-#     html_summary_content = convert_markdown_to_html(summary_content)
-
-
-#     return render_template("summary.html", summary=html_summary_content)
 
 @app.route('/summary-reporting', methods=['GET', 'POST'])
 @login_required
@@ -792,7 +774,7 @@ def summary_reporting():
         return "User not authenticated", 401
 
     # Fetch the summary content
-    summary_file_path = f"therapy_session/{random_key}/{filename}"
+    summary_file_path = f"{THERAPY_SESSION_PREFIX}{random_key}/{filename}"
     bucket = storage.bucket()
     summary_blob = bucket.blob(summary_file_path)
     summary_content = summary_blob.download_as_text()
@@ -801,8 +783,8 @@ def summary_reporting():
     html_summary_content = convert_markdown_to_html(summary_content)
 
     # Adjust the filename for the transcription
-    transcription_filename = filename.replace("summary_", "therapy_")
-    transcription_file_path = f"therapy_transcription/{random_key}/{transcription_filename}"
+    transcription_filename = filename  # Since both summary and transcription have the same filename
+    transcription_file_path = f"{THERAPY_TRANSCRIPTION_PREFIX}{random_key}/{transcription_filename}"
     transcription_blob = bucket.blob(transcription_file_path)
     
     try:
@@ -819,6 +801,50 @@ def summary_reporting():
 
 
 
+@app.route('/most_recent_summary', methods=['GET'])
+@login_required
+def most_recent_summary():
+    random_key = session.get("random_key")
+    if not random_key:
+        return "User not authenticated", 401
+
+    # Fetch the most recent summary
+    prefix = f"{THERAPY_SESSION_PREFIX}{random_key}/"
+    bucket = storage.bucket()
+    blobs = bucket.list_blobs(prefix=prefix)
+
+    most_recent_blob = None
+    most_recent_timestamp = 0
+    for blob in blobs:
+        if blob.name.endswith(".md"):
+            timestamp_str = blob.name.split("/")[-1].replace(THERAPY_PREFIX, "").replace(".md", "")
+            try:
+                timestamp = int(timestamp_str)
+                if timestamp > most_recent_timestamp:
+                    most_recent_timestamp = timestamp
+                    most_recent_blob = blob
+            except ValueError:
+                continue
+
+    if not most_recent_blob:
+        return "No summaries found", 404
+
+    summary_content = most_recent_blob.download_as_text()
+    html_summary_content = convert_markdown_to_html(summary_content)
+
+    transcription_filename = most_recent_blob.name.replace(THERAPY_PREFIX, "")
+    # transcription_blob = bucket.blob(transcription_filename)
+    transcription_blob = bucket.blob(f"{THERAPY_TRANSCRIPTION_PREFIX}{random_key}/{transcription_filename}")
+    
+    try:
+        transcription_content = transcription_blob.download_as_text()
+        html_transcription_content = convert_markdown_to_html(transcription_content)
+    except NotFound:
+        html_transcription_content = "<p>No transcription available for this summary.</p>"
+
+    combined_content = f"<h2>Summary</h2>{html_summary_content}<hr><h2>Transcription</h2>{html_transcription_content}"
+
+    return render_template("summary.html", summary=combined_content)
 
 
 if __name__ == '__main__':

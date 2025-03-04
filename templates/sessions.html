@@ -133,6 +133,7 @@
           addMessage('Recording completed! You can play your audio.');
           addButton('record', 'record()', 'Record Again');
           addButton('send', 'sendToLocalStorage()', 'Generate Summary');
+          addButton('seeConversation', 'redirectToConversation()', 'See Conversation');
           break
 
         default:
@@ -240,6 +241,12 @@
         });
 
         showModal('We are going to generate the summary after some seconds!');
+
+        // Navigate to the most recent summary page after 1 minute
+        setTimeout(() => {
+          window.location.href = '/most_recent_summary';
+        }, 10000);
+
       } else {
         showModal('No audio recorded yet.');
       }
