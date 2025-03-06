@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block custom_style %}
-  <style>
+<style>
     p {
       margin-top: 40px;
     }
@@ -8,63 +8,71 @@
 {% endblock %}
 
 {% block nav_items %}
-<a href="{{ url_for('reports') }}" class="book-a-table-btn d-none d-lg-flex text-decoration-none">Reports</a>
+<a href="{{ url_for('reports') }}"
+  class="book-a-table-btn d-none d-lg-flex text-decoration-none">Reports</a>
 {% endblock %}
 
 {% block content %}
-  <main class="login-body">
-    <section>
+<main class="login-body">
+  <section>
     <div class="container mt-5">
-    <h5 class="text-white">Session</h5>
-    <hr class="bg-white"/>
-    <section class="session">
-      <div class="container">
-        <h1 class="mb-5">Record Therapy Session</h1>
-        <div class="audio-player">
-          <button class="play-pause-btn" id="play-pause">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 5.14001V19.14L19 12.14L8 5.14001Z" fill="black"/>
-            </svg>
-          </button>
-          <span class="time-display" id="time-display">0:00</span>
-          <div class="timeline">
-            <input type="range" id="timeline" value="0" max="100">
+      <h5 class="text-white">Session</h5>
+      <hr class="bg-white" />
+      <section class="session">
+        <div class="container">
+          <h1 class="mb-5">Record Therapy Session</h1>
+          <div class="audio-player">
+            <button class="play-pause-btn" id="play-pause">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 5.14001V19.14L19 12.14L8 5.14001Z" fill="black" />
+              </svg>
+            </button>
+            <span class="time-display" id="time-display">0:00</span>
+            <div class="timeline">
+              <input type="range" id="timeline" value="0" max="100">
+            </div>
+            <div class="volume-control">
+              <svg width="45" height="45" viewBox="0 0 30 30" fill="none"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M16.1426 5.625L10.5176 11.25H4.89258V18.75H10.5176L16.1426 24.375V5.625ZM19.1578 7.24617L18.8848 8.26494C21.9355 9.08232 24.0527 11.8415 24.0527 15C24.0527 18.1585 21.9355 20.9176 18.8848 21.7351L19.1578 22.7538C22.6646 21.8142 25.1074 18.6306 25.1074 15C25.1074 11.3694 22.6646 8.18584 19.1578 7.24617ZM18.4298 9.96287L18.1569 10.9816C19.9781 11.4696 21.2402 13.1146 21.2402 15C21.2402 16.8854 19.9781 18.5304 18.1569 19.0184L18.4298 20.0371C20.7071 19.4269 22.2949 17.3576 22.2949 15C22.2949 12.6424 20.7071 10.5731 18.4298 9.96287ZM17.7018 12.6795L17.4289 13.6982C18.0205 13.8568 18.4277 14.3875 18.4277 15C18.4277 15.6125 18.0205 16.1432 17.4289 16.3018L17.7018 17.3205C18.7497 17.0398 19.4825 16.0848 19.4825 15C19.4825 13.9152 18.7497 12.9602 17.7018 12.6795Z"
+                  fill="black" />
+              </svg>
+              <input type="range" id="volume" value="100" max="100">
+            </div>
           </div>
-          <div class="volume-control">
-            <svg width="45" height="45" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16.1426 5.625L10.5176 11.25H4.89258V18.75H10.5176L16.1426 24.375V5.625ZM19.1578 7.24617L18.8848 8.26494C21.9355 9.08232 24.0527 11.8415 24.0527 15C24.0527 18.1585 21.9355 20.9176 18.8848 21.7351L19.1578 22.7538C22.6646 21.8142 25.1074 18.6306 25.1074 15C25.1074 11.3694 22.6646 8.18584 19.1578 7.24617ZM18.4298 9.96287L18.1569 10.9816C19.9781 11.4696 21.2402 13.1146 21.2402 15C21.2402 16.8854 19.9781 18.5304 18.1569 19.0184L18.4298 20.0371C20.7071 19.4269 22.2949 17.3576 22.2949 15C22.2949 12.6424 20.7071 10.5731 18.4298 9.96287ZM17.7018 12.6795L17.4289 13.6982C18.0205 13.8568 18.4277 14.3875 18.4277 15C18.4277 15.6125 18.0205 16.1432 17.4289 16.3018L17.7018 17.3205C18.7497 17.0398 19.4825 16.0848 19.4825 15C19.4825 13.9152 18.7497 12.9602 17.7018 12.6795Z" fill="black"/>
-            </svg>
-            <input type="range" id="volume" value="100" max="100">
-          </div>
+          <div class="display"></div>
+          <div class="controllers mt-4"></div>
         </div>
-        <div class="display"></div>
-        <div class="controllers mt-4"></div> 
-      </div>
-    </section>
+      </section>
     </div>
   </section>
-  </main>
+</main>
 
-    <!-- Bootstrap Modal -->
-    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="messageModalLabel">Message</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" id="modalMessage">
-            <!-- Message will be inserted here -->
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
-        </div>
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="messageModal" tabindex="-1"
+  aria-labelledby="messageModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="messageModalLabel">Message</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="modalMessage">
+        <!-- Message will be inserted here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary"
+          data-bs-dismiss="modal">Close</button>
       </div>
     </div>
-    
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>
+  </div>
+</div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
     const display = document.querySelector('.display');
     const controllerWrapper = document.querySelector('.controllers');
     const State = ['Initial', 'Record', 'Download'];
@@ -212,15 +220,13 @@
 
     const sendToLocalStorage = () => {
       if (audioURL) {
-
         setStoredAudio(audioURL);
-
-        // Create a new FormData object
         var formData = new FormData();
         // Get the audio file (assuming you have a blob URL)
-        var audioBlob = new Blob(chunks, { 'type': 'audio/ogg; codecs=opus' });  // Adjust type accordingly
-        var audioFile = new File([audioBlob], 'audio.ogg', { 'type': 'audio/ogg; codecs=opus' });
-
+        var audioBlob = new Blob(chunks, { type: "audio/webm" }); // Adjust type accordingly
+        var audioFile = new File([audioBlob], "audio_" + Date.now() + ".webm", {
+        type: "audio/webm"
+      });
         // Append the audio file to the FormData object
         formData.append('audio_file', audioFile);
 
