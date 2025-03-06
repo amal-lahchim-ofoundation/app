@@ -11,6 +11,9 @@ venv-guard/
 venv-deploy/
 venv-deploy2/
 models/
+cache/
+test.py
+uploaded_audio/
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
