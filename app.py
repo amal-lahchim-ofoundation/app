@@ -113,6 +113,7 @@ The summary should be structured into sections, with each section containing one
 
         print("Text", result["text"])
         audio_report_suffix = int(time.time())
+        session['last_audio_report_suffix'] = audio_report_suffix  # Store timestamp for tracking
 
         sanitized_filename = sanitize_filename(f"therapy_{audio_report_suffix}")
         bucket = storage.bucket()
@@ -532,7 +533,7 @@ def reports():
     # Fetch the reports (this is just a placeholder, replace with actual logic)
     reports = [
         {"id": "01", "title": "Diagnose Mental Disorder Report", "download": "", "url": "./first_report" if personal_info_phase_3_complete else "#"},
-        {"id": "02", "title": "Ttherapy Session Reports", "download": ".", "url": "./summary-report"},
+        {"id": "02", "title": "Therapy Session Reports", "download": ".", "url": "./summary-report"},
         {"id": "03", "title": "Report 3", "download": "Content for report 3.", "url": "#"},
         {"id": "04", "title": "Report 4", "download": "Content for report 4.", "url": "#"}
     ]
@@ -795,10 +796,34 @@ def summary_reporting():
         html_transcription_content = "<p>No transcription available for this summary.</p>"
 
     # Combine the summary and transcription content
-    combined_content = f"<h2>Summary</h2>{html_summary_content}<hr><h2>Transcription</h2>{html_transcription_content}"
+    combined_content = f"{html_summary_content}<hr><h2>Transcription</h2>{html_transcription_content}"
 
     return render_template("summary.html", summary=combined_content)
 
+
+
+@app.route('/check_summary_status', methods=['GET'])
+@login_required
+def check_summary_status():
+    random_key = session.get("random_key")
+    if not random_key:
+        return jsonify({"status": "unauthorized"}), 401
+
+    last_audio_report_suffix = session.get("last_audio_report_suffix")
+    if not last_audio_report_suffix:
+        return jsonify({"status": "pending"})  # No new recording found
+
+    # Construct expected filename based on the latest session
+    expected_filename = f"therapy_session/{random_key}/therapy_{last_audio_report_suffix}.md"
+    
+    # Check if the summary file exists in Google Cloud Storage
+    bucket = storage.bucket()
+    blob = bucket.blob(expected_filename)
+
+    if blob.exists():
+        return jsonify({"status": "ready"})  # New summary is ready
+    else:
+        return jsonify({"status": "pending"})  # Summary still processing
 
 
 @app.route('/most_recent_summary', methods=['GET'])

@@ -243,9 +243,11 @@
         showModal('We are going to generate the summary after some seconds!');
 
         // Navigate to the most recent summary page after 1 minute
-        setTimeout(() => {
-          window.location.href = '/most_recent_summary';
-        }, 10000);
+        // setTimeout(() => {
+        //   window.location.href = '/most_recent_summary';
+        // }, 10000);
+
+        checkSummaryStatus();
 
       } else {
         showModal('No audio recorded yet.');
@@ -278,5 +280,16 @@
       myModal.show();
     }
 
+    function checkSummaryStatus() {
+      $.get('/check_summary_status', function(response) {
+        if (response.status === 'ready') {
+            window.location.href = '/most_recent_summary';
+        } else {
+            setTimeout(checkSummaryStatus, 5000); // Poll again after 5 seconds
+        }
+      }).fail(function() {
+        showModal('Error checking summary status. Please try again.');
+      });
+    }
   </script>
 {% endblock %}
