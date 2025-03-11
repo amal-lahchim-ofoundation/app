@@ -54,6 +54,10 @@ from google.api_core.exceptions import NotFound
 from pyannote.audio import Pipeline
 import subprocess
 
+THERAPY_SESSION_PREFIX = "therapy_session/"
+THERAPY_TRANSCRIPTION_PREFIX = "therapy_transcription/"
+THERAPY_PREFIX = "therapy_"
+
 pool = Pool(5)
 app = Flask(__name__, static_folder="static")
 app.secret_key = "your_secret_key_here"
@@ -151,6 +155,7 @@ The summary should be structured into sections, with each section containing one
 
         print("Text", result["text"])
         audio_report_suffix = int(time.time())
+        session['last_audio_report_suffix'] = audio_report_suffix  # Store timestamp for tracking
 
         sanitized_filename = sanitize_filename(f"therapy_{audio_report_suffix}")
         bucket = storage.bucket()
@@ -456,11 +461,10 @@ def login_required(route_function):
             flash("Please log in to access this page.")
             return redirect(url_for("login_page"))
         return route_function(*args, **kwargs)
-
     return wrapper
 
 
-@app.route("/therapy-transcription", methods=["GET", "POST"])
+@app.route('/therapy-transcription', methods=['GET', 'POST'])
 @login_required
 def therapy_transcription():
     bucket = storage.bucket()
@@ -481,6 +485,7 @@ def therapy_transcription():
     print("transcription", transcription)
 
     return render_template("conversation.html", transcription=transcription)
+
 
 
 @app.route("/dashboard")
@@ -747,9 +752,9 @@ def reports():
         },
         {
             "id": "02",
-            "title": "Ttherapy Session Reports",
+            "title": "Therapy Session Reports",
             "download": ".",
-            "url": "./summary-report",
+            "url": "./therapy_sessions",
         },
         {
             "id": "03",
@@ -763,14 +768,17 @@ def reports():
             "download": "Content for report 4.",
             "url": "#",
         },
+# >>>>>>> 8af9dc25e96f7522a2b96603aceb37231efa913e
     ]
     return render_template("reports.html", reports=reports)
+
 
 
 @app.route("/sessions", methods=["GET", "POST"])
 @login_required
 def sessions():
     return render_template("sessions.html")
+
 
 
 ##### first report Page #####
@@ -827,14 +835,15 @@ def personal_info_phase_3():
     )
 
 
-@app.route("/therapy_sessions", methods=["GET", "POST"])
+
+@app.route('/therapy_sessions', methods=['GET', 'POST'])
 @login_required
 def therapy_sessions():
     if "random_key" not in session:
         return "User not authenticated", 401
 
     random_key = session["random_key"]
-    prefix = f"therapy_session/{random_key}/"
+    prefix = f"{THERAPY_SESSION_PREFIX}{random_key}/"
     bucket = storage.bucket()
     blobs = bucket.list_blobs(prefix=prefix)
 
@@ -842,7 +851,7 @@ def therapy_sessions():
     for blob in blobs:
         if blob.name.endswith(".md"):
             filename = blob.name.split("/")[-1]
-            timestamp_str = filename.replace("summary_", "").replace(".md", "")
+            timestamp_str = filename.replace(THERAPY_PREFIX, "").replace(".md", "")
 
             # Convert Unix timestamp to readable format
             try:
@@ -851,17 +860,11 @@ def therapy_sessions():
             except ValueError:
                 formatted_date = "Unknown Date"
 
-            summaries.append(
-                {
-                    "filename": filename,
-                    "timestamp": formatted_date,
-                    "raw_timestamp": int(timestamp_str),
-                }
-            )
+            summaries.append({"filename": filename, "timestamp": formatted_date, "raw_timestamp": int(timestamp_str)})
 
     # Sorting Summaries: Most Recent First
     summaries.sort(key=lambda x: x["raw_timestamp"], reverse=True)
-    return render_template("therapy_sessions.html", summaries=summaries)
+    return render_template('therapy_sessions.html', summaries=summaries)
 
 
 ##### Sahar's Work on Personal Insight Page #####
@@ -979,7 +982,6 @@ def check_health():
 
 ################################################################### MY CODE ####################################################################
 
-
 @app.route("/summaries", methods=["GET", "POST"])
 @login_required
 def list_summaries():
@@ -987,7 +989,7 @@ def list_summaries():
         return "User not authenticated", 401
 
     random_key = session["random_key"]
-    prefix = f"therapy_session/{random_key}/"
+    prefix = f"{THERAPY_SESSION_PREFIX}{random_key}/"
     bucket = storage.bucket()
     blobs = bucket.list_blobs(prefix=prefix)
 
@@ -995,7 +997,7 @@ def list_summaries():
     for blob in blobs:
         if blob.name.endswith(".md"):
             filename = blob.name.split("/")[-1]
-            timestamp_str = filename.replace("summary_", "").replace(".md", "")
+            timestamp_str = filename.replace(THERAPY_PREFIX, "").replace(".md", "")
 
             # Convert Unix timestamp to readable format
             try:
@@ -1004,44 +1006,20 @@ def list_summaries():
             except ValueError:
                 formatted_date = "Unknown Date"
 
-            summaries.append(
-                {
-                    "filename": filename,
-                    "timestamp": formatted_date,
-                    "raw_timestamp": int(timestamp_str),
-                }
-            )
+            summaries.append({
+              "filename": filename,
+              "timestamp": formatted_date,
+              "raw_timestamp": int(timestamp_str)
+            })
 
     # Sorting Summaries: Most Recent First
     summaries.sort(key=lambda x: x["raw_timestamp"], reverse=True)
 
-    return render_template("summaries.html", summaries=summaries)
+    return render_template("therapy_sessions.html", summaries=summaries)
 
 
-# @app.route('/summary-reporting', methods=['GET', 'POST'])
-# @login_required
-# def summary_reporting():
-#     filename = request.args.get("file")
-#     if not filename:
-#         return "No summary specified", 400
 
-#     random_key = session.get("random_key")
-#     if not random_key:
-#         return "User not authenticated", 401
-
-#     file_path = f"therapy_session/{random_key}/{filename}"
-#     bucket = storage.bucket()
-#     blob = bucket.blob(file_path)
-#     summary_content = blob.download_as_text()
-
-#     # Convert the markdown content to HTML
-#     html_summary_content = convert_markdown_to_html(summary_content)
-
-
-#     return render_template("summary.html", summary=html_summary_content)
-
-
-@app.route("/summary-reporting", methods=["GET", "POST"])
+@app.route('/summary-reporting', methods=['GET', 'POST'])
 @login_required
 def summary_reporting():
     filename = request.args.get("file")
@@ -1053,7 +1031,7 @@ def summary_reporting():
         return "User not authenticated", 401
 
     # Fetch the summary content
-    summary_file_path = f"therapy_session/{random_key}/{filename}"
+    summary_file_path = f"{THERAPY_SESSION_PREFIX}{random_key}/{filename}"
     bucket = storage.bucket()
     summary_blob = bucket.blob(summary_file_path)
     summary_content = summary_blob.download_as_text()
@@ -1062,39 +1040,104 @@ def summary_reporting():
     html_summary_content = convert_markdown_to_html(summary_content)
 
     # Adjust the filename for the transcription
-    transcription_filename = filename.replace("summary_", "therapy_")
-    transcription_file_path = (
-        f"therapy_transcription/{random_key}/{transcription_filename}"
-    )
+    transcription_filename = filename  # Since both summary and transcription have the same filename
+    transcription_file_path = f"{THERAPY_TRANSCRIPTION_PREFIX}{random_key}/{transcription_filename}"
     transcription_blob = bucket.blob(transcription_file_path)
-
+    
     try:
         transcription_content = transcription_blob.download_as_text()
         # Convert the transcription markdown content to HTML
         html_transcription_content = convert_markdown_to_html(transcription_content)
     except NotFound:
-        html_transcription_content = (
-            "<p>No transcription available for this summary.</p>"
-        )
+        html_transcription_content = "<p>No transcription available for this summary.</p>"
 
     # Combine the summary and transcription content
+    combined_content = f"{html_summary_content}<hr><h2>Transcription</h2>{html_transcription_content}"
+
+    return render_template("summary.html", summary=combined_content)
+
+
+
+@app.route('/check_summary_status', methods=['GET'])
+@login_required
+def check_summary_status():
+    random_key = session.get("random_key")
+    if not random_key:
+        return jsonify({"status": "unauthorized"}), 401
+
+    last_audio_report_suffix = session.get("last_audio_report_suffix")
+    if not last_audio_report_suffix:
+        return jsonify({"status": "pending"})  # No new recording found
+
+    # Construct expected filename based on the latest session
+    expected_filename = f"therapy_session/{random_key}/therapy_{last_audio_report_suffix}.md"
+    
+    # Check if the summary file exists in Google Cloud Storage
+    bucket = storage.bucket()
+    blob = bucket.blob(expected_filename)
+
+    if blob.exists():
+        return jsonify({"status": "ready"})  # New summary is ready
+    else:
+        return jsonify({"status": "pending"})  # Summary still processing
+
+
+@app.route('/most_recent_summary', methods=['GET'])
+@login_required
+def most_recent_summary():
+    random_key = session.get("random_key")
+    if not random_key:
+        return "User not authenticated", 401
+
+    # Fetch the most recent summary
+    prefix = f"{THERAPY_SESSION_PREFIX}{random_key}/"
+    bucket = storage.bucket()
+    blobs = bucket.list_blobs(prefix=prefix)
+
+    most_recent_blob = None
+    most_recent_timestamp = 0
+    for blob in blobs:
+        if blob.name.endswith(".md"):
+            timestamp_str = blob.name.split("/")[-1].replace(THERAPY_PREFIX, "").replace(".md", "")
+            try:
+                timestamp = int(timestamp_str)
+                if timestamp > most_recent_timestamp:
+                    most_recent_timestamp = timestamp
+                    most_recent_blob = blob
+            except ValueError:
+                continue
+
+    if not most_recent_blob:
+        return "No summaries found", 404
+
+    summary_content = most_recent_blob.download_as_text()
+    html_summary_content = convert_markdown_to_html(summary_content)
+
+    transcription_filename = most_recent_blob.name.replace(THERAPY_PREFIX, "")
+    # transcription_blob = bucket.blob(transcription_filename)
+    transcription_blob = bucket.blob(f"{THERAPY_TRANSCRIPTION_PREFIX}{random_key}/{transcription_filename}")
+    
+    try:
+        transcription_content = transcription_blob.download_as_text()
+        html_transcription_content = convert_markdown_to_html(transcription_content)
+    except NotFound:
+        html_transcription_content = "<p>No transcription available for this summary.</p>"
+
     combined_content = f"<h2>Summary</h2>{html_summary_content}<hr><h2>Transcription</h2>{html_transcription_content}"
 
     return render_template("summary.html", summary=combined_content)
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
-
-    # # Configure the logging system
-    # logging.basicConfig(
-    #     level=DEBUG,
-    #     format="%(asctime)s [%(levelname)s] - %(message)s",
-    #     handlers=[
-    #         logging.FileHandler("appreg.log"),  # Output to a log file
-    #     ],
-    # )
-    # logger = logging.getLogger(__name__)
-    # serverHost = os.getenv("host")
-    # serverPort = os.getenv("port")
-    # app.run(host=serverHost, port=serverPort, debug=os.getenv("debug"))
+if __name__ == '__main__':
+    # Configure the logging system
+    logging.basicConfig(
+        level=DEBUG,
+        format='%(asctime)s [%(levelname)s] - %(message)s',
+        handlers=[
+            logging.FileHandler('appreg.log'),  # Output to a log file
+        ]
+    )
+    logger = logging.getLogger(__name__)
+    serverHost = os.getenv('host')
+    serverPort = os.getenv('port')
+    app.run(host=serverHost,port=serverPort, debug=os.getenv('debug') )
