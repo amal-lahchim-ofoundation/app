@@ -33,11 +33,11 @@
   <!-- Normal Pages Header -->
   {% block header %}
     <nav class="login-nav fixed-top top-0 d-flex align-items-center py-2">
-      <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between">
+      <div class="container-fluid container-xl d-flex align-items-center justify-content-lg-between justify-content-between">
         {% if session['user_logged_in'] %}
           <div class="d-flex">
             <img src="{{ url_for('static', filename='assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
-            <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
+            <h1 class="logo me-auto me-lg-0 d-none d-md-block"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
           </div>
           <div id="navbarItems" class="col-6 d-flex align-items-center justify-content-end float-end">
             <a href="{{ url_for('dashboard') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Home</a>
@@ -45,21 +45,21 @@
               <!-- Nav Items of other pages -->
             {% endblock %}
             <a href="{{ url_for('logout') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Logout</a>
-            <a herf="" id="userMenuBtn" class="book-a-table-btn ml-3 d-none d-lg-flex text-decoration-none pl-3">
-              <img src="{{ url_for('static', filename='../static/assets/img/user.png') }}" alt="User">
+            <a herf="" id="userMenuBtn" class="book-a-table-btn  d-lg-flex text-decoration-none  position-fixed top-0 end-0 p-3  mr-0">
+              <i class="fas fa-bars fs"></i>
             </a>
           </div>
         {% else %}
           <div class="d-flex">
             <img src="{{ url_for('static', filename='assets/img/logo.png') }}" alt="Logo" class="ph1-logo">
-            <h1 class="logo me-auto me-lg-0"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
+            <h1 class="logo me-auto me-lg-0 d-none d-md-block"><a href="{{ url_for('home') }}" class="text-decoration-none">ChatPsychologistAI</a></h1>
           </div>
-          <div id="navbarItems" class="col-5 d-flex align-items-center justify-content-end float-end">
-            <a href="{{ url_for('home') }}" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Home</a>
+          <div id="navbarItems" class="col-md-5 d-flex align-items-center justify-content-end float-end m-0">
+            <a href="/" class="book-a-table-btn scrollto d-none d-lg-flex text-decoration-none">Home</a>
             {% block logout_items %}
               <!-- Nav Items of other pages -->
             {% endblock %}
-            <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-none d-lg-flex ">Login</a>
+            <a href="{{ url_for('login') }}" class="book-a-table-btn scrollto d-lg-flex ">Login</a>
           </div>
         {% endif %}
       </div>

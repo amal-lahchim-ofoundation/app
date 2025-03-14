@@ -1200,6 +1200,12 @@ output {
   right: 0;
 }
 
+.fs {
+  font-size: 18px;
+  margin-right: 15px;
+  margin-top: 10px;
+}
+
 .sidebar ul {
   list-style-type: none;
   padding: 0;

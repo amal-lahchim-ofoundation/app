@@ -14,7 +14,7 @@
 {% block content %}
   <!-- ======= Hero Section ======= -->
   <section id="hero" class="container mt-5">
-    <div class="row mt-5 pt-5">
+    <div class="row mt-5 pt-5 text-center text-md-start">
       <div class="col-md-6" data-aos="zoom-in" data-aos-delay="100">
         <h1 class="text-white">Chat Psychologist</h1>
         <h1>Understanding Minds</h1>
@@ -29,19 +29,19 @@
           </div>
         {% endif%}
       </div>
-      <div class="col-md-6">
+      <div class="col-md-6 d-none d-md-block">
         <img src="{{ url_for('static', filename='../static/assets/img/hero.png') }}" alt="Logo">
       </div>
     </div>
   </section>
 
   <!-- ======= Mission and Vision Section ======= -->
-  <section class="container mt-5 mb-5 mission">
-    <div class="row">
-      <div class="col-4">
+  <section class="container mt-5 mb-5 mission ms-2 me-2 ms-md-5 ms-md-5 ps-md-5 text-md-start">
+    <div class="row mb-5 mb-md-0">
+      <div class="col-4 d-none d-md-block">
         <img src="{{ url_for('static', filename='../static/assets/img/mission.png') }}" alt="Mission" class="mission-img">
       </div>
-      <div class="col-8 my-auto">
+      <div class="col-12 col-md-8 my-auto">
         <h1>Mission</h1>
         <p>To make therapy as affordable as possible by leveraging advanced AI and psychological research.
           Our goal is to provide therapists and patients with innovative tools that enhance the efficiency, 
@@ -50,13 +50,13 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-8 my-auto">
+      <div class="col-12 col-md-8 my-auto ps-md-5 fs-5">
         <h1>Vision</h1>
         <p>We aim to make therapy more accessible and affordable by integrating AI tools. 
             Our focus is on holistic mental health care, promoting personal growth and well-being.
         </p>
       </div>
-      <div class="col-4 justify-content-end">
+      <div class="col-4 justify-content-end d-none d-md-block">
         <img src="{{ url_for('static', filename='../static/assets/img/vision.png') }}" alt="Vision" class="vision-img">
       </div>
     </div>
@@ -68,10 +68,10 @@
       <h4 class="main-h4 mb-5">OUR SERVICES</h4>
       <div class="row mt-5">
         {% for card in cards %}
-          <div class="col-md-4 d-flex align-items-stretch mb-5" data-aos="fade-up" data-aos-duration="1000">
+          <div class="col-md-4 gap-4 d-flex align-items-stretch mb-5" data-aos="fade-up" data-aos-duration="1000">
             <div class="main-card {% if loop.index == 2 or loop.index == 5 %}border-cyan{% endif %}">
-              <div class="main-card-body">
-                <h5 class="main-card-title">{{ card.title }}</h5>
+              <div class="main-card-body p-3">
+                <h5 class="main-card-title fs-4">{{ card.title }}</h5>
                 <p class="card-text">{{ card.text }}</p>
               </div>
             </div>
@@ -80,7 +80,6 @@
       </div>
     </div>
   </section>
-
   <!-- ======= Testimonial ======= -->
   <section id="testimonial" class="container mt-5 pe-0 ps-0">
     <div class=" text-center">
@@ -128,12 +127,14 @@
     <div class="footer-content position-absolute bottom-md-5 ms-md-5 ms-1">
       <h4>CONTACT US</h4>
       <p class="text-sm-start">We always appreciate your nice feedback about the website performance and any technical problem that you are facing.</p>
-      <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f"></i></a>
-      <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter"></i></a>
-      <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram"></i></a>
-      <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin-in"></i></a>
-      <a href="https://wa.me/yourwhatsappnumber" target="_blank"><i class="fab fa-whatsapp"></i></a>
-      <a href="mailto:youremail@example.com" target="_blank"><i class="fas fa-envelope"></i></a>
+      <div class="text-nowrap">
+        <a href="https://facebook.com" target="_blank"><i class="fab fa-facebook-f fs-6 fs-md-3 m-0"></i></a>
+        <a href="https://twitter.com" target="_blank"><i class="fab fa-twitter fs-6 fs-md-3 p-0 m-0"></i></a>
+        <a href="https://instagram.com" target="_blank"><i class="fab fa-instagram fs-6 fs-md-3 m-0"></i></a>
+        <a href="https://linkedin.com" target="_blank"><i class="fab fa-linkedin-in fs-6 fs-md-3 m-0"></i></a>
+        <a href="https://wa.me/yourwhatsappnumber" target="_blank"><i class="fab fa-whatsapp fs-6 fs-md-3 m-0"></i></a>
+        <a href="mailto:youremail@example.com" target="_blank"><i class="fas fa-envelope fs-6 fs-md-3 m-0"></i></a>
+      </div>
     </div>
     <p class="copyright-text">© 2023 Your Company. All rights reserved.</p>
     <div class="triangle-footer"></div>
