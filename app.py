@@ -51,7 +51,7 @@ from multiprocessing.dummy import Pool
 import whisper
 import os
 from google.api_core.exceptions import NotFound
-# from pyannote.audio import Pipeline
+from pyannote.audio import Pipeline
 import subprocess
 
 THERAPY_SESSION_PREFIX = "therapy_session/"
