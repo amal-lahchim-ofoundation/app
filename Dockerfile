@@ -1,6 +1,6 @@
-FROM python:3.12-slim
+FROM python:3.10
 
-RUN apt-get update && apt-get install -y build-essential gcc && \
+RUN apt-get update && apt-get install -y build-essential ffmpeg gcc && \
     rm -rf /var/lib/apt/lists/*
 
 ENV PYTHONUNBUFFERED=1 \
@@ -11,10 +11,11 @@ WORKDIR /app
 
 COPY requirements2.txt /app/requirements2.txt
 
+
 RUN mkdir -p /root/.cache/pip && \
     pip install --no-cache-dir -r requirements2.txt
     
-RUN pip install PyMuPDF
+RUN pip install pymupdf ffmpeg-python fitz
 
 COPY . /app
 
@@ -26,9 +27,10 @@ RUN chmod 600 /app/.env
 
 ENV FLASK_APP=app.py \
     FLASK_RUN_HOST=0.0.0.0 \
-    FLASK_RUN_PORT=5000 \
+    FLASK_RUN_PORT=8080 \
     FIREBASE_DATABASE_CERTIFICATE=/app/databaseKey.json
     
-EXPOSE 5000
+EXPOSE 8080
 
 CMD ["python3", "app.py"]
+
