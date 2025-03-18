@@ -1,4 +1,7 @@
 
+Flask-Caching==2.3.1
+reids==5.2.1
+celery==5.4.0
 asgiref==3.8.0
 hypercorn==0.17.2 # requires Python 3.8 or higher.
 pyannote.audio==3.3.1
