@@ -1,7 +1,9 @@
-FROM python:3.10
+FROM python:3.12-slim
 
-RUN apt-get update && apt-get install -y build-essential ffmpeg gcc && \
+RUN rm -rf /var/lib/apt/lists/* && apt-get update && \
+    apt-get install -y build-essential gcc ffmpeg --fix-missing && \
     rm -rf /var/lib/apt/lists/*
+
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -11,26 +13,25 @@ WORKDIR /app
 
 COPY requirements2.txt /app/requirements2.txt
 
-
 RUN mkdir -p /root/.cache/pip && \
     pip install --no-cache-dir -r requirements2.txt
     
-RUN pip install pymupdf ffmpeg-python fitz
+RUN pip install PyMuPDF flask\[async\] python-multipart
 
 COPY . /app
 
 COPY databaseKey.json /app/databaseKey.json
-RUN chmod 600 /app/databaseKey.json
-
+RUN chmod 644 /app/databaseKey.json
+COPY pubsubKey.json ./pubsubKey.json
+RUN chmod 644 ./pubsubKey.json
 COPY .env /app/.env
 RUN chmod 600 /app/.env
 
 ENV FLASK_APP=app.py \
     FLASK_RUN_HOST=0.0.0.0 \
-    FLASK_RUN_PORT=8080 \
+    FLASK_RUN_PORT=5000 \
     FIREBASE_DATABASE_CERTIFICATE=/app/databaseKey.json
     
-EXPOSE 8080
+EXPOSE 5000
 
 CMD ["python3", "app.py"]
-
