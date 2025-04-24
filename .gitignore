@@ -4,6 +4,7 @@ instance/*
 .webassets-cache
 .env
 databaseKey.json
+pubsubKey.json
 /ven/
 flask_session/
 .DS_Store
