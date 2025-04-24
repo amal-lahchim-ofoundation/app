@@ -9,7 +9,7 @@ from flask import (
     jsonify,
     make_response,
 )
-from logging import DEBUG
+
 from flask_session import Session
 import re
 import firebase_admin
@@ -18,46 +18,46 @@ import uuid
 from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 from flask import session
-import openai
 from dotenv import load_dotenv
 import json
 import logging
 import os
 import requests
 import time
+import shutil
+from logger import logger
+import aiohttp
 import asyncio
-from utils.home import cards, doctors
-
-# from langchain_openai import OpenAI
-# from langchain_openai import ChatOpenAI
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.prompts import PromptTemplate
-
-# from langchain.chains import LLMChain
-# from langchain.memory import ConversationBufferMemory
-# from langchain_community.utilities import WikipediaAPIWrapper
 from functools import wraps
-
-# from chatbot.Disorders import Disorders
-import fitz
-import pycountry
-from datetime import datetime
+import requests
+import requests
+from concurrent.futures import ThreadPoolExecutor
+import datetime
 import random
 from questions.personal_info import (
     personal_info_questions_phase_1,
     personal_info_questions_phase_2,
     personal_info_questions_phase_3,
 )
-from datetime import datetime
+import datetime
 from multiprocessing.dummy import Pool
-import whisper
 import os
 from google.api_core.exceptions import NotFound
-from pyannote.audio import Pipeline
 import subprocess
+import asyncio
+from pydub import AudioSegment
+from pydub.silence import split_on_silence
+from tqdm import tqdm
+import os
+import asyncio
+import threading
+from google.cloud import pubsub_v1
+from google.oauth2 import service_account
+import shutil
 
-THERAPY_SESSION_PREFIX = "therapy_session/"
-THERAPY_TRANSCRIPTION_PREFIX = "therapy_transcription/"
+THERAPY_SESSION_PREFIX = "therapy_session"
+THERAPY_TRANSCRIPTION_PREFIX = "therapy_transcription/transcription"
+THERAPY_DIARIZATION_PREFIX = "therapy_transcription/diarization"
 THERAPY_PREFIX = "therapy_"
 
 pool = Pool(5)
@@ -67,15 +67,269 @@ app.config["SESSION_TYPE"] = "filesystem"
 app.config["SESSION_PERMANENT"] = False
 Session(app)
 load_dotenv()
-# openAI = openai.OpenAI()
 DATABASE_URL = os.getenv("FIREBASE_DATABASE_URL")
+TRANSCRIPTION_API_URL = os.getenv("TRANSCRIPTION_API_URL")
+result = []
+# Directories
+UPLOADED_DIR = "uploaded_audio"
+OUTPUT_DIR = "processed_chunks"
+os.makedirs(UPLOADED_DIR, exist_ok=True)
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+PUB_SUB_KEY = os.getenv("PUB_SUB_KEY")
+
+transcription_results = {}
+transcription_lock = asyncio.Lock()  # Prevent race conditions
+abs_path = ""
+audio_file_name = ""
+processing_files = {}
+### Google Cloud pub/sub setup ###
+gg_credentials = service_account.Credentials.from_service_account_file(PUB_SUB_KEY)
+publisher = pubsub_v1.PublisherClient(credentials=gg_credentials)
+subscriber = pubsub_v1.SubscriberClient(credentials=gg_credentials)
+GG_PROJECT_ID = os.getenv("GG_PROJECT_ID")
+GG_TOPIC_ID = os.getenv("GG_TOPIC_ID")
+topic_path = publisher.topic_path(GG_PROJECT_ID, "audio-transcriptions")
+GG_SUBSCRIPTION_ID = os.getenv("GG_SUBSCRIPTION_ID")
+subscription_path = subscriber.subscription_path(GG_PROJECT_ID, GG_SUBSCRIPTION_ID)
 
 
-async def sanitize_filename(filename: str) -> str:
+#### 🙌🏼 CHUNKING AUDIO AND PUSH TO FIREBASE 🙌🏼 ####
+user_key = None
+
+
+def set_user_key(new_user_key):
+    global user_key
+    user_key = new_user_key
+    return user_key
+
+
+def get_user_key():
+    return user_key
+
+
+def upload_audio_to_firebase(local_file_path, firebase_path, num_chunks):
+    """
+    Uploads an audio file to Firebase Storage and returns its public URL.
+    """
+    global chunk_urls
+    chunk_urls = []
+    num_chunks += 1
+    try:
+        blob = bucket.blob(firebase_path)
+        abs_folder_path = os.path.abspath(local_file_path)
+        blob.upload_from_filename(abs_folder_path)
+        # Make the file publicly accessible
+        blob.make_public()
+        folder_id = firebase_path.split("/")[2]
+        logger.warning(f"FOLDER ID: {folder_id}")
+
+        # Get the public URL
+        url = blob.public_url
+        user_key = get_user_key()
+        logger.info(f"USER KEY : {user_key}")
+        if url not in chunk_urls:  # Ensure unique URLs
+
+            chunk_urls.append(url)
+            attributes = {
+                "user_key": user_key,
+                "folder_id": folder_id,
+                "total_chunks": str(num_chunks),
+            }
+            logger.warning(f"TOTAL CHUNKS: {num_chunks}")
+            future = publisher.publish(topic_path, url.encode("utf-8"), **attributes)
+            message_id = future.result()
+            logger.info(f"message_id: {message_id}")
+        if os.path.exists(abs_folder_path):
+            os.remove(abs_folder_path)
+        else:
+            logger.warning(f"Local file {local_file_path} not found for deletion.")
+        return None
+    except Exception as e:
+        logger.error(f"Error uploading {local_file_path}: {e}")
+        return None
+
+
+def save_chunk(chunk, start_time, output_dir, output_format, file_name):
+    """
+    Save audio chunk to disk and return the path - does NOT upload to Firebase
+    """
+    file_name_without_extension = os.path.splitext(file_name)[0]
+    file_output_dir = os.path.join(output_dir, file_name_without_extension)
+    res = os.makedirs(file_output_dir, exist_ok=True)
+    chunk_path = os.path.join(file_output_dir, f"chunk_{start_time}.{output_format}")
+    result_chunk = chunk.export(chunk_path, format=output_format)
+    return chunk_path
+
+
+def upload_chunks_to_firebase(chunk_folder, num_chunks):
+    """
+    Upload all chunks in a folder to Firebase (called ONCE after all chunks are processed)
+    """
+    if not os.path.exists(chunk_folder):
+        logger.error(f"Folder does not exist: {chunk_folder}")
+        return []
+    user_key = get_user_key()
+    folder_name = os.path.basename(chunk_folder)
+    folder_name = folder_name.split(".")[0]
+    firebase_folder_path = f"audio_chunks/{user_key}/{folder_name}/"
+
+    file_urls = []
+    for filename in os.listdir(chunk_folder):
+        file_path = os.path.join(chunk_folder, filename)
+        abs_folder_path = os.path.abspath(file_path)
+        if os.path.isfile(file_path) and filename.endswith(".wav"):
+            firebase_file_path = firebase_folder_path + filename
+            file_url = upload_audio_to_firebase(
+                abs_folder_path, firebase_file_path, num_chunks
+            )
+            if file_url and file_url not in file_urls:
+                file_urls.append(file_url)
+    return file_urls
+
+
+def merge_short_chunks(chunks, min_chunk_length_ms):
+    merged_chunks = []
+    current_chunk = chunks[0]
+    for chunk in chunks[1:]:
+        if len(current_chunk) + len(chunk) < min_chunk_length_ms:
+            current_chunk += chunk
+        else:
+            merged_chunks.append(current_chunk)
+            current_chunk = chunk
+
+    merged_chunks.append(current_chunk)
+    return merged_chunks
+
+
+def split_audio_internal(
+    filename, chunk_length_ms=120000, output_format="wav", silence_based=False
+):
+    input_file = os.path.join(UPLOADED_DIR, filename)
+    if not os.path.exists(input_file):
+        return {"error": "File not found"}
+    audio = AudioSegment.from_file(input_file)
+    chunk_paths = []
+    file_name_without_extension = os.path.splitext(filename)[0]
+    output_subfolder = os.path.join(OUTPUT_DIR, file_name_without_extension)
+    output_subfolder = os.path.abspath(output_subfolder)
+    if silence_based:
+        min_silence_len = 100
+        silence_thresh = -40
+        chunks = split_on_silence(
+            audio, min_silence_len=min_silence_len, silence_thresh=silence_thresh
+        )
+        chunks = merge_short_chunks(chunks, chunk_length_ms)
+        pbar = tqdm(total=len(chunks), desc="Processing chunks based on silence")
+
+        with ThreadPoolExecutor() as executor:
+            futures = [
+                executor.submit(
+                    save_chunk, chunk, i, OUTPUT_DIR, output_format, filename
+                )
+                for i, chunk in enumerate(chunks)
+            ]
+            for future in futures:
+                chunk_paths.append(future.result())
+                pbar.update(1)
+
+    else:
+        audio_length_ms = len(audio)
+        num_chunks = audio_length_ms // chunk_length_ms
+        pbar = tqdm(
+            total=num_chunks + (audio_length_ms % chunk_length_ms != 0),
+            desc="Processing fixed-size chunks",
+        )
+
+        with ThreadPoolExecutor() as executor:
+            for i in range(num_chunks):
+                start_time = i * chunk_length_ms
+                chunk = audio[start_time : start_time + chunk_length_ms]
+                chunk_paths.append(
+                    executor.submit(
+                        save_chunk,
+                        chunk,
+                        start_time,
+                        OUTPUT_DIR,
+                        output_format,
+                        filename,
+                    ).result()
+                )
+                pbar.update(1)
+
+            if audio_length_ms % chunk_length_ms != 0:
+                start_time = num_chunks * chunk_length_ms
+                chunk = audio[start_time:]
+                chunk_paths.append(
+                    executor.submit(
+                        save_chunk,
+                        chunk,
+                        start_time,
+                        OUTPUT_DIR,
+                        output_format,
+                        filename,
+                    ).result()
+                )
+                pbar.update(1)
+
+    pbar.close()
+    upload_chunks_to_firebase(output_subfolder, num_chunks)
+    if os.path.exists(input_file):
+        os.remove(input_file)
+    else:
+        logger.warning(f"WAV file not found for deletion")
+
+    if os.path.exists(output_subfolder) and not os.listdir(output_subfolder):
+        shutil.rmtree(output_subfolder)
+    return {"message": "Audio processed successfully", "chunks": chunk_paths}
+
+
+def process_audio(
+    filename: str,
+    chunk_length: int = 120000,
+    output_format: str = "wav",
+    silence_based: bool = False,
+):
+    return split_audio_internal(filename, chunk_length, output_format, silence_based)
+
+
+#### 🙌🏼 CHUNKING AUDIO AND PUSH TO FIREBASE 🙌🏼 ####
+
+
+@app.route("/generate_summary", methods=["POST"])
+def generate_summary():
+    user_key = session["random_key"]
+    set_user_key(user_key)
+    global processing_flag
+    if "audio_file" not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+    audio_file = request.files["audio_file"]
+    try:
+        local_audio_path = os.path.join(UPLOADED_DIR, audio_file.filename)
+        result_audio_save = audio_file.save(local_audio_path)
+        file_name = f"{audio_file.filename}.wav"
+        wav_audio_path = f"{local_audio_path}.wav"
+        converted_file_name = convert_webm_to_wav(local_audio_path, wav_audio_path)
+        processing_files[file_name] = True
+        abs_audio_path = os.path.abspath(wav_audio_path)
+        thread = threading.Thread(target=process_audio, args=(file_name,))
+        thread.start()
+        if not processing_files[file_name]:
+            return jsonify({"file_name": "processing..."}), 200
+        os.remove(f"uploaded_audio/{audio_file.filename}")
+        return jsonify({"file_name": file_name}), 200
+
+    except Exception as e:
+        logger.error(f"Error processing audio: {e}")
+        return jsonify({"error": "Audio processing failed"}), 500
+    finally:
+        pass
+
+
+def sanitize_filename(filename: str) -> str:
     return re.sub(r"[^\w\s-]", "", filename).strip()
 
 
-async def convert_webm_to_wav(input_file, output_file):
+def convert_webm_to_wav(input_file, output_file):
     """Function to convert WebM to WAV using FFmpeg."""
     command = [
         "ffmpeg",
@@ -83,166 +337,76 @@ async def convert_webm_to_wav(input_file, output_file):
         input_file,  # Input WebM file
         output_file,  # Output WAV file
     ]
-    # subprocess.run(command, check=True)
-    # Offload the blocking subprocess.run to a background thread
-    await asyncio.to_thread(subprocess.run, command, check=True)
-
-
-llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-exp")
-
-
-@app.route("/generate_summary", methods=["POST"])
-def generate_summary():
-    # llm = ChatOpenAI(model="gpt-4o-mini") # OpenAI model
-    prompt = PromptTemplate.from_template(
-        """
-You are a psychologist about to make mental diagnoses based on this subject's mental data and the therapy session. You have to make summaries about the therapy session that are helpful to combine with the subject's mental data.
-----Therapy session----
-{therapy_session}
-
-Make summary of the therapy session with all key points, ONLY with information related to the subject/patient.
-Summary should be well structured, informative, in-depth, and comprehensive, with facts and numbers mentioned.
-Please ensure the summary contains only the factual information that was discussed, and that there is no preamble or introductory statement.
-The summary should be structured into sections, with each section containing one or more paragraphs of information
-    """
-    )
-    chain = prompt | llm
-
-    # Check if a file is in the request
-    if "audio_file" not in request.files:
-        return jsonify({"error": "No file provided"}), 400
-
-    # Get the file from the request
-    audio_file = request.files["audio_file"]
-    print("audio_file", audio_file)
-
-    if audio_file:
-        # Ensure the directory exists
-        if not os.path.exists("uploaded_audio"):
-            os.makedirs("uploaded_audio")
-
-        audio_file_path = os.path.join("uploaded_audio", audio_file.filename)
-        # Save the file to the server
-        audio_file.save(f"uploaded_audio/{audio_file.filename}")
-        convert_webm_to_wav(
-            audio_file_path, f"uploaded_audio/{audio_file.filename}.wav"
-        )
-        print(f"File saved to {audio_file_path}")
-        audio_filename = f"uploaded_audio/{audio_file.filename}.wav"
-    else:
-        return jsonify({"error": "No audio file received"}), 400
-
-    try:
-        # Transcribing audio
-        cache_dir = os.path.join(os.getcwd(), "cache")
-        download_root = os.path.join(cache_dir, "whisper")
-        model = whisper.load_model("turbo", download_root=download_root)
-        result = model.transcribe(audio_filename, verbose=True, word_timestamps=True)
-
-        """Transcribe the audio directly without saving. 
-        NOTE: the quality of the text is not quality as the above method."""
-
-        print("Text", result["text"])
-        audio_report_suffix = int(time.time())
-        session["last_audio_report_suffix"] = (
-            audio_report_suffix  # Store timestamp for tracking
-        )
-
-        sanitized_filename = sanitize_filename(f"therapy_{audio_report_suffix}")
-        bucket = storage.bucket()
-        blob = bucket.blob(
-            f"therapy_transcription/{session['random_key']}/{sanitized_filename}.md"
-        )
-        blob.upload_from_string(result["text"], content_type="text/markdown")
-
-        # Generate summary
-        summary = chain.invoke({"therapy_session": result["text"]})
-        print("summary", summary.content)
-
-        session["summary"] = summary.content
-
-        bucket = storage.bucket()
-        blob = bucket.blob(
-            f"therapy_session/{session['random_key']}/{sanitized_filename}.md"
-        )
-        blob.upload_from_string(summary.content, content_type="text/markdown")
-
-        # Diarizing speakers
-        segments_with_timestamps = result["segments"]
-        pipeline = Pipeline.from_pretrained(
-            "pyannote/speaker-diarization-3.1",
-            use_auth_token=os.getenv("PYANNOTE_AUDIO_AUTH_KEY"),
-        )
-
-        print("Preparing diarization...")
-        diarization = pipeline({"uri": "audio_file", "audio": audio_filename})
-
-        # Print out diarization output
-        """for speech_turn, _, speaker_id in diarization.itertracks(yield_label=True):
-            print(f"Speaker {speaker_id}: {speech_turn.start} --> {speech_turn.end}")"""
-
-        transription_with_speakers = map_speakers_to_transcript(
-            diarization, segments_with_timestamps
-        )
-        sanitized_prompt, is_valid, risk_score = scanner.scan(
-            transription_with_speakers
-        )
-        print("------transription_with_speakers----", sanitized_prompt)
-        bucket = storage.bucket()
-        blob = bucket.blob(
-            f"therapy_transcription/{session['random_key']}/{sanitized_filename}.md"
-        )
-        blob.upload_from_string(
-            transription_with_speakers, content_type="text/markdown"
-        )
-    except Exception as e:
-        print(f"An error occurred when generating summary: {e}")
-        return jsonify({"error": str(e)}), 500
-
-    os.remove(audio_filename)
-    os.remove(f"uploaded_audio/{audio_file.filename}")
-    return {"success": True}
-
-
-async def map_speakers_to_transcript(diarization, whisper_output):
-    speaker_transcriptions = []
-
-    words = []
-    for trans_segment in whisper_output:
-        words.extend(trans_segment["words"])
-
-    for speech_turn, _, speaker_id in diarization.itertracks(yield_label=True):
-        start_time = speech_turn.start
-        end_time = speech_turn.end
-        text = f"{speaker_id}: "
-
-        new_words = words[:]
-        for word in words:
-            if word["end"] <= end_time:
-                new_words.remove(word)
-                text += word["word"]
-            else:
-                break
-
-        words = new_words
-        speaker_transcriptions.append(text)
-
-    # Print the combined result
-    print("==========MAP SPEAKER TO TRANSCRIPT OUTPUT=========")
-    for text in speaker_transcriptions:
-        print(text)
-    print("==========END MAP SPEAKER TO TRANSCRIPT OUTPUT=========")
-    return "\n".join(speaker_transcriptions)
-
-
-@app.route("/general_summary", methods=["GET"])
-async def general_summary():
-    transcription = session.get("transcription")
-    return await render_template("summary.html", transcription=transcription)
+    subprocess.run(command, check=True)
 
 
 @app.route("/", methods=["GET", "POST"])
-async def home():
+def home():
+    cards = [
+        {
+            "title": "Time-Efficient Therapy",
+            "text": "By automating documentation and administrative tasks, therapists can devote their full attention to patient care. This increased efficiency reduces the number of sessions needed, making therapy quicker and more effective.",
+        },
+        {
+            "title": "Privacy by Design",
+            "text": "We prioritize your privacy. Our system does not collect personal information. Instead, we generate a unique key that serves as your identifier within the app, ensuring your data remains secure and anonymous.",
+        },
+        {
+            "title": "Streamlined Administrative Workflow",
+            "text": "Therapists typically spend 30-40% of session time on manual documentation. Our app automates this process, freeing up more time for patient care and enhancing the overall quality of therapy.",
+        },
+        {
+            "title": "Pre-Intake Questionnaires and Analysis",
+            "text": "Before therapy, patients complete dynamic questionnaires, and the app analyzes their responses to provide therapists with valuable insights into risks and key concerns. It also offers evidence-based resources, promoting time-saving, deeper insights, and more informed care.",
+        },
+        {
+            "title": "Therapy Session Summaries",
+            "text": "Our AI-powered app generates clear and accurate therapy session summaries, capturing key points and insights. Saving therapists valuable time. By automating note-taking, therapists can focus on patient care, improve continuity, and reduce mental strain, making therapy more efficient and effective.",
+        },
+        {
+            "title": "Diagnoses",
+            "text": "By analyzing both the patient’s responses and key insights from the session, the app helps therapists form a comprehensive understanding of the patients condition, our app make a evidence-based diagnoses.",
+        },
+    ]
+    doctors = [
+        {
+            "name": "Dr. Joseph Morgan",
+            "specialty": "Psychiatrist",
+            "message": "I recommend this website for therapists and psychologists as a good source for per-session  with your patients to find necessary data and possible disorders",
+            "image": "./static/assets/img/dr1.png",
+        },
+        {
+            "name": "Dr. Elena Gilbert",
+            "specialty": "Clinical Psychologist",
+            "message": "I recommend this website for therapists and psychologists as a good source for per-session  with your patients to find necessary data and possible disorders",
+            "image": "./static/assets/img/dr2.png",
+        },
+        {
+            "name": "Dr. Laura Greens",
+            "specialty": "Therapist",
+            "message": "I recommend this website for therapists and psychologists as a good source for per-session  with your patients to find necessary data and possible disorders",
+            "image": "./static/assets/img/dr3.png",
+        },
+        {
+            "name": "Dr. Emily Johnson1",
+            "specialty": "Therapist",
+            "message": "I recommend this website for therapists and psychologists as a good source for per-session  with your patients to find necessary data and possible disorders",
+            "image": "./static/assets/img/dr1.png",
+        },
+        {
+            "name": "Dr. Emily Johnson2",
+            "specialty": "Therapist",
+            "message": "I recommend this website for therapists and psychologists as a good source for per-session  with your patients to find necessary data and possible disorders",
+            "image": "./static/assets/img/dr2.png",
+        },
+        {
+            "name": "Dr. Emily Johnson3",
+            "specialty": "Therapist",
+            "message": "I recommend this website for therapists and psychologists as a good source for per-session  with your patients to find necessary data and possible disorders",
+            "image": "./static/assets/img/dr3.png",
+        },
+        # Add more doctors as needed
+    ]
     random_key = session.get("random_key", "No key available")
     logging.debug("redirecting index.html")
     return render_template(
@@ -254,11 +418,12 @@ async def home():
 cred = credentials.Certificate(os.getenv("FIREBASE_DATABASE_CERTIFICATE"))
 firebase_admin.initialize_app(
     cred,
-    {"databaseURL": DATABASE_URL, "storageBucket": "chat-psychologist-ai.appspot.com"},
+    {"databaseURL": DATABASE_URL, "storageBucket": os.getenv("STORAGE_BUCKET")},
 )
-
+bucket = storage.bucket()
 #### Firestore #####
 firestore_db = firestore.client()
+
 try:
     USERS_REF = db.reference("users")
     print("Firebase connected successfully")
@@ -284,12 +449,6 @@ def redirect_if_logged_in(route_function):
 
 
 ##### Register Firebase #####
-# Asynchronous function to handle Firebase operations
-async def store_user_data_async(random_key, password_hash):
-    ref = db.reference("users")
-    await asyncio.to_thread(
-        ref.child(random_key).set, {"random_key": random_key, "password": password_hash}
-    )
 
 
 @app.route("/register", methods=["POST"])
@@ -389,46 +548,48 @@ def logout():
 #####A function that doesn't alow to acces that page if you are not loged in ####
 
 
-# def login_required(route_function):
-#     @wraps(route_function)
-#     def wrapper(*args, **kwargs):
-#         if "user_logged_in" not in session:
-#             flash("Please log in to access this page.")
-#             return redirect(url_for("login_page"))
-#         return route_function(*args, **kwargs)
-
-#     return wrapper
-
-
 def login_required(route_function):
-    if asyncio.iscoroutinefunction(route_function):  # Check if function is async
+    @wraps(route_function)
+    def wrapper(*args, **kwargs):
+        if "user_logged_in" not in session:
+            flash("Please log in to access this page.")
+            return redirect(url_for("login_page"))
+        return route_function(*args, **kwargs)
 
-        @wraps(route_function)
-        async def async_wrapper(*args, **kwargs):
-            if "user_logged_in" not in session:
-                flash("Please log in to access this page.")
-                return redirect(url_for("login_page"))
-            return await route_function(*args, **kwargs)  # ✅ Await async route
+    return wrapper
 
-        return async_wrapper
-    else:
 
-        @wraps(route_function)
-        def sync_wrapper(*args, **kwargs):
-            if "user_logged_in" not in session:
-                flash("Please log in to access this page.")
-                return redirect(url_for("login_page"))
-            return route_function(*args, **kwargs)
+@app.route("/general_summary", methods=["GET"])
+@login_required
+def general_summary():
+    bucket = storage.bucket()
+    summary = ""
+    blobs = bucket.list_blobs(
+        prefix=f"therapy_transcription/summary/{session['random_key']}/"
+    )
 
-        return sync_wrapper
+    for blob in blobs:
+        print(blob.name)
+        file_name = os.path.basename(blob.name)
+        print(file_name)
+        blob = bucket.blob(blob.name)
+
+        contents = blob.download_as_bytes()
+        markdown_content = contents.decode("utf-8")
+        html_content = convert_markdown_to_html(markdown_content)
+        summary += f"---{file_name}---\n{html_content}\n\n"
+
+    return render_template("summary.html", summary=summary)
 
 
 @app.route("/therapy-transcription", methods=["GET", "POST"])
 @login_required
-async def therapy_transcription():
+def therapy_transcription():
     bucket = storage.bucket()
     transcription = ""
-    blobs = bucket.list_blobs(prefix=f"therapy_transcription/{session['random_key']}/")
+    blobs = bucket.list_blobs(
+        prefix=f"therapy_transcription/transcription/{session['random_key']}/"
+    )
 
     for blob in blobs:
         print(blob.name)
@@ -441,69 +602,34 @@ async def therapy_transcription():
         html_content = convert_markdown_to_html(markdown_content)
         transcription += f"---{file_name}---\n{html_content}\n\n"
 
-    print("transcription", transcription)
-
     return render_template("conversation.html", transcription=transcription)
 
 
-# @app.route("/therapy-transcription", methods=["GET", "POST"])
-# @login_required
-# async def therapy_transcription():
-#     bucket = storage.bucket()
-#     transcription = ""
-#     # blobs = bucket.list_blobs(prefix=f"therapy_transcription/{session['random_key']}/")
-#     # List blobs asynchronously
-#     blobs = await asyncio.to_thread(
-#         bucket.list_blobs, prefix=f"therapy_transcription/{session['random_key']}/"
-#     )
-#     # Process each blob asynchronously
-#     tasks = []
-#     for blob in blobs:
-#         tasks.append(process_blob(blob, bucket))
+@app.route("/therapy-diarization", methods=["GET", "POST"])
+@login_required
+def therapy_diarization():
+    bucket = storage.bucket()
+    diarization = ""
+    blobs = bucket.list_blobs(
+        prefix=f"therapy_transcription/diarization/{session['random_key']}/"
+    )
 
-#     # Await results of processing all blobs
-#     results = await asyncio.gather(*tasks)
+    for blob in blobs:
+        print(blob.name)
+        file_name = os.path.basename(blob.name)
+        print(file_name)
+        blob = bucket.blob(blob.name)
 
-#     # Combine transcription results
-#     transcription = "\n".join(results)
+        contents = blob.download_as_bytes()
+        markdown_content = contents.decode("utf-8")
+        html_content = convert_markdown_to_html(markdown_content)
+        diarization += f"---{file_name}---\n{html_content}\n\n"
 
-#     return render_template("conversation.html", transcription=transcription)
-
-#     # for blob in blobs:
-#     #     print("====BLOB NAME====", blob.name)
-#     #     file_name = os.path.basename(blob.name)
-#     #     print("====FILE NAME====", file_name)
-#     #     blob = bucket.blob(blob.name)
-
-#     #     contents = blob.download_as_bytes()
-#     #     markdown_content = contents.decode("utf-8")
-#     #     html_content = convert_markdown_to_html(markdown_content)
-#     #     transcription += f"---{file_name}---\n{html_content}\n\n"
-
-#     # print("transcription", transcription)
-
-#     # return render_template("conversation.html", transcription=transcription)
-#     # Process each blob asynchronously
-
-
-# async def process_blob(blob, bucket):
-#     file_name = os.path.basename(blob.name)
-#     contents = await download_blob(blob)
-#     markdown_content = contents.decode("utf-8")
-#     html_content = await asyncio.to_thread(convert_markdown_to_html, markdown_content)
-
-#     # Combine into transcription format
-#     return f"---{file_name}---\n{html_content}\n\n"
-
-
-# # Async function to download blob contents
-# async def download_blob(blob):
-#     contents = await asyncio.to_thread(blob.download_as_bytes)
-#     return contents
+    return render_template("conversation2.html", diarization=diarization)
 
 
 @app.route("/dashboard")
-async def dashboard():
+def dashboard():
     random_key = session.get("random_key", "No key available")
     return render_template("dash_main.html", random_key=random_key)
 
@@ -511,9 +637,8 @@ async def dashboard():
 ######### Treatment Page #############
 @app.route("/treatment")
 @login_required
-async def treatment():
-    # user_data = get_user()
-    user_data = await asyncio.to_thread(get_user)
+def treatment():
+    user_data = get_user()
     # Check completion flags
     personal_info_phase_1_complete = user_data.get(
         "personal_info_phase_1_completed", False
@@ -543,8 +668,8 @@ async def treatment():
 
 @app.route("/personal_info_phase_1", methods=["GET", "POST"])
 @login_required
-async def personal_info_phase_1():
-    user_data = await asyncio.to_thread(get_user)
+def personal_info_phase_1():
+    user_data = get_user()
 
     # Redirect to phase 2 if already completed
     if user_data.get("personal_info_phase_1_completed", False):
@@ -579,12 +704,8 @@ async def personal_info_phase_1():
                 else:
                     # Capture other question types normally
                     answer = request.form.get(f"{topic}_question_{index}")
-                    # Anonymize answers
-                    sanitized_prompt, is_valid, risk_score = scanner.scan(answer)
-
-                    print("======PHASE 1 ANONYMIZE ANSWER======", sanitized_prompt)
                     # Log to console for debugging
-                    # print(f"Received answer: {answer} for question {index}")
+                    print(f"Received answer: {answer} for question {index}")
 
                     personal_info_responses[topic][question_info_type] = (
                         answer if answer else None
@@ -593,10 +714,9 @@ async def personal_info_phase_1():
         # Update user data
         user_data["personal_info_phase_1_completed"] = True
         user_data["personal_info_responses_phase_1"] = personal_info_responses
-        # Save updated user data to the database (offload to a separate thread)
-        await asyncio.to_thread(USERS_REF.child(session["random_key"]).set, user_data)
+
         # Save updated user data to the database
-        # USERS_REF.child(session["random_key"]).set(user_data)
+        USERS_REF.child(session["random_key"]).set(user_data)
         research_data("personal_info_responses_phase_1")
         # Call the agent to process the personal info responses
         # call_phase1_agent(user_data['personal_info_responses_phase_1'])
@@ -616,7 +736,7 @@ def research_data(data_ref, write_report=False):
     }
     headers = {"Content-Type": "application/json"}
 
-    print("==========RESEARCH DATA==========", data)
+    print("data", data)
     """res = requests.post(
         'https://main-bvxea6i-hq3wucu75qstu.eu.platformsh.site/research-data',
         data=json.dumps(data),
@@ -627,26 +747,23 @@ def research_data(data_ref, write_report=False):
         args=[os.getenv("GPT_RESEACHER_BASE_URL") + "/research-data"],
         kwds={"data": json.dumps(data), "headers": headers},
     )
-    print("==========END OF RESEARCH DATA==========")
+    print("end of research_data")
 
 
-async def generate_final_report():
+def generate_final_report():
     data = {"user_key": session["random_key"]}
     headers = {"Content-Type": "application/json"}
 
-    print("==========FINAL REPORT==========", data)
-    sanitized_prompt, is_valid, risk_score = scanner.scan(data)
-
-    print("sanitized_prompt report", sanitized_prompt)
+    print("data", data)
     pool.apply_async(
         requests.post,
         args=[os.getenv("GPT_RESEACHER_BASE_URL") + "/write-final-report"],
         kwds={"data": json.dumps(data), "headers": headers},
     )
-    print("==========END OF FINAL REPORT==========")
+    print("end of generate_final_report")
 
 
-async def get_recent_final_report():
+def get_recent_final_report():
     bucket = storage.bucket()
     blob = bucket.blob(f"research/{session['random_key']}/final_report.md")
     contents = blob.download_as_bytes()
@@ -654,7 +771,7 @@ async def get_recent_final_report():
 
 
 ##### Sahar added this to change Markdown text to Hyper Text(HTML)
-async def convert_markdown_to_html(text):
+def convert_markdown_to_html(text):
     # Convert headers
     text = re.sub(r"### (.*)", r"<h4>\1</h4>", text)
     text = re.sub(r"## (.*)", r"<h3>\1</h3>", text)
@@ -686,11 +803,11 @@ async def convert_markdown_to_html(text):
     return text
 
 
-#  def get_recent_final_report():
-#     bucket = storage.bucket()
-#     blob = bucket.blob(f"research/{session['random_key']}/final_report.md")
-#     contents = blob.download_as_bytes()
-#     return convert_markdown_to_html(contents.decode("utf-8"))
+def get_recent_final_report():
+    bucket = storage.bucket()
+    blob = bucket.blob(f"research/{session['random_key']}/final_report.md")
+    contents = blob.download_as_bytes()
+    return convert_markdown_to_html(contents.decode("utf-8"))
 
 
 def sanitize_key(key):
@@ -707,9 +824,8 @@ def sanitize_key(key):
 
 @app.route("/personal_info_phase_2", methods=["GET", "POST"])
 @login_required
-async def personal_info_phase_2():
-    # user_data = get_user()
-    user_data = await asyncio.to_thread(get_user)
+def personal_info_phase_2():
+    user_data = get_user()
 
     # Redirect to phase 3 if phase 2 is already completed
     if user_data.get("personal_info_phase_2_completed", False):
@@ -742,33 +858,14 @@ async def personal_info_phase_2():
         # Update user data
         user_data["personal_info_phase_2_completed"] = True
         user_data["personal_info_responses_phase_2"] = personal_info_responses
-        print("=======personal_info_responses========", personal_info_responses)
-        # Anonymize comments in the provided data
-        anonymized_data = anonymize_comments(personal_info_responses)
-        # Anonymize user data
-        # sanitized_prompt, is_valid, risk_score = scanner.scan(personal_info_responses)
-        print("=====PHASE 2 ANONYMIZED ANSWER=====", anonymized_data)
+
         # Save updated user data to the database
-        # USERS_REF.child(session["random_key"]).set(user_data)
-        await asyncio.to_thread(USERS_REF.child(session["random_key"]).set, user_data)
+        USERS_REF.child(session["random_key"]).set(user_data)
         research_data("personal_info_responses_phase_2")
         return redirect(url_for("personal_info_phase_3"))
     return render_template(
         "personal_info_phase_2.html", questions=personal_info_questions_phase_2
     )
-
-
-def anonymize_comments(data):
-    # Iterate over the categories and their responses
-    for category, responses in data.items():
-        for question, answer in responses.items():
-            # Get the comment value (which is either a string or None)
-            comment = answer.get("comments")
-            if comment:
-                # Anonymize the comment if it exists
-                sanitized_comment, is_valid, risk_score = scanner.scan(comment)
-                answer["comments"] = sanitized_comment
-    return data
 
 
 def get_user():
@@ -779,7 +876,7 @@ def get_user():
 ##### Reports Page #####
 @app.route("/reports", methods=["GET", "POST"])
 @login_required
-async def reports():
+def reports():
 
     user_data = get_user()
     personal_info_phase_3_complete = user_data.get(
@@ -818,23 +915,22 @@ async def reports():
 
 @app.route("/sessions", methods=["GET", "POST"])
 @login_required
-async def sessions():
+def sessions():
     return render_template("sessions.html")
 
 
 ##### first report Page #####
 @app.route("/first_report", methods=["GET", "POST"])
 @login_required
-async def first_report():
+def first_report():
     report_content = get_recent_final_report()
     return render_template("first_report.html", report_content=report_content)
 
 
 @app.route("/personal_info_phase_3", methods=["GET", "POST"])
 @login_required
-async def personal_info_phase_3():
-    # user_data = get_user()
-    user_data = await asyncio.to_thread(get_user)
+def personal_info_phase_3():
+    user_data = get_user()
 
     # Redirect to phase 3 if phase 2 is already completed
     if user_data.get("personal_info_phase_3_completed", False):
@@ -867,13 +963,9 @@ async def personal_info_phase_3():
         # Update user data
         user_data["personal_info_phase_3_completed"] = True
         user_data["personal_info_responses_phase_3"] = personal_info_responses
-        anonymized_data = anonymize_comments(personal_info_responses)
-        # Anonymize user data
-        # sanitized_prompt, is_valid, risk_score = scanner.scan(personal_info_responses)
-        print("=====PHASE 3 ANONYMIZED ANSWER=====", anonymized_data)
+
         # Save updated user data to the database
-        # USERS_REF.child(session["random_key"]).set(user_data)
-        await asyncio.to_thread(USERS_REF.child(session["random_key"]).set, user_data)
+        USERS_REF.child(session["random_key"]).set(user_data)
         research_data("personal_info_responses_phase_3", write_report=True)
         return redirect(url_for("treatment"))
     return render_template(
@@ -883,16 +975,14 @@ async def personal_info_phase_3():
 
 @app.route("/therapy_sessions", methods=["GET", "POST"])
 @login_required
-async def therapy_sessions():
+def therapy_sessions():
     if "random_key" not in session:
         return "User not authenticated", 401
 
     random_key = session["random_key"]
     prefix = f"{THERAPY_SESSION_PREFIX}{random_key}/"
-    # Offload the blocking I/O to a separate thread
-    blobs = await asyncio.to_thread(storage.bucket().list_blobs, prefix=prefix)
-    # bucket = storage.bucket()
-    # blobs = bucket.list_blobs(prefix=prefix)
+    bucket = storage.bucket()
+    blobs = bucket.list_blobs(prefix=prefix)
 
     summaries = []
     for blob in blobs:
@@ -920,134 +1010,22 @@ async def therapy_sessions():
     return render_template("therapy_sessions.html", summaries=summaries)
 
 
-##### Sahar's Work on Personal Insight Page #####
-
-# @app.route('/personal_insights', methods=['GET', 'POST'])
-# @login_required
-# def personal_insights():
-#     user_data = get_user()
-
-#     if request.method == 'POST':
-#         personal_insight_responses = {}
-
-#         for index, question in enumerate(personal_insights_questions, start=1):
-#             topic = sanitize_key(question.get('topic', f"Topic {index}"))
-#             personal_insight_responses[topic] = {}
-
-#             questions = question.get('questions')
-#             for index, question in enumerate(questions, start=1):
-#                 question_info_type = sanitize_key(question.get('info_type', f"Info type {index}"))
-
-#                 answer = request.form.get(f'{topic}_question_{index}')
-#                 print(f"Received answer: {answer} for question {index}")
-
-#                 personal_insight_responses[topic][question_info_type] = answer if answer else None
-
-#         user_data['personal_insights_completed'] = True
-#         user_data['personal_insight_responses'] = personal_insight_responses
-#         USERS_REF.child(session['random_key']).set(user_data)
-
-#         return redirect(url_for('questions'))
-
-#     return render_template('personal_insights.html', questions=personal_insights_questions)
-###### End of personal insight Page ####
-
-
 @app.route("/appointment", methods=["GET", "POST"])
 @login_required
 def appointment():
     return render_template("appointment.html")
 
 
-#### web3 routes ####
-@app.route("/nonce")
-def nonce():
-    wallet_address = request.args.get("walletAddress")
-    nonce = str(random.randint(1, 10000))
-    nonce_id = f"{nonce}-{datetime.now().timestamp()}"
-    created_at = datetime.now()
-
-    # Check if wallet address already exists in Firestore
-    doc_ref = WALLETS_REF.document(wallet_address)
-    doc = doc_ref.get()
-
-    if doc.exists:
-        # Wallet address already exists, update the nonce and updatedAt
-        doc_ref.update({"nonce": nonce_id, "updatedAt": datetime.now()})
-    else:
-        # Wallet address does not exist, insert a new document with createdAt
-        WALLETS_REF.document(wallet_address).set(
-            {
-                "wallet_address": wallet_address,
-                "nonce": nonce_id,
-                "createdAt": created_at,
-                "updatedAt": created_at,
-            }
-        )
-
-    return jsonify({"nonce": nonce_id})
-
-
-@app.route("/verify", methods=["GET"])
-def verify_signature():
-    wallet_address = request.args.get("walletAddress")
-    doc_ref = WALLETS_REF.document(wallet_address)
-    doc = doc_ref.get()
-    if doc.exists:
-        response = make_response(jsonify({"success": True}))
-        response.set_cookie("walletAddress", wallet_address)
-        return response
-    else:
-        return jsonify({"success": False, "error": "Wallet address not found"})
-
-
-@app.route("/check")
-def check_session():
-    wallet_address = request.cookies.get("walletAddress")
-    if wallet_address:
-        # Check if wallet address exists in Firestore
-        doc_ref = WALLETS_REF.document(wallet_address)
-        doc = doc_ref.get()
-        if doc.exists:
-            return jsonify({"success": True, "walletAddress": wallet_address})
-        else:
-            return jsonify(
-                {"success": False, "error": "Wallet address not found in Firestore"}
-            )
-    else:
-        return jsonify({"success": False})
-
-
-@app.route("/disconnect")
-def disconnect():
-    response = make_response(jsonify({"success": True}))
-    response.set_cookie("walletAddress", "", expires=0)
-    return response
-
-
-@app.route("/health", methods=["GET"])
-async def check_health():
-    return {"status": "OK"}, 200
-
-
-### end web3 routes ####
-
-
-################################################################### MY CODE ####################################################################
-
-
 @app.route("/summaries", methods=["GET", "POST"])
 @login_required
-async def list_summaries():
+def list_summaries():
     if "random_key" not in session:
         return "User not authenticated", 401
 
     random_key = session["random_key"]
     prefix = f"{THERAPY_SESSION_PREFIX}{random_key}/"
-    # Offload the blocking I/O to a separate thread
-    blobs = await asyncio.to_thread(storage.bucket().list_blobs, prefix=prefix)
-    # bucket = storage.bucket()
-    # blobs = bucket.list_blobs(prefix=prefix)
+    bucket = storage.bucket()
+    blobs = bucket.list_blobs(prefix=prefix)
 
     summaries = []
     for blob in blobs:
@@ -1078,7 +1056,7 @@ async def list_summaries():
 
 @app.route("/summary-reporting", methods=["GET", "POST"])
 @login_required
-async def summary_reporting():
+def summary_reporting():
     filename = request.args.get("file")
     if not filename:
         return "No summary specified", 400
@@ -1091,9 +1069,6 @@ async def summary_reporting():
     summary_file_path = f"{THERAPY_SESSION_PREFIX}{random_key}/{filename}"
     bucket = storage.bucket()
     summary_blob = bucket.blob(summary_file_path)
-    # Offload the blocking I/O operation to a separate thread
-    summary_content = await asyncio.to_thread(summary_blob.download_as_text)
-
     summary_content = summary_blob.download_as_text()
 
     # Convert the summary markdown content to HTML
@@ -1109,11 +1084,7 @@ async def summary_reporting():
     transcription_blob = bucket.blob(transcription_file_path)
 
     try:
-        # Offload the blocking I/O operation to a separate thread for transcription
-        transcription_content = await asyncio.to_thread(
-            transcription_blob.download_as_text
-        )
-        # transcription_content = transcription_blob.download_as_text()
+        transcription_content = transcription_blob.download_as_text()
         # Convert the transcription markdown content to HTML
         html_transcription_content = convert_markdown_to_html(transcription_content)
     except NotFound:
@@ -1125,51 +1096,13 @@ async def summary_reporting():
     combined_content = (
         f"{html_summary_content}<hr><h2>Transcription</h2>{html_transcription_content}"
     )
-    # Add anonymize
-    sanitized_prompt, is_valid, risk_score = scanner.scan(combined_content)
-    print("=====ANONYMIZE PROMPT=====", sanitized_prompt)
+
     return render_template("summary.html", summary=combined_content)
-
-
-@app.route("/check_summary_status", methods=["GET"])
-@login_required
-async def check_summary_status():
-    random_key = session.get("random_key")
-    if not random_key:
-        return jsonify({"status": "unauthorized"}), 401
-
-    last_audio_report_suffix = session.get("last_audio_report_suffix")
-    if not last_audio_report_suffix:
-        return jsonify({"status": "pending"})  # No new recording found
-
-    # Construct expected filename based on the latest session
-    expected_filename = (
-        f"therapy_session/{random_key}/therapy_{last_audio_report_suffix}.md"
-    )
-
-    # Offload the blocking check to a separate thread (e.g., check if the file exists)
-    file_exists = await asyncio.to_thread(file_exists_check, expected_filename)
-
-    if file_exists:
-        return jsonify({"status": "completed"})  # File exists and summary is ready
-    else:
-        return jsonify({"status": "pending"})  # File doesn't exist yet
-
-
-def file_exists_check(filename):
-    bucket = storage.bucket()
-    blob = bucket.blob(filename)
-    return blob.exists()
-
-
-# Helper function to list blobs with a given prefix
-def list_blobs_with_prefix(bucket, prefix):
-    return list(bucket.list_blobs(prefix=prefix))
 
 
 @app.route("/most_recent_summary", methods=["GET"])
 @login_required
-async def most_recent_summary():
+def most_recent_summary():
     random_key = session.get("random_key")
     if not random_key:
         return "User not authenticated", 401
@@ -1178,8 +1111,7 @@ async def most_recent_summary():
     prefix = f"{THERAPY_SESSION_PREFIX}{random_key}/"
     bucket = storage.bucket()
     blobs = bucket.list_blobs(prefix=prefix)
-    # Offload blob listing and processing to a separate thread
-    blobs = await asyncio.to_thread(list_blobs_with_prefix, bucket, prefix)
+
     most_recent_blob = None
     most_recent_timestamp = 0
     for blob in blobs:
@@ -1197,9 +1129,8 @@ async def most_recent_summary():
 
     if not most_recent_blob:
         return "No summaries found", 404
-    # Offload the downloading and conversion to HTML
-    summary_content = await asyncio.to_thread(most_recent_blob.download_as_text)
-    # summary_content = most_recent_blob.download_as_text()
+
+    summary_content = most_recent_blob.download_as_text()
     html_summary_content = convert_markdown_to_html(summary_content)
 
     transcription_filename = most_recent_blob.name.replace(THERAPY_PREFIX, "")
@@ -1209,11 +1140,7 @@ async def most_recent_summary():
     )
 
     try:
-        # transcription_content = transcription_blob.download_as_text()
-        # Offload transcription download and conversion to HTML
-        transcription_content = await asyncio.to_thread(
-            transcription_blob.download_as_text
-        )
+        transcription_content = transcription_blob.download_as_text()
         html_transcription_content = convert_markdown_to_html(transcription_content)
     except NotFound:
         html_transcription_content = (
@@ -1225,56 +1152,5 @@ async def most_recent_summary():
     return render_template("summary.html", summary=combined_content)
 
 
-from llm_guard.vault import Vault
-from llm_guard.input_scanners import Anonymize
-from llm_guard.input_scanners.anonymize_helpers import BERT_LARGE_NER_CONF
-
-vault = Vault()
-
-scanner = Anonymize(
-    vault,
-    preamble="",
-    allowed_names=[],
-    hidden_names=["*"],
-    recognizer_conf=BERT_LARGE_NER_CONF,
-)
-
-
-@app.route("/anonymize", methods=["POST"])
-async def anonymize_data():
-    data = request.get_json()
-    if "prompt" not in data:
-        return jsonify({"error": "Missing 'prompt' field"}), 400
-    prompt = data["prompt"]
-    if prompt is None:
-        return jsonify({"error": "Prompt cannot be None"}), 400
-    sanitized_prompt, is_valid, risk_score = scanner.scan(data["prompt"])
-    # Offload the sanitization process to a separate thread
-    # sanitized_prompt, is_valid, risk_score = await asyncio.to_thread(
-    #     scanner.scan, data["prompt"]
-    # )
-
-    return jsonify(
-        {
-            "sanitized_prompt": sanitized_prompt,
-            "is_valid": is_valid,
-            "risk_score": risk_score,
-        }
-    )
-
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, threaded=True)
-
-    # # Configure the logging system
-    # logging.basicConfig(
-    #     level=DEBUG,
-    #     format='%(asctime)s [%(levelname)s] - %(message)s',
-    #     handlers=[
-    #         logging.FileHandler('appreg.log'),  # Output to a log file
-    #     ]
-    # )
-    # logger = logging.getLogger(__name__)
-    # serverHost = os.getenv('host')
-    # serverPort = os.getenv('port')
-    # app.run(host=serverHost,port=serverPort, debug=os.getenv('debug') )
+    app.run(host="0.0.0.0", port=5000)
