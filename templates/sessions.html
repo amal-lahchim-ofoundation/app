@@ -16,12 +16,12 @@
 <main class="login-body">
   <section>
     <div class="container mt-5">
-      <h5 class="text-white ml-4 pl-4">Session</h5>
+      <h5 class="text-white">Session</h5>
       <hr class="bg-white" />
       <section class="session">
         <div class="container">
           <h1 class="mb-5">Record Therapy Session</h1>
-          <div class="audio-player col-12 col-md-8">
+          <div class="audio-player">
             <button class="play-pause-btn" id="play-pause">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                 xmlns="http://www.w3.org/2000/svg">
@@ -106,7 +106,6 @@
       btn.id = id;
       btn.setAttribute('onclick', funString);
       btn.textContent = text;
-      btn.classList.add('btn', 'col-12', 'col-md-2', 'text-nowrap');
       controllerWrapper.append(btn);
     }
 
@@ -125,6 +124,8 @@
           addButton('record', 'record()', 'Start Recording');
           addButton('send', 'sendToLocalStorage()', 'Generate Summary');
           addButton('seeConversation', 'redirectToConversation()', 'See Conversation');
+          addButton('seeTranscription', 'redirectToTranscription()', 'See Transcription');
+          addButton('seeSummary', 'redirectToSummary()', 'See Summary');
           break;
 
         case 'Record':
@@ -143,6 +144,8 @@
           addButton('record', 'record()', 'Record Again');
           addButton('send', 'sendToLocalStorage()', 'Generate Summary');
           addButton('seeConversation', 'redirectToConversation()', 'See Conversation');
+          addButton('seeTranscription', 'redirectToTranscription()', 'See Transcription');
+          addButton('seeSummary', 'redirectToSummary()', 'See Summary');
           break
 
         default:
@@ -155,7 +158,13 @@
     }
 
     const redirectToConversation = () => {
+      window.location.href = '/therapy-diarization';
+    }
+    const redirectToTranscription = () => {
       window.location.href = '/therapy-transcription';
+    }
+    const redirectToSummary = () => {
+      window.location.href = '/general_summary';
     }
 
     // Custom Audio Player Logic
@@ -287,16 +296,16 @@
       myModal.show();
     }
 
-    function checkSummaryStatus() {
-      $.get('/check_summary_status', function(response) {
-        if (response.status === 'ready') {
-            window.location.href = '/most_recent_summary';
-        } else {
-            setTimeout(checkSummaryStatus, 10000); // Poll again after 1 min
-        }
-      }).fail(function() {
-        showModal('Error checking summary status. Please try again.');
-      });
-    }
+    // function checkSummaryStatus() {
+    //   $.get('/check_summary_status', function(response) {
+    //     if (response.status === 'ready') {
+    //         window.location.href = '/most_recent_summary';
+    //     } else {
+    //         setTimeout(checkSummaryStatus, 10000); // Poll again after 1 min
+    //     }
+    //   }).fail(function() {
+    //     showModal('Error checking summary status. Please try again.');
+    //   });
+    // }
   </script>
 {% endblock %}
