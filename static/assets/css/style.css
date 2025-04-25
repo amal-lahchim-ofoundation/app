@@ -1311,7 +1311,9 @@ output {
   padding: 15px;
   margin: 10px;
 }
-
+.fs-sm {
+  font-size: 10px !important;
+}
 .session button:hover {
   border-color: #49C2FE;
   background-color: rgba(34, 41, 139, 0.5);
