@@ -9,7 +9,7 @@ from flask import (
     jsonify,
     make_response,
 )
-
+from markupsafe import Markup
 from flask_session import Session
 import re
 import firebase_admin
@@ -28,6 +28,8 @@ import shutil
 from logger import logger
 import aiohttp
 import asyncio
+import hashlib
+from mnemonic import Mnemonic
 from functools import wraps
 import requests
 import requests
@@ -451,42 +453,65 @@ def redirect_if_logged_in(route_function):
 ##### Register Firebase #####
 
 
+########################################## Code for Registration, Login, logout, Recover and Reset Accounts ##########################################
+# Generate a mnemonic phrase using the Mnemonic library
+def generate_mnemonic_phrase(random_key):
+    mnemo = Mnemonic("english")
+    seed = random_key.encode("utf-8")
+    mnemonic_phrase = mnemo.generate(strength=128)
+
+    return mnemonic_phrase
+
+
+##### Register Firebase #####
 @app.route("/register", methods=["POST"])
 def register():
     password1 = request.form.get("pass")
     password2 = request.form.get("pass2")
-    # Password validation criteria
     password_regex = re.compile(
         r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=<>?])[A-Za-z\d!@#$%^&*()_\-+=<>?]{12,}$"
     )
 
     if not password1 or not password2:
-        flash("Please fill in both password fields.")
+        flash("Please fill in both password fields.", "error")
         return redirect(url_for("register_page"))
 
     if password1 != password2:
-        flash("Passwords do not match.")
+        flash("Passwords do not match.", "error")
         return redirect(url_for("register_page"))
 
     if not password_regex.match(password1):
-        flash("Password does not meet the required criteria.")
+        flash("Password does not meet the required criteria.", "error")
         return redirect(url_for("register_page"))
 
-    # Generate a random key
-    random_key = str(uuid.uuid4())
+    # Generate mnemonic phrase
+    mnemo = Mnemonic("english")
+    mnemonic_phrase = mnemo.generate(strength=128)
 
-    # Store the random key and hashed password in Firebase Realtime Database
-    ref = db.reference("users")
-    ref.child(random_key).set(
-        {"random_key": random_key, "password": generate_password_hash(password1)}
+    # Derive random_key from the mnemonic phrase
+    seed = mnemonic_phrase.encode("utf-8")
+    random_key = hashlib.sha256(seed).hexdigest()
+
+    # Hash the password before storing
+    hashed_password = generate_password_hash(password1)
+
+    # Store in session for display
+    session["random_key"] = random_key
+    session["mnemonic_phrase"] = mnemonic_phrase
+    print(f"mnemonic_phrase: {mnemonic_phrase}")
+    print(f"random_key: {random_key}")
+
+    # Save user data in Firebase
+    USERS_REF.child(random_key).set(
+        {"password": hashed_password, "random_key": random_key}
     )
 
     flash(
-        f"Your registration key is: {random_key}. Please save it for future logins.",
+        f"Registration successful! Your registration key is: {random_key}. Please save it for future logins.",
         "success",
     )
-    session["random_key"] = random_key
-    logging.info("user registered with random key [" + random_key + "]")
+
+    logging.info("User registered with random key [" + random_key + "]")
     return redirect(url_for("register_page"))
 
 
