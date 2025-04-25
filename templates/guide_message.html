@@ -20,6 +20,8 @@
     border: 0;
     border-radius: 20px;
     position: relative;
+    font-size: 14px;
+    padding: 0;
 }
 
 .modal-header {
@@ -54,8 +56,8 @@
         {% block modal_content %}
         {% endblock %}
       </div>
-      <div class="d-flex justify-content-end m-2">
-        <button type="button" class="btn btn-dark btn-sm" onclick="closeModal()" data-bs-dismiss="modal" aria-label="Close">Skip</button>
+      <div class="d-flex justify-content-end m-3 mb-3">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeModal()" data-bs-dismiss="modal" aria-label="Close">Skip</button>
       </div> 
     </div>
     <div class="modal-tail"></div>
