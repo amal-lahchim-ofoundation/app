@@ -586,6 +586,46 @@ def recover_username():
     return render_template("recover_username.html")
 
 
+@app.route("/recover_password", methods=["GET", "POST"])
+def recover_password():
+    if request.method == "POST":
+        try:
+            mnemonic_phrase = request.form.get("mnemonic_phrase").strip()
+            random_key = request.form.get("random_key").strip()
+
+            # Validate mnemonic phrase
+            mnemo = Mnemonic("english")
+            if not mnemo.check(mnemonic_phrase):
+                return (
+                    jsonify({"error": "Invalid recovery key. Please try again."}),
+                    400,
+                )
+
+            # Derive the random key from the mnemonic phrase
+            seed = mnemonic_phrase.encode("utf-8")
+            derived_random_key = hashlib.sha256(seed).hexdigest()
+
+            # Check if the derived random key matches the submitted random key
+            if derived_random_key != random_key:
+                return (
+                    jsonify({"error": "Recovery Key and username do not match."}),
+                    400,
+                )
+
+            # Check if the random key exists in the database
+            user_data = USERS_REF.child(random_key).get()
+            if not user_data:
+                return jsonify({"error": "User not found."}), 400
+
+            # If everything is valid, return success
+            return jsonify({"success": True}), 200
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    return render_template("recover_password.html")
+
+
 @app.route("/login", methods=["GET"])
 @redirect_if_logged_in  # Apply the redirect_if_logged_in decorator
 def login_page():
