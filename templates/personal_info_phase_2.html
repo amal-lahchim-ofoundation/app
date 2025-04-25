@@ -1,34 +1,30 @@
-{% include 'phases_header.html' %}
+{% include 'sidebar.html' %}
 {% extends 'guide_message.html' %}
 {% block general %}
-  <main id="main" class="mt-5">
-    <section class="container-fluid p-0 pt-5">
-      <div class="row pt-5">
-        <div class="col-1"></div>
-        <div class="col-6 text-xs">
-          <h1 class="text-sm">Begin with Personal Information</h1>
-          <h5 class="ph1-h5">Please fill out the following details to continue.</h5>
-        </div>
-        <div class="col-5">
-          <div class="image-container">
-            <div class="text-overlay">PHASE 2</div>
-            <img src="{{ url_for('static', filename='../static/assets/img/Vector 1.png') }}" alt="banner" class="right-image"/>
-          </div>
-        </div>
-      </div>
+<body class="login-body body">
+
+  <main class="container">
+    <div class="row d-flex align-items-start ">
+      <div class="col-12 col-md-10 mt-5 pt-5">
+
+    <section class="p-0 pt-3">
+      <h5 class="text-white">Personal Information (PHASE 2)</h5>
+      <hr class="bg-white"/>
     </section>
     <section class="container">
       <form action="/personal_info_phase_2" method="post">
         {% for topic in questions %}
         {% for item in topic.questions %}
-        <div class="mb-4 rounded-section p-3 mb-2 question border">
+        <div class="mb-4 rounded-section p-3 mb-2 question border bg-white text">
           <!-- <span class="question-number">{{ loop.index }}</span> -->
           <label class="form-label p-2">{{ item.question }}</label>
           <div class="slider-container">
-            <input type="range" min="0" max="100" value="0" class="slider" id="slider-{{ topic.topic }}-{{ loop.index }}"
-                   name="{{topic.topic}}_phase_2_score_{{ loop.index }}"
-                   oninput="updateOutput(this.value, '{{ topic.topic }}-{{ loop.index }}')">
-            <output id="slider-output-{{ topic.topic }}-{{ loop.index }}">0</output>
+            <div class="d-flex gap-1 align-items-center">
+              <input type="range" min="0" max="100" value="0" class="slider" id="slider-{{ topic.topic }}-{{ loop.index }}"
+                    name="{{topic.topic}}_phase_2_score_{{ loop.index }}"
+                    oninput="updateOutput(this.value, '{{ topic.topic }}-{{ loop.index }}')">
+              <output class="d-flex align-items-center text-center" id="slider-output-{{ topic.topic }}-{{ loop.index }}">0</output>
+            </div>
           </div>
           <div id="slider-interpretation-{{ topic.topic }}-{{ loop.index }}" class="slider-interpretation">Never</div>
           <input type="text" name="{{topic.topic}}_phase_2_comments_{{ loop.index }}"
@@ -37,7 +33,7 @@
         </div>
         {% endfor %}
         {% endfor %}
-        <button type="submit" id="submit-btn">
+        <button type="submit" class="btns" id="submit-btn">
           Next <span id="spinner" class="spinner-border spinner-border-sm" style="display:none;"></span>
         </button>
       </form>
