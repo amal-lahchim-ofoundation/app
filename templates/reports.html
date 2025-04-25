@@ -1,14 +1,31 @@
-{% extends 'base.html' %}
+
+{% include 'sidebar.html' %}
 {% block custom_style %}
   <style>
-    .card {
-      background-color: transparent;
-      border: 2px solid #E28647;
-      transition: border-color 0.3s;
-      border-radius: 10px;
-      color: #fff;
+    body {
+      background-color: #00112D;
     }
-    .card:hover {
+
+    .card {
+      background: #FFFFFF;
+      /* width: 80%; */
+      border-top-left-radius: 40px;
+      border-bottom-right-radius: 40px;
+      border-top-right-radius: 0;
+      border-bottom-left-radius: 0;
+      color: #00112D;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .card-text {
+      font-size: 14px;
+    }
+
+    /* .card:hover {
       border-color: #49C2FE;
       background-color: rgba(34, 41, 139, 0.5);
     }
@@ -23,44 +40,38 @@
 
     .fade-in-bottom {
     animation: fadeInUp 3s;
-    }
+    } */
   </style>
 {% endblock %}
 {% block content %}
-  <main class="login-body">
-    <div class="container mt-5 pt-5">
-      <h5 class="text-white">Reports</h5>
-      <hr class="bg-white"/>
-      <div class="row mt-5">
-        {% for report in reports %}
-          <div class="col-md-6 p-3">
-            <div class="card mb-4
-              {% if report.id == '01' %}
-                fade-in-left
-              {% elif report.id == '02' %}
-                fade-in-right
-              {% elif report.id in ['03', '04'] %}
-                fade-in-bottom
-              {% endif %}"
-            >
-              <div class="card-body row g-4">
-                <div class="col-md-6">
-                  <h1 class="card-title">{{ report.id }}</h1>
-                </div>
-                <div class="col-md-6">
-                  <a href="{{ report.url }}" class="mt-0"><img src="{{ url_for('static', filename='../static/assets/img/book-open.png') }}" alt="Logo" class="float-end"></a>
-                </div>
-                <div class="col-md-9">
-                  <h4 class="card-title">{{ report.title }}</h4>
-                </div>
-                <div class="col-md-3">
-                  <a href="{{ report.url }}" class="mt-0"><img src="{{ url_for('static', filename='../static/assets/img/download.png') }}" alt="Logo" class="float-end"></a>
+<body class="login-body">
+  <main class="container">
+    <div class="row d-flex align-items-start">
+      <div class="col-12 col-md-9 mt-5 pt-5">
+        <h5 class="text-white">Questionnaire Reports</h5>
+        <hr class="bg-white"/>
+        <div class="row mt-5 d-flex justify-content-start align-items-stretch">
+          {% if summaries %}
+            {% for report in reports %}
+              <div class="col-12 col-md-3 p-3">
+                <div class="card mb-4 h-100">
+                  <div class="card-body row g-4 justify-content-center align-items-center">
+                    <h1 class="text-center">{{ report.id }}</h1>
+                    <h4 class="text-center">{{ report.title }}</h4>
+                    <a href="{{ report.url }}" class="text-decoration-none">
+                      <button class="btn-orange w-75">Show</button>
+                    </a>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        {% endfor %}
+            {% endfor %}
+          {% else %}
+            <p class="text-white text-center">No questionnaire report available.</p>
+            <a class="text-info hover-text-info text-decoration-underline" href="{{ url_for('appointment') }}">Click here to fill the qustionnaire and get report!</a>
+          {% endif %}
+        </div>
       </div>
     </div>
   </main>
+</body>
 {% endblock %}
