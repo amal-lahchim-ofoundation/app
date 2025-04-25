@@ -1,4 +1,4 @@
-# python-multipart
+mnemonic
 celery
 redis
 pydantic
