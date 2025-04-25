@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% include 'sidebar.html' %}
 {% block custom_style %}
   <style>
     h2 {
@@ -9,10 +9,16 @@
 {% endblock %}
 
 {% block content %}
-  <main class="login-body mt-5 pt-5 mb-5">
-    <section class="bg-white mx-auto p-4 shadow custom-rounded w-75 mt-5 p-5 pt-5" >
+<body class="login-body">
+  <main id="main" class="col-md-10 mt-5 pt-5 mb-5">
+      <section class=" bg-white mx-auto p-4 shadow custom-rounded w-75 mt-5 p-5 pt-5">
+        <div class=" mt-5">
+  <!-- <main class="login-body mt-5 pt-5 mb-5"> -->
+    <!-- <section class="" > -->
       <h2>Therapy Session Summary</h2>
       {{ summary|safe }}
+        </div>
     </section>
   </main>
+</body>
 {% endblock %}
