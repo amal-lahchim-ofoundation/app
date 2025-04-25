@@ -7,8 +7,8 @@
         <form action="/login" method="post" class="login-form shadow-sm bg-white">
           <h2 class="mb-4 text-center">Log in</h2>
           <div class="mb-3">
-            <label for="random_key" class="form-label">Random Key</label>
-            <input type="text" class="form-control" id="random_key" placeholder="Enter Your Random Key" name="random_key" required>
+            <label for="random_key" class="form-label">Username</label>
+            <input type="text" class="form-control" id="random_key" placeholder="Enter Your Username" name="random_key" required>
           </div>
           <div class="mb-3">
             <label for="password" class="form-label">Password</label>
@@ -18,6 +18,9 @@
             <button type="submit" data-bs-toggle="modal" data-bs-target="#buy-ticket-modal" data-ticket-type="premium-access" value="login">LOGIN</button>
           </div>
             <p class="message mt-3 text-center">Not registered? <a href="{{ url_for('register') }}" data-bs-toggle="modal" data-bs-target="#registerModal">Create an account</a></p>
+            <!-- <p class="message mt-3 text-center">Not registered? <a href="{{ url_for('register') }}">Create an account</a></p> -->
+            <p class="message mt-3 text-center"><a href="{{ url_for('recover_username') }}">Forgot Username?</a></p>
+            <p class="message mt-3 text-center"><a href="{{ url_for('recover_password') }}">Forgot Password?</a></p>
         </form>
       </div>
     </section>
@@ -69,7 +72,8 @@
         </div>
       </div>
     </div>
-  </main><!-- End #main -->
+  </main>
+  <!-- End #main -->
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
