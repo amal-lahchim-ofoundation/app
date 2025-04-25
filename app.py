@@ -1074,43 +1074,6 @@ def personal_info_phase_3():
     )
 
 
-@app.route("/therapy_sessions", methods=["GET", "POST"])
-@login_required
-def therapy_sessions():
-    if "random_key" not in session:
-        return "User not authenticated", 401
-
-    random_key = session["random_key"]
-    prefix = f"{THERAPY_SESSION_PREFIX}{random_key}/"
-    bucket = storage.bucket()
-    blobs = bucket.list_blobs(prefix=prefix)
-
-    summaries = []
-    for blob in blobs:
-        if blob.name.endswith(".md"):
-            filename = blob.name.split("/")[-1]
-            timestamp_str = filename.replace(THERAPY_PREFIX, "").replace(".md", "")
-
-            # Convert Unix timestamp to readable format
-            try:
-                timestamp = datetime.utcfromtimestamp(int(timestamp_str))
-                formatted_date = timestamp.strftime("%d/%m/%y")  # Convert to dd/mm/yy
-            except ValueError:
-                formatted_date = "Unknown Date"
-
-            summaries.append(
-                {
-                    "filename": filename,
-                    "timestamp": formatted_date,
-                    "raw_timestamp": int(timestamp_str),
-                }
-            )
-
-    # Sorting Summaries: Most Recent First
-    summaries.sort(key=lambda x: x["raw_timestamp"], reverse=True)
-    return render_template("therapy_sessions.html", summaries=summaries)
-
-
 @app.route("/appointment", methods=["GET", "POST"])
 @login_required
 def appointment():
@@ -1269,6 +1232,46 @@ def most_recent_summary():
     combined_content = f"<h2>Summary</h2>{html_summary_content}<hr><h2>Transcription</h2>{html_transcription_content}"
 
     return render_template("summary.html", summary=combined_content)
+
+
+############################# Code for Fetching Transcription, Diarization and Summary more related to frontend ##########################
+
+
+@app.route("/therapy_sessions", methods=["GET", "POST"])
+@login_required
+def therapy_sessions():
+    if "random_key" not in session:
+        return "User not authenticated", 401
+
+    random_key = session["random_key"]
+    prefix = f"{THERAPY_SESSION_PREFIX}{random_key}/"
+    bucket = storage.bucket()
+    blobs = bucket.list_blobs(prefix=prefix)
+
+    summaries = []
+    for blob in blobs:
+        if blob.name.endswith(".md"):
+            filename = blob.name.split("/")[-1]
+            timestamp_str = filename.replace(THERAPY_PREFIX, "").replace(".md", "")
+
+            # Convert Unix timestamp to readable format
+            try:
+                timestamp = datetime.utcfromtimestamp(int(timestamp_str))
+                formatted_date = timestamp.strftime("%d/%m/%y")  # Convert to dd/mm/yy
+            except ValueError:
+                formatted_date = "Unknown Date"
+
+            summaries.append(
+                {
+                    "filename": filename,
+                    "timestamp": formatted_date,
+                    "raw_timestamp": int(timestamp_str),
+                }
+            )
+
+    # Sorting Summaries: Most Recent First
+    summaries.sort(key=lambda x: x["raw_timestamp"], reverse=True)
+    return render_template("therapy_sessions.html", summaries=summaries)
 
 
 if __name__ == "__main__":
