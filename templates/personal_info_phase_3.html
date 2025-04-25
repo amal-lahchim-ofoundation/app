@@ -1,28 +1,22 @@
-{% include 'phases_header.html' %}
+{% include 'sidebar.html' %}
 {% extends 'guide_message.html' %}
 {% block general %}
-  <main id="main" class="mt-5">
-    <section class="container-fluid p-0 pt-5">
-      <div class="row pt-5">
-        <div class="col-1"></div>
-        <div class="col-6 text-xs">
-          <h1 class="text-sm">Begin with Personal Information</h1>
-          <h5 class="ph1-h5">Please fill out the following details to continue.</h5>
-        </div>
-        <div class="col-5">
-          <div class="image-container">
-            <div class="text-overlay">PHASE 3</div>
-            <img src="{{ url_for('static', filename='../static/assets/img/Vector 1.png') }}" alt="banner" class="right-image"/>
-          </div>
-        </div>
-      </div>
+<body class="login-body">
+
+  <main class="container">
+    <div class="row d-flex align-items-start ">
+      <div class="col-12 col-md-10 mt-5 pt-5">
+
+    <section class="p-0 pt-3">
+      <h5 class="text-white">Personal Information (PHASE 3)</h5>
+      <hr class="bg-white"/>
     </section>
     <section class="inner-page">
       <div class="container">
         <form action="/personal_info_phase_3" method="post">
           {% for topic in questions %}
             {% for item in topic.questions %}
-                <div class="mb-4 rounded-section p-3 mb-2 question border">
+                <div class="mb-4 rounded-section p-3 mb-2 question border bg-white text">
                     <!-- <span class="question-number">{{ loop.index }}</span> -->
                     <label class="form-label p-2">{{ item.question }}</label>
                     {% if item.type == 'select' %}
@@ -36,8 +30,10 @@
                         <textarea name="question_{{ loop.index }}" class="form-control" rows="4" placeholder="{{ item.placeholder | default('If this is an important topic related to your mental issue, please write more (optional).') }}" required></textarea>
                     {% elif item.type == 'group' %}
                         <div class="slider-container">
+                          <div class="d-flex gap-1 align-items-center">
                             <input type="range" min="0" max="100" value="0" class="slider" id="slider{{ loop.index }}" name="{{topic.topic}}_phase_3_score_{{ loop.index }}" oninput="updateOutput(this.value, {{ loop.index }})">
-                            <output id="slider-output{{ loop.index }}">0</output>
+                            <output class="d-flex align-items-center text-center" id="slider-output{{ loop.index }}">0</output>
+                          </div>
                         </div>
                         <div id="slider-interpretation{{ loop.index }}" class="slider-interpretation">Never</div>
                         <input type="text" name="{{topic.topic}}_phase_3_comments_{{ loop.index }}" placeholder="If this is an important topic related to your mental issue, please write more (optional)." class="form-control mt-2">
@@ -47,7 +43,7 @@
                 </div>
             {% endfor %}
           {% endfor %}
-            <button type="submit" class="btn btn-primary" id="submit-btn">
+            <button type="submit" class="btns" id="submit-btn">
                 Submit <span id="spinner" class="spinner-border spinner-border-sm" style="display:none;"></span>
             </button>
         </form>
