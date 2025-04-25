@@ -1068,7 +1068,7 @@ def personal_info_phase_3():
         # Save updated user data to the database
         USERS_REF.child(session["random_key"]).set(user_data)
         research_data("personal_info_responses_phase_3", write_report=True)
-        return redirect(url_for("treatment"))
+        return redirect(url_for("reports"))
     return render_template(
         "personal_info_phase_3.html", questions=personal_info_questions_phase_3
     )
@@ -1114,6 +1114,24 @@ def therapy_sessions():
 @app.route("/appointment", methods=["GET", "POST"])
 @login_required
 def appointment():
+    if request.method == "POST":
+        appointment_date = request.form.get("appointment_date")
+        appointment_time = request.form.get("appointment_time")
+        therapist = request.form.get("therapist")
+
+        # Store appointment data in Firebase
+        if "random_key" in session:
+            appointment_data = {
+                "date": appointment_date,
+                "time": appointment_time,
+                "therapist": therapist,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            }
+            USERS_REF.child(session["random_key"]).child("appointments").push(
+                appointment_data
+            )
+            return redirect(url_for("personal_info_phase_1"))
+
     return render_template("appointment.html")
 
 
