@@ -667,10 +667,10 @@ def logout():
     logging.debug("session is cleared")
     session["new_session_can_start"] = True
     logging.debug("new_session_can_start is set to True")
-    # flash('Successfully logged out!')
     return redirect(url_for("home"))
 
 
+########################################## End of Code for Registration, Login, Recover Accounts #########################################
 #####A function that doesn't alow to acces that page if you are not loged in ####
 
 
@@ -1003,38 +1003,13 @@ def get_user():
 @app.route("/reports", methods=["GET", "POST"])
 @login_required
 def reports():
-
-    user_data = get_user()
-    personal_info_phase_3_complete = user_data.get(
-        "personal_info_phase_3_completed", False
-    )
-    # Fetch the reports (this is just a placeholder, replace with actual logic)
     reports = [
         {
             "id": "01",
             "title": "Diagnose Mental Disorder Report",
             "download": "",
-            "url": "./first_report" if personal_info_phase_3_complete else "#",
+            "url": "./first_report",
         },
-        {
-            "id": "02",
-            "title": "Therapy Session Reports",
-            "download": ".",
-            "url": "./therapy_sessions",
-        },
-        {
-            "id": "03",
-            "title": "Report 3",
-            "download": "Content for report 3.",
-            "url": "#",
-        },
-        {
-            "id": "04",
-            "title": "Report 4",
-            "download": "Content for report 4.",
-            "url": "#",
-        },
-        # >>>>>>> 8af9dc25e96f7522a2b96603aceb37231efa913e
     ]
     return render_template("reports.html", reports=reports)
 
