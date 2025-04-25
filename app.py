@@ -626,6 +626,31 @@ def recover_password():
     return render_template("recover_password.html")
 
 
+@app.route("/reset_password", methods=["GET", "POST"])
+def reset_password():
+    if "random_key" not in session:
+        flash("You must recover your account first.", "error")
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        new_password = request.form.get("new_password")
+        confirm_password = request.form.get("confirm_password")
+
+        if new_password != confirm_password:
+            flash("Passwords do not match.", "error")
+            return redirect(url_for("reset_password"))
+
+        random_key = session["random_key"]
+
+        # Update the password in the Firebase database
+        ref = db.reference("users")
+        ref.child(random_key).update({"password": generate_password_hash(new_password)})
+
+        flash("Password reset successful! You can now log in.", "success")
+        return redirect(url_for("login"))
+    return render_template("reset_password.html")
+
+
 @app.route("/login", methods=["GET"])
 @redirect_if_logged_in  # Apply the redirect_if_logged_in decorator
 def login_page():
