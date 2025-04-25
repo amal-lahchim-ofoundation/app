@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block content %}
+<main class="login-body h-100">
+    <div class="container mt-5 pt-5 mb-5">
+      <form id="recoverUsernameForm" class="login-form shadow-sm bg-white mt-5 mb-5 pb-5" method="POST" action="{{ url_for('recover_username') }}">
+        <h2 class="text-center mb-5">Recover Username</h2>
+        <div>
+          <label for="password" class="form-label mt-3">Password</label>
+          <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+        <div>
+          <label for="mnemonic_phrase" class="form-label mt-3">Recovery Key</label>
+          <textarea class="form-control" id="mnemonic_phrase" name="mnemonic_phrase" rows="6" placeholder="Enter your recovery key" required></textarea>
+        </div>
+          <button type="submit" class="btn-orange mt-5 w-100">Recover</button>
+      </form>
+    </div>
+
+    <!-- Random Key Modal -->
+    <div class="modal fade" id="randomKeyModal" tabindex="-1" aria-labelledby="randomKeyModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="randomKeyModalLabel">Username Recovery Successful</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <label class="form-label">Your Username:</label>
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" id="randomKeyInput" readonly />
+              <button class="btn-outline btn-orange" id="copyRandomKeyButton">Copy</button>
+            </div>
+            <p class="text-success">Please save this username securely for future use.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+            <a href="{{ url_for('login_page') }}" class="btn-orange">Go to Login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="errorModalLabel">Error</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="errorModalBody">
+                    <!-- Error message will be dynamically inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const recoverUsernameForm = document.getElementById('recoverUsernameForm');
+            const randomKeyModal = new bootstrap.Modal(document.getElementById('randomKeyModal'));
+            const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+            const randomKeyInput = document.getElementById('randomKeyInput');
+            const errorModalBody = document.getElementById('errorModalBody');
+
+            recoverUsernameForm.addEventListener('submit', function (event) {
+                event.preventDefault(); // Prevent default form submission
+
+                const formData = new FormData(recoverUsernameForm);
+
+                fetch(recoverUsernameForm.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'An error occurred');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Populate the random key input with the recovered username
+                    randomKeyInput.value = data.random_key;
+                    // Show the success modal
+                    randomKeyModal.show();
+
+                    // Copy button handlers
+                    function setupCopyButton(buttonId, inputId) {
+                      var button = document.getElementById(buttonId);
+                      var input = document.getElementById(inputId);
+                      
+                      if (button && input) {
+                        button.addEventListener('click', function() {
+                          navigator.clipboard.writeText(input.value)
+                            .then(function() {
+                              button.textContent = 'Copied!';
+                              setTimeout(function() {
+                                button.textContent = 'Copy';
+                              }, 2000);
+                            })
+                            .catch(function(err) {
+                              console.error('Error copying text:', err);
+                            });
+                        });
+                      }
+                    }
+
+                    // Setup copy buttons
+                    setupCopyButton('copyRandomKeyButton', 'randomKeyInput');
+                })
+                .catch(error => {
+                    // Populate the error modal with the error message
+                    errorModalBody.textContent = error.message;
+                    // Show the error modal
+                    errorModal.show();
+                });
+            });
+        });
+    </script>
+</main>
+{% endblock %}
