@@ -3,6 +3,7 @@ instance/*
 !instance/.gitignore
 .webassets-cache
 .env
+.DS_Store
 databaseKey.json
 pubsubKey.json
 /ven/
