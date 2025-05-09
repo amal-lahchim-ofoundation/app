@@ -42,7 +42,7 @@
                   <h3 class="text-center">{{ summary.timestamp }}</h3>
                   <h3 class="text-center mb-2">{{ summary.time }}</h3>
                   <h5 class="text-center">Dr. Sara Jims</h5>
-                  <a href="{{ url_for('summary_reporting', file=summary.filename) }}">
+                  <a href="{{ url_for('summary_reporting', file=summary.filename, user_id=session['random_key']) }}">
                     <button class="btn-orange w-75">Show</button>
                   </a>
                 </div>

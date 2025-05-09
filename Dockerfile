@@ -1,37 +1,33 @@
-FROM python:3.12-slim
+# Use official Python image
+FROM python:3.11
 
-RUN rm -rf /var/lib/apt/lists/* && apt-get update && \
-    apt-get install -y build-essential gcc ffmpeg --fix-missing && \
-    rm -rf /var/lib/apt/lists/*
-
-
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPATH="/app"
-
+# Set working directory
 WORKDIR /app
 
-COPY requirements2.txt /app/requirements2.txt
+# Install system-level dependencies
+RUN apt-get update && \
+    apt-get install -y ffmpeg && \
+    apt-get clean
 
-RUN mkdir -p /root/.cache/pip && \
-    pip install --no-cache-dir -r requirements2.txt
-    
-RUN pip install PyMuPDF flask\[async\] python-multipart
+# Copy environment variables
+COPY .env ./
 
-COPY . /app
+# Copy service account keys
+COPY firebase_key.json ./
+COPY pubsub_key.json ./
 
-COPY databaseKey.json /app/databaseKey.json
-RUN chmod 644 /app/databaseKey.json
-COPY pubsubKey.json ./pubsubKey.json
-RUN chmod 644 ./pubsubKey.json
-COPY .env /app/.env
-RUN chmod 600 /app/.env
+# Copy requirements and install them
+COPY clean_requirements.txt .
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r clean_requirements.txt
 
-ENV FLASK_APP=app.py \
-    FLASK_RUN_HOST=0.0.0.0 \
-    FLASK_RUN_PORT=5000 \
-    FIREBASE_DATABASE_CERTIFICATE=/app/databaseKey.json
-    
+
+
+# Copy the entire project
+COPY . .
+
+# Flask default port
 EXPOSE 5000
 
-CMD ["python3", "app.py"]
+# Run the app
+CMD ["python", "app.py"]

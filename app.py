@@ -10,6 +10,14 @@ from flask import (
     make_response,
 )
 from markupsafe import Markup
+import re
+import json
+import boto3
+from collections import defaultdict
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, TextClassificationPipeline
+import markdown
+from datetime import datetime
+import tiktoken 
 from flask_session import Session
 import re
 import firebase_admin
@@ -21,6 +29,7 @@ from flask import session
 from dotenv import load_dotenv
 import json
 import logging
+import openai
 import os
 import requests
 import time
@@ -34,14 +43,13 @@ from functools import wraps
 import requests
 import requests
 from concurrent.futures import ThreadPoolExecutor
-import datetime
+import tempfile
 import random
 from questions.personal_info import (
     personal_info_questions_phase_1,
     personal_info_questions_phase_2,
     personal_info_questions_phase_3,
 )
-import datetime
 from multiprocessing.dummy import Pool
 import os
 from google.api_core.exceptions import NotFound
@@ -58,7 +66,7 @@ from google.oauth2 import service_account
 import shutil
 
 THERAPY_SESSION_PREFIX = "therapy_session"
-THERAPY_TRANSCRIPTION_PREFIX = "therapy_transcription/transcription"
+THERAPY_TRANSCRIPTION_PREFIX = "therapy_transcription/transcription/"
 THERAPY_DIARIZATION_PREFIX = "therapy_transcription/diarization"
 THERAPY_PREFIX = "therapy_"
 
@@ -70,7 +78,6 @@ app.config["SESSION_PERMANENT"] = False
 Session(app)
 load_dotenv()
 DATABASE_URL = os.getenv("FIREBASE_DATABASE_URL")
-TRANSCRIPTION_API_URL = os.getenv("TRANSCRIPTION_API_URL")
 result = []
 # Directories
 UPLOADED_DIR = "uploaded_audio"
@@ -80,11 +87,10 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 PUB_SUB_KEY = os.getenv("PUB_SUB_KEY")
 
 transcription_results = {}
-transcription_lock = asyncio.Lock()  # Prevent race conditions
+transcription_lock = asyncio.Lock() 
 abs_path = ""
 audio_file_name = ""
 processing_files = {}
-### Google Cloud pub/sub setup ###
 gg_credentials = service_account.Credentials.from_service_account_file(PUB_SUB_KEY)
 publisher = pubsub_v1.PublisherClient(credentials=gg_credentials)
 subscriber = pubsub_v1.SubscriberClient(credentials=gg_credentials)
@@ -93,9 +99,15 @@ GG_TOPIC_ID = os.getenv("GG_TOPIC_ID")
 topic_path = publisher.topic_path(GG_PROJECT_ID, "audio-transcriptions")
 GG_SUBSCRIPTION_ID = os.getenv("GG_SUBSCRIPTION_ID")
 subscription_path = subscriber.subscription_path(GG_PROJECT_ID, GG_SUBSCRIPTION_ID)
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
+def set_transcriptions_ref(user_id, folder_id):
+    global transcriptions_ref
+    transcriptions_ref = db.reference(f"users/{user_id}/transcriptions/{folder_id}")
 
-#### 🙌🏼 CHUNKING AUDIO AND PUSH TO FIREBASE 🙌🏼 ####
+def store_result(folder_id, filename, data):
+    transcriptions_ref.child(filename).set(data)
+
 user_key = None
 
 
@@ -285,46 +297,217 @@ def split_audio_internal(
     return {"message": "Audio processed successfully", "chunks": chunk_paths}
 
 
-def process_audio(
-    filename: str,
-    chunk_length: int = 120000,
-    output_format: str = "wav",
-    silence_based: bool = False,
-):
-    return split_audio_internal(filename, chunk_length, output_format, silence_based)
 
-
-#### 🙌🏼 CHUNKING AUDIO AND PUSH TO FIREBASE 🙌🏼 ####
-
-
-@app.route("/generate_summary", methods=["POST"])
-def generate_summary():
-    user_key = session["random_key"]
-    set_user_key(user_key)
-    global processing_flag
-    if "audio_file" not in request.files:
-        return jsonify({"error": "No file provided"}), 400
-    audio_file = request.files["audio_file"]
+def llama_guard_anonymize_and_check(text):
+    """
+    Send raw text to HIPAA instance for anonymization.
+    """
+    hippa_instance_url = "http://hippa-instance.duckdns.org:8080/process"
     try:
-        local_audio_path = os.path.join(UPLOADED_DIR, audio_file.filename)
-        result_audio_save = audio_file.save(local_audio_path)
-        file_name = f"{audio_file.filename}.wav"
-        wav_audio_path = f"{local_audio_path}.wav"
-        converted_file_name = convert_webm_to_wav(local_audio_path, wav_audio_path)
-        processing_files[file_name] = True
-        abs_audio_path = os.path.abspath(wav_audio_path)
-        thread = threading.Thread(target=process_audio, args=(file_name,))
-        thread.start()
-        if not processing_files[file_name]:
-            return jsonify({"file_name": "processing..."}), 200
-        os.remove(f"uploaded_audio/{audio_file.filename}")
-        return jsonify({"file_name": file_name}), 200
+        response = requests.post(hippa_instance_url, json={"text": text})
+        print("🔍 HIPAA returned:", response.json())
+
+        response.raise_for_status()
+        return response.json().get("anonymized_text", text)
+    except Exception as e:
+        print(f"❌ HIPAA instance failed: {e}")
+        return text  # fallback if HIPAA server is unreachable
+def split_text_into_chunks(text, max_tokens=3000):
+    enc = tiktoken.encoding_for_model("gpt-4")
+    words = text.split()
+    chunks, current_chunk = [], []
+    current_tokens = 0
+
+    for word in words:
+        word_tokens = len(enc.encode(word + " "))
+        if current_tokens + word_tokens > max_tokens:
+            chunks.append(" ".join(current_chunk))
+            current_chunk, current_tokens = [], 0
+        current_chunk.append(word)
+        current_tokens += word_tokens
+
+    if current_chunk:
+        chunks.append(" ".join(current_chunk))
+    return chunks
+
+def compress_transcript_for_diagnosis(chunk):
+    prompt = f"""
+You are a clinical assistant. A therapist will later analyze this session.
+
+Summarize this 1-hour therapy transcript in a way that preserves:
+- The client’s symptoms
+- Key statements and expressions
+- Emotional tone and topics discussed
+
+Keep it detailed enough so that another therapist reading the summary can perform a diagnosis later.
+
+Transcript:
+{chunk}
+"""
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.5,
+            max_tokens=1000  # Use more if available
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"Error summarizing transcript: {e}")
+        return "" # fallback to original
+
+
+def generate_diagnostic_report(transcript_text):
+    chunks = split_text_into_chunks(transcript_text)
+    compressed_parts = [compress_transcript_for_diagnosis(c) for c in chunks]
+    merged_summary = "\n\n".join(compressed_parts)
+    prompt = f"""
+You are an experienced licensed therapist.
+
+The following is the transcription of a therapy session between a therapist and a client:
+
+{merged_summary}
+
+I want you to work step-by-step as follows:
+
+Step 1: Carefully analyze the transcription. Identify and list all the potential psychological disorders based on the client's speech and behavior.
+
+Step 2: For each potential disorder identified in Step 1:
+- Explain the likely causes (based on the session content).
+- Suggest evidence-based treatments.
+
+Step 3: Based on the potential disorders and their treatments from Step 2:
+- Create a detailed weekly plan with specific exercises and homework activities the patient should do to help improve their condition.
+
+Step 4: Based directly on the exercises and homework from Step 3:
+- Design a questionnaire that the patient will fill out after one week.
+- The questionnaire should measure:
+  - Whether the exercises and homework were completed.
+  - How effective and helpful the patient found each task.
+  - Any changes in the patient's symptoms compared to the previous week.
+
+Important: Maintain a clinical, supportive tone. Be detailed but clear and practical, as if preparing real therapy session material for use with a patient.
+"""
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=2000
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"Error calling OpenAI: {e}")
+        return "Error generating diagnostic report."
+
+
+@app.route("/generate_summary", methods=["GET", "POST"])
+def generate_summary():
+    if request.method == "GET":
+        return render_template("upload_audio.html")
+
+    audio_file = request.files.get("audio_file")
+    if not audio_file:
+        return jsonify({"error": "No audio file provided"}), 400
+
+    user_id = session.get("random_key")
+    if not user_id:
+        return jsonify({"error": "User ID not found in session"}), 400
+
+    timestamp_now = int(time.time())
+    folder_id = str(timestamp_now)
+    temp_audio_path = os.path.join(tempfile.gettempdir(), audio_file.filename)
+    audio_file.save(temp_audio_path)
+
+    storage_path = f"therapy_audio/{user_id}/session_{folder_id}/therapy_{folder_id}.wav"
+    blob = bucket.blob(storage_path)
+    blob.chunk_size = 5 * 1024 * 1024
+    blob.upload_from_filename(temp_audio_path, timeout=300)
+    blob.make_public()
+    firebase_url = blob.public_url
+
+    timestamp_str = datetime.now().strftime("%d/%m/%Y %H:%M")
+    db.reference(f"users/{user_id}/transcriptions/{folder_id}/meta").set({"timestamp": timestamp_str})
+
+    start_instance_url = "https://tk6m28s7tc.execute-api.eu-central-1.amazonaws.com/prod/wakeUpEC2Instance"
+    try:
+        print(" Waking up EC2 instance...")
+        wake_response = requests.post(start_instance_url, timeout=30)
+        wake_response.raise_for_status()
+        print(f"Instance wake-up triggered: {wake_response.text}")
+    except Exception as e:
+        print(f" Failed to wake up instance: {e}")
+        flash("Failed to start processing backend. Please try again later.")
+        return redirect(url_for("therapy_sessions"))
+
+    print("⏳ Waiting 30 seconds for EC2 instance to be ready...")
+    time.sleep(30)
+
+    external_api_url = "http://g4-instance.duckdns.org:8080/process"
+    api_key = os.getenv("MY_SECRET_API_KEY")
+
+    payload = {"firebase_url": firebase_url, "user_id": user_id}
+    headers = {"Content-Type": "application/json", "X-API-Key": api_key}
+
+    try:
+        res = requests.post(external_api_url, json=payload, headers=headers)
+        res.raise_for_status()
+        response_json = res.json()
+
+        if "transcript" not in response_json:
+            raise KeyError("Missing 'transcript' in API response")
+
+        raw_markdown = "## Transcription\n\n"
+        for segment in response_json["transcript"]:
+            speaker = segment.get("speaker", "Speaker")
+            text = segment.get("text", "")
+            raw_markdown += f"**{speaker}:** {text}\n\n"
+        markdown_content = llama_guard_anonymize_and_check(raw_markdown)
+        # Save and upload transcription
+        temp_md_path = os.path.join(tempfile.gettempdir(), f"therapy_{folder_id}.md")
+        with open(temp_md_path, "w", encoding="utf-8") as f:
+            f.write(markdown_content)
+
+        md_storage_path = f"therapy_transcription/transcription/{user_id}/therapy_{folder_id}.md"
+        md_blob = bucket.blob(md_storage_path)
+        md_blob.upload_from_filename(temp_md_path)
+        md_blob.make_public()
+
+        anonymized_content = llama_guard_anonymize_and_check(markdown_content)
+        markdown_content = anonymized_content  
+        with open(temp_md_path, "w", encoding="utf-8") as f:
+           f.write(markdown_content)
+
+        md_blob = bucket.blob(md_storage_path)
+        md_blob.upload_from_filename(temp_md_path)
+        md_blob.make_public()
+
+        print(" Anonymized content from HIPAA instance:")
+        print(anonymized_content)
+
+        print(" Sending anonymized content to OpenAI for diagnostic report generation...")
+        compressed = compress_transcript_for_diagnosis(markdown_content)
+        diagnostic_report_text = generate_diagnostic_report(compressed)
+
+
+
+        diagnostic_md_path = os.path.join(tempfile.gettempdir(), f"therapy_diag_{folder_id}.md")
+        with open(diagnostic_md_path, "w", encoding="utf-8") as f:
+            f.write(diagnostic_report_text)
+
+        diagnostic_storage_path = f"therapy_transcription/summary/{user_id}/therapy_{folder_id}.md"
+        diagnostic_blob = bucket.blob(diagnostic_storage_path)
+        diagnostic_blob.upload_from_filename(diagnostic_md_path)
+        diagnostic_blob.make_public()
+
+
+        flash("Session processed successfully! You can check therapy sessions and diagnostic reports in about 5 minutes.")
+        return redirect(url_for("therapy_sessions"))
 
     except Exception as e:
-        logger.error(f"Error processing audio: {e}")
-        return jsonify({"error": "Audio processing failed"}), 500
-    finally:
-        pass
+        print(f" Error processing transcription or generating report: {e}")
+        flash("Something went wrong while processing the audio. Try again.")
+        return redirect(url_for("therapy_sessions"))
 
 
 def sanitize_filename(filename: str) -> str:
@@ -336,8 +519,8 @@ def convert_webm_to_wav(input_file, output_file):
     command = [
         "ffmpeg",
         "-i",
-        input_file,  # Input WebM file
-        output_file,  # Output WAV file
+        input_file,  
+        output_file,  
     ]
     subprocess.run(command, check=True)
 
@@ -407,7 +590,7 @@ def home():
             "message": "I recommend this website for therapists and psychologists as a good source for per-session  with your patients to find necessary data and possible disorders",
             "image": "./static/assets/img/dr3.png",
         },
-        # Add more doctors as needed
+        
     ]
     random_key = session.get("random_key", "No key available")
     logging.debug("redirecting index.html")
@@ -416,7 +599,6 @@ def home():
     )
 
 
-### Firebase ###
 cred = credentials.Certificate(os.getenv("FIREBASE_DATABASE_CERTIFICATE"))
 firebase_admin.initialize_app(
     cred,
@@ -450,11 +632,6 @@ def redirect_if_logged_in(route_function):
     return wrapper
 
 
-##### Register Firebase #####
-
-
-########################################## Code for Registration, Login, logout, Recover and Reset Accounts ##########################################
-# Generate a mnemonic phrase using the Mnemonic library
 def generate_mnemonic_phrase(random_key):
     mnemo = Mnemonic("english")
     seed = random_key.encode("utf-8")
@@ -462,8 +639,6 @@ def generate_mnemonic_phrase(random_key):
 
     return mnemonic_phrase
 
-
-##### Register Firebase #####
 @app.route("/register", methods=["POST"])
 def register():
     password1 = request.form.get("pass")
@@ -516,12 +691,10 @@ def register():
 
 
 @app.route("/register", methods=["GET"])
-@redirect_if_logged_in  # Apply the redirect_if_logged_in decorator
+@redirect_if_logged_in  
 def register_page():
     return render_template("register.html")
 
-
-##### LogIN Firebase #####
 
 
 @app.route("/login", methods=["POST"])
@@ -542,10 +715,10 @@ def login():
         flash("Invalid password.")
         return redirect(url_for("login_page"))
     session["user_logged_in"] = True
-    session["random_key"] = random_key  # Store the random_key in the session
+    session["random_key"] = random_key 
     session["has_interacted"] = user_data.get(
         "has_interacted", False
-    )  # Get interaction status
+    )  
     session["first_login"] = "diagnosis" not in user_data
     return redirect(url_for("dashboard"))
 
@@ -555,10 +728,9 @@ def recover_username():
     if request.method == "POST":
         mnemonic_phrase = request.form.get(
             "mnemonic_phrase"
-        ).strip()  # Strip whitespace
+        ).strip() 
         password = request.form.get("password")
 
-        # Validate mnemonic phrase
         mnemo = Mnemonic("english")
         if not mnemo.check(mnemonic_phrase):
             return jsonify({"error": "Invalid recovery key. Please try again."}), 400
@@ -759,8 +931,6 @@ def dashboard():
     random_key = session.get("random_key", "No key available")
     return render_template("dash_main.html", random_key=random_key)
 
-
-######### Treatment Page #############
 @app.route("/treatment")
 @login_required
 def treatment():
@@ -1136,143 +1306,104 @@ def list_summaries():
     return render_template("therapy_sessions.html", summaries=summaries)
 
 
-@app.route("/summary-reporting", methods=["GET", "POST"])
+@app.route('/summary-reporting')
 @login_required
 def summary_reporting():
-    filename = request.args.get("file")
-    if not filename:
-        return "No summary specified", 400
+    user_id = request.args.get('user_id')
+    file_name = request.args.get('file')
 
-    random_key = session.get("random_key")
-    if not random_key:
-        return "User not authenticated", 401
+    if not user_id or not file_name:
+        return "No transcription found", 404
 
-    # Fetch the summary content
-    summary_file_path = f"{THERAPY_SESSION_PREFIX}{random_key}/{filename}"
-    bucket = storage.bucket()
-    summary_blob = bucket.blob(summary_file_path)
-    summary_content = summary_blob.download_as_text()
+    # Transcription file
+    transcription_storage_path = f"therapy_transcription/transcription/{user_id}/{file_name}"
+    transcription_url = f"https://storage.googleapis.com/chat-psychologist-ai.appspot.com/{transcription_storage_path}"
 
-    # Convert the summary markdown content to HTML
-    html_summary_content = convert_markdown_to_html(summary_content)
-
-    # Adjust the filename for the transcription
-    transcription_filename = (
-        filename  # Since both summary and transcription have the same filename
-    )
-    transcription_file_path = (
-        f"{THERAPY_TRANSCRIPTION_PREFIX}{random_key}/{transcription_filename}"
-    )
-    transcription_blob = bucket.blob(transcription_file_path)
+    # Therapy session report file
+    summary_storage_path = f"therapy_transcription/summary/{user_id}/{file_name}"
+    summary_url = f"https://storage.googleapis.com/chat-psychologist-ai.appspot.com/{summary_storage_path}"
 
     try:
-        transcription_content = transcription_blob.download_as_text()
-        # Convert the transcription markdown content to HTML
-        html_transcription_content = convert_markdown_to_html(transcription_content)
-    except NotFound:
-        html_transcription_content = (
-            "<p>No transcription available for this summary.</p>"
+        # --- Load transcription ---
+        transcription_response = requests.get(transcription_url)
+        transcription_response.raise_for_status()
+        transcription_markdown = transcription_response.text
+        anonymized_markdown = llama_guard_anonymize_and_check(transcription_markdown)
+        transcription_html = markdown.markdown(anonymized_markdown)
+
+
+        # --- Load therapy session report ---
+        summary_response = requests.get(summary_url)
+
+        if summary_response.status_code == 200:
+            summary_markdown = summary_response.text
+            summary_html = markdown.markdown(summary_markdown)
+        else:
+            summary_html = "<p>Report not generated yet.</p>"
+
+        return render_template(
+            "summary_reporting.html",
+            transcription_html=transcription_html,
+            summary_html=summary_html
         )
 
-    # Combine the summary and transcription content
-    combined_content = (
-        f"{html_summary_content}<hr><h2>Transcription</h2>{html_transcription_content}"
-    )
-
-    return render_template("summary.html", summary=combined_content)
+    except Exception as e:
+        print(f"Error loading transcription or summary: {e}")
+        return "No transcription found", 404
 
 
-@app.route("/most_recent_summary", methods=["GET"])
-@login_required
-def most_recent_summary():
-    random_key = session.get("random_key")
-    if not random_key:
-        return "User not authenticated", 401
-
-    # Fetch the most recent summary
-    prefix = f"{THERAPY_SESSION_PREFIX}{random_key}/"
-    bucket = storage.bucket()
-    blobs = bucket.list_blobs(prefix=prefix)
-
-    most_recent_blob = None
-    most_recent_timestamp = 0
-    for blob in blobs:
-        if blob.name.endswith(".md"):
-            timestamp_str = (
-                blob.name.split("/")[-1].replace(THERAPY_PREFIX, "").replace(".md", "")
-            )
-            try:
-                timestamp = int(timestamp_str)
-                if timestamp > most_recent_timestamp:
-                    most_recent_timestamp = timestamp
-                    most_recent_blob = blob
-            except ValueError:
-                continue
-
-    if not most_recent_blob:
-        return "No summaries found", 404
-
-    summary_content = most_recent_blob.download_as_text()
-    html_summary_content = convert_markdown_to_html(summary_content)
-
-    transcription_filename = most_recent_blob.name.replace(THERAPY_PREFIX, "")
-    # transcription_blob = bucket.blob(transcription_filename)
-    transcription_blob = bucket.blob(
-        f"{THERAPY_TRANSCRIPTION_PREFIX}{random_key}/{transcription_filename}"
-    )
-
-    try:
-        transcription_content = transcription_blob.download_as_text()
-        html_transcription_content = convert_markdown_to_html(transcription_content)
-    except NotFound:
-        html_transcription_content = (
-            "<p>No transcription available for this summary.</p>"
-        )
-
-    combined_content = f"<h2>Summary</h2>{html_summary_content}<hr><h2>Transcription</h2>{html_transcription_content}"
-
-    return render_template("summary.html", summary=combined_content)
-
-
-############################# Code for Fetching Transcription, Diarization and Summary more related to frontend ##########################
-
-
+# ------------------ View Therapy Sessions ------------------
 @app.route("/therapy_sessions", methods=["GET", "POST"])
 @login_required
 def therapy_sessions():
-    if "random_key" not in session:
-        return "User not authenticated", 401
-
     random_key = session["random_key"]
-    prefix = f"{THERAPY_SESSION_PREFIX}{random_key}/"
-    bucket = storage.bucket()
+    prefix = f"{THERAPY_TRANSCRIPTION_PREFIX}{random_key}/"
+    print(f"Searching in prefix: {prefix}")   # 👈 Add this line
     blobs = bucket.list_blobs(prefix=prefix)
 
+    blobs_list = list(blobs)
+    print(f"Found {len(blobs_list)} blobs")   # 👈 Add this line
+
     summaries = []
-    for blob in blobs:
+    for blob in blobs_list:
         if blob.name.endswith(".md"):
             filename = blob.name.split("/")[-1]
             timestamp_str = filename.replace(THERAPY_PREFIX, "").replace(".md", "")
 
-            # Convert Unix timestamp to readable format
             try:
                 timestamp = datetime.utcfromtimestamp(int(timestamp_str))
-                formatted_date = timestamp.strftime("%d/%m/%y")  # Convert to dd/mm/yy
+                formatted_date = timestamp.strftime("%d/%m/%Y %H:%M")
             except ValueError:
                 formatted_date = "Unknown Date"
 
-            summaries.append(
-                {
-                    "filename": filename,
-                    "timestamp": formatted_date,
-                    "raw_timestamp": int(timestamp_str),
-                }
-            )
+            summaries.append({
+                "filename": filename,
+                "timestamp": formatted_date,
+                "raw_timestamp": int(timestamp_str),
+            })
 
-    # Sorting Summaries: Most Recent First
     summaries.sort(key=lambda x: x["raw_timestamp"], reverse=True)
     return render_template("therapy_sessions.html", summaries=summaries)
+@app.route('/check_summary_status')
+@login_required
+def check_summary_status():
+    try:
+        user_id = session.get("random_key")
+        if not user_id:
+            return {"status": "error", "message": "No user ID"}, 400
 
+        prefix = f"{THERAPY_TRANSCRIPTION_PREFIX}{user_id}/"
+        blobs = list(bucket.list_blobs(prefix=prefix))
+
+        if any(blob.name.endswith('.md') for blob in blobs):
+            return {"status": "completed"}
+        else:
+            return {"status": "pending"}
+    except Exception as e:
+        print(f"Error checking summary status: {e}")
+        return {"status": "error"}, 500
+
+# ---------------------- Run App ----------------------
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
