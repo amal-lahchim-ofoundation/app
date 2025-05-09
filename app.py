@@ -10,7 +10,8 @@ from flask import (
     make_response,
 )
 from markupsafe import Markup
-
+import base64
+import json
 import re
 import json
 import boto3
@@ -85,14 +86,15 @@ UPLOADED_DIR = "uploaded_audio"
 OUTPUT_DIR = "processed_chunks"
 os.makedirs(UPLOADED_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-PUB_SUB_KEY = os.getenv("PUB_SUB_KEY")
+pubsub_key_b64 = os.getenv("PUBSUB_KEY_B64")  # Make sure you added this in App Runner env vars
+pubsub_key_info = json.loads(base64.b64decode(pubsub_key_b64).decode())
+gg_credentials = service_account.Credentials.from_service_account_info(pubsub_key_info)
 
 transcription_results = {}
 transcription_lock = asyncio.Lock() 
 abs_path = ""
 audio_file_name = ""
 processing_files = {}
-gg_credentials = service_account.Credentials.from_service_account_file(PUB_SUB_KEY)
 publisher = pubsub_v1.PublisherClient(credentials=gg_credentials)
 subscriber = pubsub_v1.SubscriberClient(credentials=gg_credentials)
 GG_PROJECT_ID = os.getenv("GG_PROJECT_ID")
@@ -600,7 +602,10 @@ def home():
     )
 
 
-cred = credentials.Certificate(os.getenv("FIREBASE_DATABASE_CERTIFICATE"))
+firebase_key_b64 = os.environ["FIREBASE_KEY_B64"]  # New env var
+firebase_key = json.loads(base64.b64decode(firebase_key_b64).decode())
+cred = credentials.Certificate(firebase_key)
+
 firebase_admin.initialize_app(
     cred,
     {"databaseURL": DATABASE_URL, "storageBucket": os.getenv("STORAGE_BUCKET")},
