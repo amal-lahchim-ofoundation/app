@@ -32,7 +32,6 @@ from dotenv import load_dotenv
 import json
 import logging
 import openai
-import os
 import requests
 import time
 import shutil
@@ -1412,5 +1411,7 @@ def check_summary_status():
 # ---------------------- Run App ----------------------
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
+    import os
+    port = 8080  # just for testing
+ # <- Use PORT env or default to 8080
+    app.run(host="0.0.0.0", port=port)        # <- Host must be 0.0.0.0
