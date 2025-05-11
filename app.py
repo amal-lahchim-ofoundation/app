@@ -673,7 +673,7 @@ def register():
         random_key = hashlib.sha256(seed).hexdigest()
 
         # Hash the password before storing
-        hashed_password = generate_password_hash(password1)
+        hashed_password = generate_password_hash(password1, method="pbkdf2:sha256")
 
         # Store in session for display
         session["random_key"] = random_key
