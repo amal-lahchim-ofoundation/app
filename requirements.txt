@@ -5,9 +5,10 @@ Flask-SocketIO
 gunicorn
 
 # --- Firebase & Google Cloud ---
-firebase-admin
+firebase-admin>=6.4.0
+google-auth>=2.25.2
+cryptography>=39.0.0
 google-api-core
-google-auth
 google-cloud-storage
 google-cloud-pubsub
 google-cloud-firestore
