@@ -14,7 +14,6 @@ import base64
 import json
 import re
 import json
-import boto3
 from collections import defaultdict
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, TextClassificationPipeline
 import markdown
