@@ -360,10 +360,22 @@ Transcript:
 
 
 def generate_diagnostic_report(transcript_text):
-    chunks = split_text_into_chunks(transcript_text)
-    compressed_parts = [compress_transcript_for_diagnosis(c) for c in chunks]
-    merged_summary = "\n\n".join(compressed_parts)
-    prompt = f"""
+    try:
+        chunks = split_text_into_chunks(transcript_text)
+        compressed_parts = []
+        
+        for i, c in enumerate(chunks):
+            summary = compress_transcript_for_diagnosis(c)
+            if not summary.strip():
+                print(f"⚠️ Warning: Empty summary for chunk {i}")
+            compressed_parts.append(summary)
+
+        merged_summary = "\n\n".join(compressed_parts).strip()
+        if not merged_summary:
+            print("⚠️ No usable summary generated. Falling back to raw transcript.")
+            merged_summary = transcript_text
+
+        prompt = f"""
 You are an experienced licensed therapist.
 
 The following is the transcription of a therapy session between a therapist and a client:
@@ -390,17 +402,29 @@ Step 4: Based directly on the exercises and homework from Step 3:
 
 Important: Maintain a clinical, supportive tone. Be detailed but clear and practical, as if preparing real therapy session material for use with a patient.
 """
-    try:
+
         response = openai.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7,
             max_tokens=2000
         )
-        return response.choices[0].message.content
+
+        if response and response.choices:
+            content = response.choices[0].message.content.strip()
+            if content:
+                return content
+            else:
+                print("⚠️ OpenAI returned an empty message content.")
+                return "Error: GPT returned empty diagnostic report."
+        else:
+            print("⚠️ OpenAI returned no choices.")
+            return "Error: GPT did not return any content."
+
     except Exception as e:
-        print(f"Error calling OpenAI: {e}")
+        print(f"❌ Error calling OpenAI: {e}")
         return "Error generating diagnostic report."
+
 
 
 @app.route("/generate_summary", methods=["GET", "POST"])
