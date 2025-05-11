@@ -86,8 +86,7 @@ os.makedirs(UPLOADED_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 pubsub_key_b64 = os.getenv("PUBSUB_KEY_B64")  # Make sure you added this in App Runner env vars
 pubsub_key_info = json.loads(base64.b64decode(pubsub_key_b64).decode())
-print("🔐 Decoded service account email:", firebase_key["client_email"])
-print("🔐 Private key starts with:", firebase_key["private_key"][:50])
+
 gg_credentials = service_account.Credentials.from_service_account_info(pubsub_key_info)
 
 transcription_results = {}
@@ -604,6 +603,8 @@ def home():
 
 firebase_key_b64 = os.environ["FIREBASE_KEY_B64"]  # New env var
 firebase_key = json.loads(base64.b64decode(firebase_key_b64).decode())
+print("🔐 Decoded service account email:", firebase_key["client_email"])
+print("🔐 Private key starts with:", firebase_key["private_key"][:50])
 cred = credentials.Certificate(firebase_key)
 
 firebase_admin.initialize_app(
