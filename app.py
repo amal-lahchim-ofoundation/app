@@ -102,7 +102,9 @@ topic_path = publisher.topic_path(GG_PROJECT_ID, "audio-transcriptions")
 GG_SUBSCRIPTION_ID = os.getenv("GG_SUBSCRIPTION_ID")
 subscription_path = subscriber.subscription_path(GG_PROJECT_ID, GG_SUBSCRIPTION_ID)
 openai.api_key = os.getenv("OPENAI_API_KEY")
-
+print(f"OPENAI_API_KEY = '{os.getenv('OPENAI_API_KEY')}'")
+print(f"LENGTH = {len(os.getenv('OPENAI_API_KEY'))}")
+print(f"OpenAI SDK Version: {openai.__version__}")
 def set_transcriptions_ref(user_id, folder_id):
     global transcriptions_ref
     transcriptions_ref = db.reference(f"users/{user_id}/transcriptions/{folder_id}")
