@@ -334,7 +334,7 @@ def split_text_into_chunks(text, max_tokens=3000):
         chunks.append(" ".join(current_chunk))
     return chunks
 
-def compress_transcript_for_diagnosis(chunk):
+def compress_transcript_for_diagnosis(chunk, chunk_index=None):
     prompt = f"""
 You are a clinical assistant. A therapist will later analyze this session.
 
@@ -349,25 +349,29 @@ Transcript:
 {chunk}
 """
     try:
+        print(f"🧠 Compressing transcript chunk {chunk_index if chunk_index is not None else '?'}")
         response = openai.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5,
-            max_tokens=1000  # Use more if available
+            max_tokens=1000
         )
-        return response.choices[0].message.content
+        content = response.choices[0].message.content.strip()
+        print(f"✅ Compression success for chunk {chunk_index}")
+        return content
     except Exception as e:
-        print(f"Error summarizing transcript: {e}")
-        return "" # fallback to original
+        print(f"❌ Error compressing transcript chunk {chunk_index}: {e}")
+        return ""
 
 
 def generate_diagnostic_report(transcript_text):
     try:
+        print("📏 Splitting transcript into chunks for compression...")
         chunks = split_text_into_chunks(transcript_text)
         compressed_parts = []
-        
+
         for i, c in enumerate(chunks):
-            summary = compress_transcript_for_diagnosis(c)
+            summary = compress_transcript_for_diagnosis(c, chunk_index=i)
             if not summary.strip():
                 print(f"⚠️ Warning: Empty summary for chunk {i}")
             compressed_parts.append(summary)
@@ -376,6 +380,8 @@ def generate_diagnostic_report(transcript_text):
         if not merged_summary:
             print("⚠️ No usable summary generated. Falling back to raw transcript.")
             merged_summary = transcript_text
+
+        print("📤 Sending merged summary to GPT for full diagnostic report...")
 
         prompt = f"""
 You are an experienced licensed therapist.
@@ -415,16 +421,17 @@ Important: Maintain a clinical, supportive tone. Be detailed but clear and pract
         if response and response.choices:
             content = response.choices[0].message.content.strip()
             if content:
+                print("✅ Diagnostic report generated successfully.")
                 return content
             else:
-                print("⚠️ OpenAI returned an empty message content.")
+                print("⚠️ GPT returned empty message content.")
                 return "Error: GPT returned empty diagnostic report."
         else:
-            print("⚠️ OpenAI returned no choices.")
+            print("⚠️ GPT returned no choices.")
             return "Error: GPT did not return any content."
 
     except Exception as e:
-        print(f"❌ Error calling OpenAI: {e}")
+        print(f"❌ Error calling OpenAI for diagnostic report: {e}")
         return "Error generating diagnostic report."
 
 
