@@ -1,3 +1,5 @@
+these is the code deployed on APP RUNNER AWS
+clone the repo using https://github.com/amal-lahchim-ofoundation/app.git
 🔧 Local Setup Instructions
 1.  Create and activate a virtual environment:
 python3 -m venv venv
