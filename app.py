@@ -316,12 +316,12 @@ def llama_guard_anonymize_and_check(text):
     hippa_instance_url = "http://hippa-instance.duckdns.org:8080/process"
     try:
         response = requests.post(hippa_instance_url, json={"text": text})
-        print("🔍 HIPAA returned:", response.json())
+        print(" HIPAA returned:", response.json())
 
         response.raise_for_status()
         return response.json().get("anonymized_text", text)
     except Exception as e:
-        print(f"❌ HIPAA instance failed: {e}")
+        print(f"HIPAA instance failed: {e}")
         return text  # fallback if HIPAA server is unreachable
 def split_text_into_chunks(text, max_tokens=3000):
     enc = tiktoken.encoding_for_model("gpt-4")
@@ -358,7 +358,7 @@ Transcript:
 {chunk}
 """
     try:
-        print(f"🧠 Compressing transcript chunk {chunk_index if chunk_index is not None else '?'} in {language}")
+        print(f" Compressing transcript chunk {chunk_index if chunk_index is not None else '?'} in {language}")
         response = openai.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
@@ -376,22 +376,22 @@ Transcript:
 
 def generate_diagnostic_report(transcript_text, language="English"):
     try:
-        print(f"📏 Splitting transcript into chunks for compression...")
+        print(f" Splitting transcript into chunks for compression...")
         chunks = split_text_into_chunks(transcript_text)
         compressed_parts = []
 
         for i, c in enumerate(chunks):
             summary = compress_transcript_for_diagnosis(c, language=language, chunk_index=i)
             if not summary.strip():
-                print(f"⚠️ Warning: Empty summary for chunk {i}")
+                print(f" Warning: Empty summary for chunk {i}")
             compressed_parts.append(summary)
 
         merged_summary = "\n\n".join(compressed_parts).strip()
         if not merged_summary:
-            print("⚠️ No usable summary generated. Falling back to raw transcript.")
+            print(" No usable summary generated. Falling back to raw transcript.")
             merged_summary = transcript_text
 
-        print("📤 Sending merged summary to GPT for full diagnostic report...")
+        print(" Sending merged summary to GPT for full diagnostic report...")
 
         prompt = f"""
 You are an experienced licensed therapist. Respond in {language}.
@@ -431,17 +431,17 @@ Important: Maintain a clinical, supportive tone. Be detailed but clear and pract
         if response and response.choices:
             content = response.choices[0].message.content.strip()
             if content:
-                print("✅ Diagnostic report generated successfully.")
+                print("Diagnostic report generated successfully.")
                 return content
             else:
-                print("⚠️ GPT returned empty message content.")
+                print("GPT returned empty message content.")
                 return "Error: GPT returned empty diagnostic report."
         else:
-            print("⚠️ GPT returned no choices.")
+            print("GPT returned no choices.")
             return "Error: GPT did not return any content."
 
     except Exception as e:
-        print(f"❌ Error calling OpenAI for diagnostic report: {e}")
+        print(f"Error calling OpenAI for diagnostic report: {e}")
         return "Error generating diagnostic report."
 
 
@@ -511,11 +511,11 @@ def generate_summary():
 
         markdown_content = llama_guard_anonymize_and_check(raw_markdown)
 
-        # 🔍 Detect language before compression
+        #  Detect language before compression
         try:
             lang_code = detect(markdown_content)
             prompt_language = "Dutch" if lang_code == "nl" else "English"
-            print(f"🧭 Detected language: {lang_code} — using {prompt_language}")
+            print(f" Detected language: {lang_code} — using {prompt_language}")
         except:
             prompt_language = "English"
 
@@ -643,8 +643,8 @@ def home():
 
 firebase_key_b64 = os.environ["FIREBASE_KEY_B64"]  # New env var
 firebase_key = json.loads(base64.b64decode(firebase_key_b64).decode())
-print("🔐 Decoded service account email:", firebase_key["client_email"])
-print("🔐 Private key starts with:", firebase_key["private_key"][:50])
+print(" Decoded service account email:", firebase_key["client_email"])
+print(" Private key starts with:", firebase_key["private_key"][:50])
 cred = credentials.Certificate(firebase_key)
 
 firebase_admin.initialize_app(
@@ -739,7 +739,7 @@ def register():
 
     except Exception as e:
         import traceback
-        print("🔥 ERROR in /register route:")
+        print(" ERROR in /register route:")
         traceback.print_exc()
         return "Internal Server Error", 500
 
