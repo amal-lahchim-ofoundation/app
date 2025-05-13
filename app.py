@@ -374,19 +374,14 @@ Transcript:
 
 
 
-def generate_diagnostic_report(transcript_text):
+def generate_diagnostic_report(transcript_text, language="English"):
     try:
-        # ✅ Detect language before anything
-        lang_code = detect(transcript_text)
-        prompt_language = "Dutch" if lang_code == "nl" else "English"
-        print(f"🧭 Detected language: {lang_code} — using prompt in {prompt_language}")
-
-        print("📏 Splitting transcript into chunks for compression...")
+        print(f"📏 Splitting transcript into chunks for compression...")
         chunks = split_text_into_chunks(transcript_text)
         compressed_parts = []
 
         for i, c in enumerate(chunks):
-            summary = compress_transcript_for_diagnosis(c, language=prompt_language, chunk_index=i)
+            summary = compress_transcript_for_diagnosis(c, language=language, chunk_index=i)
             if not summary.strip():
                 print(f"⚠️ Warning: Empty summary for chunk {i}")
             compressed_parts.append(summary)
@@ -399,7 +394,7 @@ def generate_diagnostic_report(transcript_text):
         print("📤 Sending merged summary to GPT for full diagnostic report...")
 
         prompt = f"""
-You are an experienced licensed therapist. Respond in {prompt_language}.
+You are an experienced licensed therapist. Respond in {language}.
 
 The following is the transcription of a therapy session between a therapist and a client:
 
@@ -448,6 +443,7 @@ Important: Maintain a clinical, supportive tone. Be detailed but clear and pract
     except Exception as e:
         print(f"❌ Error calling OpenAI for diagnostic report: {e}")
         return "Error generating diagnostic report."
+
 
 
 
@@ -512,7 +508,17 @@ def generate_summary():
             speaker = segment.get("speaker", "Speaker")
             text = segment.get("text", "")
             raw_markdown += f"**{speaker}:** {text}\n\n"
+
         markdown_content = llama_guard_anonymize_and_check(raw_markdown)
+
+        # 🔍 Detect language before compression
+        try:
+            lang_code = detect(markdown_content)
+            prompt_language = "Dutch" if lang_code == "nl" else "English"
+            print(f"🧭 Detected language: {lang_code} — using {prompt_language}")
+        except:
+            prompt_language = "English"
+
         # Save and upload transcription
         temp_md_path = os.path.join(tempfile.gettempdir(), f"therapy_{folder_id}.md")
         with open(temp_md_path, "w", encoding="utf-8") as f:
@@ -523,23 +529,9 @@ def generate_summary():
         md_blob.upload_from_filename(temp_md_path)
         md_blob.make_public()
 
-        anonymized_content = llama_guard_anonymize_and_check(markdown_content)
-        markdown_content = anonymized_content  
-        with open(temp_md_path, "w", encoding="utf-8") as f:
-           f.write(markdown_content)
-
-        md_blob = bucket.blob(md_storage_path)
-        md_blob.upload_from_filename(temp_md_path)
-        md_blob.make_public()
-
-        print(" Anonymized content from HIPAA instance:")
-        print(anonymized_content)
-
         print(" Sending anonymized content to OpenAI for diagnostic report generation...")
-        compressed = compress_transcript_for_diagnosis(markdown_content)
-        diagnostic_report_text = generate_diagnostic_report(compressed)
-
-
+        compressed = compress_transcript_for_diagnosis(markdown_content, language=prompt_language)
+        diagnostic_report_text = generate_diagnostic_report(compressed, language=prompt_language)
 
         diagnostic_md_path = os.path.join(tempfile.gettempdir(), f"therapy_diag_{folder_id}.md")
         with open(diagnostic_md_path, "w", encoding="utf-8") as f:
@@ -550,7 +542,6 @@ def generate_summary():
         diagnostic_blob.upload_from_filename(diagnostic_md_path)
         diagnostic_blob.make_public()
 
-
         flash("Session processed successfully! You can check therapy sessions and diagnostic reports in about 5 minutes.")
         return redirect(url_for("therapy_sessions"))
 
@@ -558,6 +549,7 @@ def generate_summary():
         print(f" Error processing transcription or generating report: {e}")
         flash("Something went wrong while processing the audio. Try again.")
         return redirect(url_for("therapy_sessions"))
+
 
 
 def sanitize_filename(filename: str) -> str:
