@@ -15,6 +15,7 @@ google-cloud-firestore
 urllib3<2
 
 pycountry
+langdetect==1.0.9
 
 
 # --- Async, HTTP & Utility ---
