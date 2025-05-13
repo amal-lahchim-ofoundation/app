@@ -64,6 +64,13 @@ import threading
 from google.cloud import pubsub_v1
 from google.oauth2 import service_account
 import shutil
+from langdetect import detect  # Add this import if not already
+
+def detect_language(text):
+    try:
+        return detect(text)
+    except Exception:
+        return "en"  # fallback to English if detection fails
 
 THERAPY_SESSION_PREFIX = "therapy_session"
 THERAPY_TRANSCRIPTION_PREFIX = "therapy_transcription/transcription/"
@@ -334,9 +341,11 @@ def split_text_into_chunks(text, max_tokens=3000):
         chunks.append(" ".join(current_chunk))
     return chunks
 
-def compress_transcript_for_diagnosis(chunk, chunk_index=None):
+def compress_transcript_for_diagnosis(chunk, language="English", chunk_index=None):
     prompt = f"""
 You are a clinical assistant. A therapist will later analyze this session.
+
+Respond in {language}.
 
 Summarize this 1-hour therapy transcript in a way that preserves:
 - The client’s symptoms
@@ -349,7 +358,7 @@ Transcript:
 {chunk}
 """
     try:
-        print(f"🧠 Compressing transcript chunk {chunk_index if chunk_index is not None else '?'}")
+        print(f"🧠 Compressing transcript chunk {chunk_index if chunk_index is not None else '?'} in {language}")
         response = openai.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
@@ -364,14 +373,20 @@ Transcript:
         return ""
 
 
+
 def generate_diagnostic_report(transcript_text):
     try:
+        # ✅ Detect language before anything
+        lang_code = detect(transcript_text)
+        prompt_language = "Dutch" if lang_code == "nl" else "English"
+        print(f"🧭 Detected language: {lang_code} — using prompt in {prompt_language}")
+
         print("📏 Splitting transcript into chunks for compression...")
         chunks = split_text_into_chunks(transcript_text)
         compressed_parts = []
 
         for i, c in enumerate(chunks):
-            summary = compress_transcript_for_diagnosis(c, chunk_index=i)
+            summary = compress_transcript_for_diagnosis(c, language=prompt_language, chunk_index=i)
             if not summary.strip():
                 print(f"⚠️ Warning: Empty summary for chunk {i}")
             compressed_parts.append(summary)
@@ -384,7 +399,7 @@ def generate_diagnostic_report(transcript_text):
         print("📤 Sending merged summary to GPT for full diagnostic report...")
 
         prompt = f"""
-You are an experienced licensed therapist.
+You are an experienced licensed therapist. Respond in {prompt_language}.
 
 The following is the transcription of a therapy session between a therapist and a client:
 
