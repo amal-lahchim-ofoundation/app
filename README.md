@@ -1,80 +1,23 @@
-<h1>Chat Psychologist AI</h1>
+🔧 Local Setup Instructions
+1.  Create and activate a virtual environment:
+python3 -m venv venv
+source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+2. 📦 Install dependencies:
 
-## macOS/Linux
-### Installation
+pip install -r requirements.txt
 
--   Clone this repository
-    ```bash
-    git clone git@github.com:appdevorangesellers/ChatPsychologistAI.git ChatPsychologistAI
-    ```
--   Move to the root project
-    ```bash
-    cd ChatPsychologistAI
-    ```
--   Create .env file (Drive: Chat Psychologist > 4. Training > Chat App > env_file_explanation.mov)
-    ```bash
-    # ask for keys in the project channel
-    cp .env.example .env
-    ```
--   Create databaseKey.json file (Drive: Chat Psychologist > 4. Training > Chat App > databaseKey.json_file_explanation.mov)
-    ```bash
-    # ask for the content of the file in project channel
-    cp databaseKey.json.example databaseKey.json
-    ```
--   Create a virtual environment
-    ```bash
-    python3 -m venv .venv
-    ```
--   Activate the virtual environment
-    ```bash
-    . .venv/bin/activate
-    ```
--   Update pip (Optional)
-    ```bash
-    pip install --upgrade pip
-    ```
--   Install pip-tools, pip-chill
-    ```bash
-    pip install pip-tools pip-chill
-    ```
--   Install depedencies
-    ```bash
-    # List of packages and plugins:
-    # Drive: Chat Psychologist > 4. Training > Chat App > Packages_and_Plugins.docx)
-    pip-sync
-    ```
+3. 🛠️ Add your .env file with the following:
 
-### Run the application
+OPENAI_API_KEY=sk-...
+FIREBASE_DATABASE_URL=https://your-app.firebaseio.com/
+MY_SECRET_API_KEY=...
+GG_PROJECT_ID=your-google-project-id
+GG_TOPIC_ID=audio-transcriptions
+GG_SUBSCRIPTION_ID=...
+PUBSUB_KEY_B64=base64_of_your_service_account_key.json
+🚀 Running the App
 
--   (If the virtual environment is not activated) Activate the virtual environment
-    ```bash
-    . .venv/bin/activate
-    ```
--   Update depedencies (Optional)
-    ```bash
-    pip-sync
-    ```
--   Run the application
-    ```bash
-    flask run
-    ```
-
-
-### When you add new packages
-
-When you add new packages to the project, `requirements.in` and `requirements.txt` files should be updated.
-
--   Update minimal set of packages
-    ```bash
-    pip-chill > requirements.in
-    ```
--   Compile complete list of required packages
-    ```bash
-    pip-compile requirements.in
-    ```
-
-    Template URL: https://bootstrapmade.com/restaurantly-restaurant-template/
-
+python python.py
 
 
 
