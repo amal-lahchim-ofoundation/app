@@ -21,7 +21,7 @@ GG_SUBSCRIPTION_ID=...
 PUBSUB_KEY_B64=base64_of_your_service_account_key.json
 🚀 Running the App
 
-python python.py
+python app.py
 
 
 
