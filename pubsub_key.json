@@ -1,14 +1,2 @@
-{
-    "type": "service_account",
-    "project_id": "chat-psychologist-ai",
-    "private_key_id": "fc4cdac46c0680dcbd50d4c8dc4870157dcda955",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDEA4wxj9hs7/7i\nfJ04EHf1RIGDoa8RHjo4QnWLGCstunoqUqR6F46drh/1LSEkWWbShI02/wZNAbNr\nc8Hs2vzXP0jalw01LzyI5V5mu/vYNFU2susOs/5ehGYrHS8fkU/7TH+lvz0JbzZO\nYRiskhOrsm7TYO8MjRhqp9XP6p+iBxhOHcyz5lEu6JiyJXwhrmtrdkJlypBb7neK\n7mjEN1QeGr8jrFFuR8IlU4KQjTOxMtmMalm3N8DeMI42VRCsQsUiQOMUAMjXagZ+\nH46IocXG6Ct1ZhYZybRYNm+SbftE28mSVK0sMqobyU8l8FlRMOE6gU2a68LxH2YP\nAOHw3RA/AgMBAAECggEAGO6alnNFhBXCxewz0z3FBF2CW8vlCLhfj2hkqxyX4Wkm\nwNtiMGVurn/HcNgcrxLwETbq/2PQ2VquB6zhrc7s+jQCgEtWUr1/ZapHJ6ohjo6Z\niCuZ2nTqlfshQ7qik9FX6w7/7YU1rk2HCtEu4kRyXBSGJDzgKyiHQom2mIuvYlxr\njO4C7QoRLxcjHHs59i/VctNoPVdqV0zQtm6b9edcn8pHedJa1MwH4i7WYf/PRxd4\nU+PJ8tlmfAlgW5JdcdwT1csFcr8TtN65paJU11TEWzAqF0MQT/AhxI/Movs3pwOJ\nASyvNvLBQ4TKytdp0k0BkWaEclpufnH7emZPFDuWgQKBgQDvupzL42q6zmgwqRdL\nt05KJFpHoo43jIU08J/a+U7//L6/8gjdrVbeHFCDUE5CuxFaaRwx962FK+2xQK9c\noxjM8qtVlTu0PP5oBD0ET9rP4VKYvrlE4mQLli5fpdy0pCkgJG63aHSYNpKV7p9H\nmHbXmkgXMuxCzWsRZl96/kxkAwKBgQDRUV4e8IOA95X1b80hoZlDGaHIIRi7nRKI\nxJW6XjbeeZe4T80TOhjLB9KUmXvUveiEMayQNGGnoRFYoYpmwxkWl8nIhvvqOYwY\nM0CPVH1jeNqxcP0rCykrUPhNQlCUr5Yph8QLReSip5uBNkQmjUbwnYSz7DWGQSvr\nIHfWKcL0FQKBgGIoFJ9fBIpsjTivY3x7F7E/5T9Djdusy7X7eFiej/w8rpXFMmAh\n41maWlUKAqFMGzTbqNHEyeWnMPHMvIC/vx3bls+6BPItrzVD1v/2+m73oWwtW4qa\n77/WxDIhpZbJSJWClVq/iE3yul5tkAYupSpuX2owTZCkr1w2gI3JpdmlAoGABV2g\nnApuVJAEOBZ1m7cYxq+Rhh/TEnwkTX08mVpw7aMQUJk7GJMUr5+ztjt5ASsdGsZr\nNgchubpXR35cneXCbuHVOl67dnWjMbuenA3+aN5gPMw4sTHIDGQ2+UQJ7MXTg50H\nWYKhKcpCIj3R4Wsdtm1TSYl0lcx148EhUUwgw0ECgYBpRN3oaHNVihjK9VOM0INj\nvGd3lkW45AtFAj3KaLBwYwXBtJqtcG7ljeYYPexQ0knBSeMRdojUg+fM6xXcSrjV\nCYcfINC/EcjidJO759EBJ3dp6hO+ehDXO9PmvAiL+ngsO0XC8s9LWhxeAlexR4sF\nO7Vu4ts9KVUKo+Lsz3XLug==\n-----END PRIVATE KEY-----\n",
-    "client_email": "pub-sub@chat-psychologist-ai.iam.gserviceaccount.com",
-    "client_id": "104320119185134478252",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/pub-sub%40chat-psychologist-ai.iam.gserviceaccount.com",
-    "universe_domain": "googleapis.com"
-  }
+
   
